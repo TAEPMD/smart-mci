@@ -876,7 +876,8 @@
                 </div>
                 <div>
                     <label class="block mono text-cyan-400 text-xs mb-2 tracking-wider">ACCESS CODE</label>
-                    <input type="password" id="login-pin" class="nasa-input w-full" placeholder="6-DIGIT PIN" required value="123456">
+                    <input type="password" id="login-pin" class="nasa-input w-full" placeholder="6-DIGIT PIN" required
+                        value="123456">
                 </div>
                 <button type="submit" id="btn-login"
                     class="nasa-btn nasa-btn-primary w-full py-3 flex justify-center items-center gap-2">
@@ -2486,7 +2487,7 @@
         }
 
         // ใส่ Google Maps API Key ที่นี่
-        let GOOGLE_MAPS_API_KEY = localStorage.getItem('gmap_api_key') || '';
+        let GOOGLE_MAPS_API_KEY = localStorage.getItem('gmap_api_key') || 'AIzaSyANePrTQREmu4CiNQlvBcC0j4cnvIAQdzs';
 
         window.promptGoogleApiKey = function () {
             const key = prompt('ใส่ Google Maps API Key:', GOOGLE_MAPS_API_KEY);
@@ -2830,10 +2831,10 @@
             try {
                 const hashedPin = await sha256(pin);
                 await delay(400);
-                
+
                 // ค้นหาจากฐานข้อมูลปัจจุบัน
                 let validUser = window.state.users.find(u => u.username.toLowerCase() === user.toLowerCase() && u.pinHash === hashedPin);
-                
+
                 // Fallback: ถ้าหาไม่เจอ แต่เป็น admin/123456 ให้ผ่านเสมอ (เผื่อข้อมูล state มีปัญหา)
                 if (!validUser && user.toLowerCase() === 'admin' && hashedPin === '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92') {
                     validUser = { username: 'admin', agency: 'MCI Command', pinHash: hashedPin, role: 'admin' };
@@ -2842,15 +2843,15 @@
                 if (validUser) {
                     window.state.currentUser = validUser;
                     missionStartTime = Date.now();
-                    
+
                     const displayNameEl = document.getElementById('user-display-name');
                     if (displayNameEl) displayNameEl.textContent = validUser.username.toUpperCase();
-                    
+
                     const roleBadgeEl = document.getElementById('user-role-badge');
                     if (roleBadgeEl) roleBadgeEl.textContent = validUser.role === 'admin' ? 'Commander' : 'Paramedic';
-                    
+
                     document.querySelectorAll('.admin-only').forEach(el => el.classList.toggle('hidden', validUser.role !== 'admin'));
-                    
+
                     document.getElementById('view-login').classList.remove('active');
                     document.getElementById('main-layout').classList.remove('hidden');
                     navigate('dashboard');
