@@ -872,11 +872,11 @@
                 <div>
                     <label class="block mono text-cyan-400 text-xs mb-2 tracking-wider">OPERATOR ID</label>
                     <input type="text" id="login-username" class="nasa-input w-full" placeholder="ENTER USERNAME"
-                        required>
+                        required value="admin">
                 </div>
                 <div>
                     <label class="block mono text-cyan-400 text-xs mb-2 tracking-wider">ACCESS CODE</label>
-                    <input type="password" id="login-pin" class="nasa-input w-full" placeholder="6-DIGIT PIN" required>
+                    <input type="password" id="login-pin" class="nasa-input w-full" placeholder="6-DIGIT PIN" required value="123456">
                 </div>
                 <button type="submit" id="btn-login"
                     class="nasa-btn nasa-btn-primary w-full py-3 flex justify-center items-center gap-2">
@@ -2208,8 +2208,12 @@
         import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // ===== STATE MANAGEMENT =====
-        const defaultUsers = [];
-        // ถ้ายังไม่เคย setup → แสดง wizard (จัดการเสร็จใน initApp)
+        // SHA-256 ของ "123456" = pre-seeded default admin password
+        const DEFAULT_ADMIN_HASH = '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92';
+        const defaultUsers = [
+            { username: 'admin', agency: 'MCI Command', pinHash: DEFAULT_ADMIN_HASH, role: 'admin' }
+        ];
+        // ข้าม setup wizard เพราะมี defaultUsers ฝังไว้แล้ว
 
         window.state = {
             currentUser: null,
