@@ -3527,119 +3527,119 @@
             primary: {
                 'START': {
                     name: 'START',
-                    desc: 'Simple Triage And Rapid Treatment (START)
+                    desc: `Simple Triage And Rapid Treatment (START)
 • ประเมินการหายใจภายใน 10 วินาที
 • สั่ง RPM: Respirations, Perfusion, Mental status
 • เกณฑ์: ไม่หายใจ = BLACK, RR > 30=RED, CRT > 2s = RED, ไม่ตอบสนองคำสั่ง = RED
 • ใช้คู่กับ START JumpSTART(เด็ก)
-• อ้างอิง: Benson M, et al.Disaster Med Public Health Prep. 2020'
+• อ้างอิง: Benson M, et al.Disaster Med Public Health Prep. 2020`
                 },
-        'SALT': {
-            name: 'SALT',
-                desc: 'Sort, Assess, Lifesaving interventions, Treatment/Transport (SALT)
+                'SALT': {
+                    name: 'SALT',
+                    desc: `Sort, Assess, Lifesaving interventions, Treatment/Transport (SALT)
 • ขั้นที่ 1 Sort: เดินได้ - คลาน / เดินได้พยุงขอความช่วย / นิ่งนิ่ง
 • ขั้นที่ 2 Assess: LSI และประเมินผู้ป่วย
 • ตัดสินใจ: Immediate(RED) / Delayed(YELLOW) / Minimal(GREEN) / Expectant(BLACK)
 • แนะนำโดย CDC / CHEMM ของสหรัฐอเมริกา
 • สามารถใช้กับผู้ป่วยทุกวัย
-• Ref: Lerner EB et al.Prehosp Emerg Care 2011'
-        },
-        'SIEVE': {
-            name: 'SIEVE',
-                desc: 'SIEVE Triage (NHS/UK Standard)
+• Ref: Lerner EB et al.Prehosp Emerg Care 2011`
+                },
+                'SIEVE': {
+                    name: 'SIEVE',
+                    desc: `SIEVE Triage (NHS/UK Standard)
 • เดินได้ → GREEN(Delayed)
 • ไม่หายใจ → เปิดทางเดินหายใจ: ไม่ยังหายใจ → BLACK
 • RR: 12 - 24 bpm → YELLOW, < 12 หรือ > 24 → RED
 • CRT: < 2s → YELLOW, > 2s → RED
 • มาตรฐาน NHS England Major Incident Medical Management
-• Ref: Advanced Life Support Group(ALSG), Major Incident Medical Management & Support'
-        },
-        'JumpSTART': {
-            name: 'JumpSTART',
-                desc: 'JumpSTART Triage (สำหรับเด็กอายุ 1-8 ปี)
+• Ref: Advanced Life Support Group(ALSG), Major Incident Medical Management & Support`
+                },
+                'JumpSTART': {
+                    name: 'JumpSTART',
+                    desc: `JumpSTART Triage (สำหรับเด็กอายุ 1-8 ปี)
 • ดัดแปลงมาจาก START เพื่อเด็กโดยเฉพาะ
 • หายใจ → Rescue Breathing 5 ครั้ง: ยังหายใจ → BLACK; หายใจอีก → RED
 • RR ปกติเด็ก: 15 - 45 bpm
 • CRT > 2s → RED
 • เหมาะสำหรับ อุบัติเหตุมีเด็กหลายราย
-• Ref: Romig LE.Curr Opin Pediatr. 2002'
-        },
-        'TST': {
-            name: 'Ten Second Triage (TST)',
-                desc: 'Ten Second Triage (TST) - คัดกรองเบื้องต้นอย่างรวดเร็ว
+• Ref: Romig LE.Curr Opin Pediatr. 2002`
+                },
+                'TST': {
+                    name: 'Ten Second Triage (TST)',
+                    desc: `Ten Second Triage (TST) - คัดกรองเบื้องต้นอย่างรวดเร็ว
 • ใช้พยาธิและหลรอด: เดินได้ / หายใจดี / หายใจไม่ดี
 • เหมาะสำหรับการคัดกรองนอกโรงพยาบาลที่มีผู้ป่วยจำนวนมาก
 • อิงอาศัยการประเมินบุคลรองเพียงอย่างเดียว
-• Ref: Kilner T.Emerg Med J. 2011'
-        },
-        'CareFlight': {
-            name: 'CareFlight Triage',
-                desc: 'CareFlight Triage (Australia, 1996)
+• Ref: Kilner T.Emerg Med J. 2011`
+                },
+                'CareFlight': {
+                    name: 'CareFlight Triage',
+                    desc: `CareFlight Triage (Australia, 1996)
 • องค์ประกอบ: เดินได้, ดันปลายขอเล็บเล็บ, กำลังใจ(GCS)
 • GREEN: เดินได้
 • BLACK: ไม่หายใจ ไม่มี Radial Pulse
 • RED: หายใจไม่ปกติ หรือ GCS < 14
 • YELLOW: อื่น ๆ
 • ใช้ใน NSW / Queensland EMS
-• Ref: Garner A et al.Emerg Med Australas. 2001'
-        }
+• Ref: Garner A et al.Emerg Med Australas. 2001`
+                }
             },
-        secondary: {
-            'SORT': {
-                name: 'SORT',
-                    desc: 'Secondary Triage (SORT / Re-Triage)
+            secondary: {
+                'SORT': {
+                    name: 'SORT',
+                    desc: `Secondary Triage (SORT / Re-Triage)
 • ทำเมื่อมีทรัพยากรเพียงพอหรือมีการปล่อยมุลจนแล้ว
 • ประเมิน RTS(Revised Trauma Score): GCS, RR, SBP
 • เปลี่ยน Priority ตามสภาพที่แท้จริง
 • ใช้ในการทำ Resource Allocation ที่ Treatment Zone
-• Ref: Nocera A & Garner A.Aust NZ J Surg. 1999'
-            },
-            'SAVE': {
-                name: 'SAVE',
-                    desc: 'Secondary Assessment of Victim Endpoint (SAVE)
+• Ref: Nocera A & Garner A.Aust NZ J Surg. 1999`
+                },
+                'SAVE': {
+                    name: 'SAVE',
+                    desc: `Secondary Assessment of Victim Endpoint (SAVE)
 • ออกแบบมาเพื่อประเมินโอกาสรอดชีวิต(Survivability)
 • ประเมินผู้ที่คาดว่ารักษาไม่ได้ → Expectant(BLACK)
 • ใช้ในสภาวะ Mass Casualty ที่ทรัพยากรสอดคล้องมาก
 • ประเมิน Injury Severity + พยาธิสภาพ
-• Ref: Frykberg ER.Crit Care Med. 2002'
-            },
-            'MITT': {
-                name: 'NHS MITT',
-                    desc: 'Major Incident Triage Tool (MITT) — NHS England
+• Ref: Frykberg ER.Crit Care Med. 2002`
+                },
+                'MITT': {
+                    name: 'NHS MITT',
+                    desc: `Major Incident Triage Tool (MITT) — NHS England
 • ใช้เป็น Secondary Triage อย่างเป็นทางการใน NHS
 • ประเมิน: RR, Pulse, GCS, การบาดเจ็บ
 • ให้คะแนนสาย T1 - T4(T4 = Expectant)
 • ออกแบบให้ใช้ง่ายและประเมินชัดเจน
-• Ref: NHS England Major Incident Response Plan, 2022'
-            },
-            'mSTaRT': {
-                name: 'mSTaRT',
-                    desc: 'Modified START (mSTaRT)
+• Ref: NHS England Major Incident Response Plan, 2022`
+                },
+                'mSTaRT': {
+                    name: 'mSTaRT',
+                    desc: `Modified START (mSTaRT)
 • เพิ่มคะแนน GCS เข้าไปใน START
 • เพิ่มการประเมิน Pulse Oximetry และ Blood Pressure
 • แบ่งวิธีการ LSI: Hemorrhage control, Airway, Breathing
 • เหมาะสำหรับการคัดกรองขั้นที 2 ที่ Treatment Area
-• Ref: Kahn CA et al.Disaster Med Public Health Prep. 2009'
-            },
-            'RETTS': {
-                name: 'RETTS-HCT',
-                    desc: 'Rapid Emergency Triage and Treatment System — Hospital (RETTS-HCT)
+• Ref: Kahn CA et al.Disaster Med Public Health Prep. 2009`
+                },
+                'RETTS': {
+                    name: 'RETTS-HCT',
+                    desc: `Rapid Emergency Triage and Treatment System — Hospital (RETTS-HCT)
 • ใช้ภายในโรงพยาบาลสำหรับ Re - Triage
 • ประเมิน Vital Signs + Chief Complaint
 • ให้ครอบคลุม 5 ระดับ: Orange - Red - Yellow - Green - Blue
 • มี ECPSS(Emergency Clinical Process Support System) ต่อคี
 • ใช้แพร่หลายใน Scandinavia และบางส่วนในเอเชีย
-• Ref: Widgren BR, Jourak M.J Emerg Med. 2011'
-            },
-            'Clinical': {
-                name: 'Clinical Judgment',
-                    desc: 'การประเมินโดยแพทย์/พยาบาลผู้เชี่ยวชาญ (Clinical Judgment)
+• Ref: Widgren BR, Jourak M.J Emerg Med. 2011`
+                },
+                'Clinical': {
+                    name: 'Clinical Judgment',
+                    desc: `การประเมินโดยแพทย์/พยาบาลผู้เชี่ยวชาญ (Clinical Judgment)
 • ใช้เมื่อผู้ป่วยถึง Treatment Area แล้ว
 • ประเมินโดยแพทย์หรือพยาบาลฉุกเฉินผู้เชี่ยวชาญในสาขา
 • ไม่มีผัง — ยืดหยุ่นตามสภาพคลินิก
-• เหมาะสำหรับสถานการณ์ที่มีแพทย์พอ'
+• เหมาะสำหรับสถานการณ์ที่มีแพทย์พอ`
+                }
             }
-        }
         };
 
         window.applyTriagePreset = function (side, key) {
