@@ -4018,7 +4018,18 @@
             if (!ensureAiConfigured()) return;
             const btnHtml = document.getElementById('btn-ai-methane').innerHTML;
             setButtonLoading('btn-ai-methane', true, btnHtml);
-            const prompt = `Analyze METHANE report for MCI:\nLocation: ${e}\nType: ${document.getElementById('methane-t').value}\nHazards: ${document.getElementById('methane-h').value}`;
+            const prompt = `คุณคือผู้ช่วยวิเคราะห์เหตุการณ์อุบัติภัยหมู่ (MCI)
+โปรดวิเคราะห์ข้อมูล METHANE ต่อไปนี้เป็นภาษาไทยแบบกระชับและใช้งานจริงได้ทันที
+
+สถานที่เกิดเหตุ: ${e}
+ประเภทเหตุการณ์: ${document.getElementById('methane-t').value}
+ความเสี่ยง/อันตราย: ${document.getElementById('methane-h').value}
+
+รูปแบบคำตอบ:
+1) สรุปสถานการณ์
+2) ความเสี่ยงสำคัญที่ต้องเฝ้าระวัง
+3) การดำเนินการเร่งด่วน 3-5 ข้อ
+4) ข้อเสนอแนะการประสานงานหน่วยงาน`;
             try {
                 const responseText = await fetchGeminiWithRetry(prompt);
                 document.getElementById('ai-modal-content').innerHTML = `<pre class="whitespace-pre-wrap">${escapeHtml(responseText)}</pre>`;
@@ -4034,7 +4045,18 @@
             if (!ensureAiConfigured()) return;
             const btnHtml = document.getElementById('btn-ai-triage').innerHTML;
             setButtonLoading('btn-ai-triage', true, btnHtml);
-            const prompt = `Triage assessment: ${injury}\nGCS: ${document.getElementById('sec-gcs').value}\nSpO2: ${document.getElementById('sec-spo2').value}%`;
+            const prompt = `คุณคือผู้ช่วยคัดแยกผู้ป่วยในเหตุการณ์ MCI
+โปรดประเมินเบื้องต้นจากข้อมูลต่อไปนี้และตอบเป็นภาษาไทย
+
+อาการ/การบาดเจ็บ: ${injury}
+GCS: ${document.getElementById('sec-gcs').value}
+SpO2: ${document.getElementById('sec-spo2').value}%
+
+รูปแบบคำตอบ:
+1) ระดับคัดแยกที่แนะนำ (Red/Yellow/Green/Black)
+2) เหตุผลประกอบสั้น ๆ
+3) การดูแลเร่งด่วนที่ควรทำทันที
+4) ข้อควรระวังในการส่งต่อ`;
             try {
                 const responseText = await fetchGeminiWithRetry(prompt);
                 const reasonEl = document.getElementById('triage-ai-reason');
@@ -5625,7 +5647,24 @@
             if (!ensureAiConfigured()) return;
             const btnHtml = document.getElementById('btn-ai-report').innerHTML;
             setButtonLoading('btn-ai-report', true, btnHtml);
-            const prompt = `Generate AAR report:\nTotal patients: ${window.state.patients.length}\nRed: ${window.state.patients.filter(x => x.cat === 'Red').length}`;
+            const prompt = `โปรดจัดทำรายงานสรุปหลังปฏิบัติการ (AAR) สำหรับเหตุการณ์ MCI เป็นภาษาไทย
+
+ข้อมูลสถิติ:
+- ผู้ป่วยทั้งหมด: ${window.state.patients.length}
+- Red: ${window.state.patients.filter(x => x.cat === 'Red').length}
+- Yellow: ${window.state.patients.filter(x => x.cat === 'Yellow').length}
+- Green: ${window.state.patients.filter(x => x.cat === 'Green').length}
+- Black: ${window.state.patients.filter(x => x.cat === 'Black').length}
+- จำนวน Care Records: ${window.state.careRecords.length}
+- จำนวน Dispatches: ${window.state.dispatches.length}
+- จำนวน Vehicles: ${window.state.vehicles.length}
+
+โครงสร้างรายงาน:
+1) สรุปเหตุการณ์
+2) ผลการคัดแยกและการรักษา
+3) การลำเลียงและการส่งต่อ
+4) ปัญหาอุปสรรค
+5) ข้อเสนอแนะเพื่อปรับปรุงครั้งถัดไป`;
             try {
                 const responseText = await fetchGeminiWithRetry(prompt);
                 document.getElementById('report-empty').classList.add('hidden');
