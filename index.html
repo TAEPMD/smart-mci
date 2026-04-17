@@ -2522,18 +2522,32 @@
             }
         }
 
+        function isSheetsCrossOrigin() {
+            if (!SHEETS_API_URL) return false;
+            try {
+                return new URL(SHEETS_API_URL).origin !== window.location.origin;
+            } catch (_) {
+                return true;
+            }
+        }
+
         async function postToSheets(payload, label = 'batch') {
             if (!SHEETS_API_URL) return;
             const badge = document.getElementById('sheets-sync-badge');
             try {
                 if (badge) badge.innerHTML = '<div class="status-dot status-amber blink"></div><span class="text-amber-400">SYNCING</span>';
+                const crossOrigin = isSheetsCrossOrigin();
                 const resp = await fetch(SHEETS_API_URL, {
                     method: 'POST',
+                    mode: crossOrigin ? 'no-cors' : 'cors',
                     headers: { 'Content-Type': 'text/plain' }, // Apps Script ต้องการ text/plain ไม่ใช่ application/json
                     body: JSON.stringify(payload),
-                    redirect: 'follow'
+                    redirect: 'follow',
+                    keepalive: true
                 });
-                if (resp.ok) {
+
+                // no-cors responses are opaque; reaching this point means browser sent the request.
+                if (crossOrigin || resp.ok) {
                     console.log(`[Sheets] ✓ ${label}`);
                     if (badge) badge.innerHTML = '<div class="status-dot status-green"></div><span class="text-green-400">SHEETS SYNC</span>';
                 } else {
@@ -2628,9 +2642,18 @@
             const btn = document.getElementById('btn-test-sheets');
             if (btn) { btn.disabled = true; btn.textContent = 'Testing...'; }
             try {
-                const resp = await fetch(SHEETS_API_URL, { method: 'GET', redirect: 'follow' });
-                if (resp.ok) {
-                    showToast('Sheets connection OK!', 'success');
+                const crossOrigin = isSheetsCrossOrigin();
+                const resp = await fetch(SHEETS_API_URL, {
+                    method: 'POST',
+                    mode: crossOrigin ? 'no-cors' : 'cors',
+                    headers: { 'Content-Type': 'text/plain' },
+                    body: JSON.stringify({ action: 'ping', data: { ts: Date.now() } }),
+                    redirect: 'follow',
+                    keepalive: true
+                });
+
+                if (crossOrigin || resp.ok) {
+                    showToast(crossOrigin ? 'ส่งคำขอทดสอบแล้ว (CORS read-block เป็นปกติ)' : 'Sheets connection OK!', 'success');
                 } else {
                     showToast('Sheets error: HTTP ' + resp.status, 'error');
                 }
