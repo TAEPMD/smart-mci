@@ -3971,19 +3971,45 @@
         async function fetchGeminiWithRetry(prompt, retries = 5) {
             const apiKey = getAiApiKey();
             if (!apiKey) throw new Error("API Key not configured");
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+            const modelCandidates = [
+                'gemini-2.5-flash',
+                'gemini-2.0-flash',
+                'gemini-1.5-flash-latest'
+            ];
             const payload = { contents: [{ parts: [{ text: prompt }] }] };
-            for (let i = 0; i < retries; i++) {
-                try {
-                    const response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                    const result = await response.json();
-                    return result.candidates?.[0]?.content?.parts?.[0]?.text || "";
-                } catch (error) {
-                    if (i === retries - 1) throw error;
-                    await delay([1000, 2000, 4000][i] || 4000);
+            let lastError = null;
+
+            for (const model of modelCandidates) {
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+                for (let i = 0; i < retries; i++) {
+                    try {
+                        const response = await fetch(url, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+
+                        if (!response.ok) {
+                            const errText = await response.text();
+                            // Model not found: try next candidate model immediately.
+                            if (response.status === 404) {
+                                lastError = new Error(`Model not found: ${model}`);
+                                break;
+                            }
+                            throw new Error(`HTTP ${response.status}: ${errText || 'AI request failed'}`);
+                        }
+
+                        const result = await response.json();
+                        return result.candidates?.[0]?.content?.parts?.[0]?.text || "";
+                    } catch (error) {
+                        lastError = error;
+                        if (i === retries - 1) break;
+                        await delay([1000, 2000, 4000][i] || 4000);
+                    }
                 }
             }
+
+            throw lastError || new Error('AI request failed');
         }
 
         window.analyzeMethaneWithAI = async function () {
