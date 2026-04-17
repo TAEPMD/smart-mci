@@ -2454,6 +2454,14 @@
 
         // ===== GOOGLE SHEETS SYNC LAYER =====
         let SHEETS_API_URL = localStorage.getItem('mci_sheets_url') || '';
+        if (!SHEETS_API_URL) {
+            // If app runs as Apps Script Web App (/exec or /dev), use current URL for doPost automatically.
+            const currentUrl = window.location.href.split('#')[0];
+            if (/\/exec(?:\?|$)|\/dev(?:\?|$)/.test(currentUrl)) {
+                SHEETS_API_URL = currentUrl;
+                localStorage.setItem('mci_sheets_url', SHEETS_API_URL);
+            }
+        }
         const SHEETS_FLUSH_INTERVAL_MS = 1200;
         const SHEETS_MAX_BATCH = 25;
         let sheetsQueue = [];
