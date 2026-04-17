@@ -2473,6 +2473,29 @@
                             </div>
                             <div class="nasa-panel-bright p-4">
                                 <div class="flex justify-between items-center mb-4">
+                                    <h4 class="nasa-font text-cyan-400 text-sm uppercase">AI Configuration</h4>
+                                    <div class="mono text-xs" style="color:var(--apple-text-tertiary);">Gemini API Key</div>
+                                </div>
+                                <div class="space-y-3">
+                                    <div>
+                                        <label class="block mono text-xs text-gray-400 mb-1 uppercase">AI API Key</label>
+                                        <input type="password" id="set-ai-api-key" class="nasa-input w-full"
+                                            placeholder="Paste Gemini API key">
+                                    </div>
+                                    <div class="flex flex-wrap gap-2">
+                                        <button type="button" onclick="saveAiApiKey()" id="btn-save-ai-key"
+                                            class="nasa-btn nasa-btn-primary text-xs flex items-center gap-1">
+                                            <i data-lucide="save" class="w-3 h-3"></i>
+                                            บันทึก AI Key
+                                        </button>
+                                    </div>
+                                </div>
+                                <p class="mono text-xs mt-3" style="color:var(--apple-text-tertiary);">
+                                    ใช้สำหรับ AI Analyze, AI Triage และ AI Report
+                                </p>
+                            </div>
+                            <div class="nasa-panel-bright p-4">
+                                <div class="flex justify-between items-center mb-4">
                                     <h4 class="nasa-font text-cyan-400 text-sm uppercase">Triage Models</h4>
                                     <button onclick="saveTriageModels()" id="btn-save-triage-models"
                                         class="nasa-btn nasa-btn-primary text-xs flex items-center gap-1">
@@ -2706,6 +2729,7 @@
                 quickInterventions: ['Tourniquet', 'Needle Decompression', 'Pelvic Binder', 'Airway Adjunct', 'IV Access', 'Wound Packing'],
                 quickInjuries: ['Head Injury', 'Chest Trauma', 'Abdominal Pain', 'Fracture', 'Burn', 'Laceration'],
                 vehicleTypes: ['Ambulance (ALS)', 'Ambulance (BLS/FR)', 'Helicopter (HEMS)', 'Rescue Boat'],
+                aiApiKey: '',
                 triageDesc: {
                     'START': 'ประเมิน RPM (หายใจ >30, Cap Refill >2s, ไม่ทำตามสั่ง -> แดง) | เดินได้ -> เขียว',
                     'SALT': 'Sort -> Assess -> Lifesaving Interventions -> Triage',
@@ -3926,9 +3950,26 @@
         };
 
         // ===== AI =====
-        const apiKey = ""; // ใส่ API Key ที่นี่
+        function getAiApiKey() {
+            const fromSettings = String(window.state?.settings?.aiApiKey || '').trim();
+            if (fromSettings) return fromSettings;
+            const fromLocal = String(localStorage.getItem('mci_ai_api_key') || '').trim();
+            if (fromLocal) {
+                if (window.state?.settings) window.state.settings.aiApiKey = fromLocal;
+                return fromLocal;
+            }
+            return '';
+        }
+
+        function ensureAiConfigured() {
+            if (getAiApiKey()) return true;
+            showToast('AI not configured: ตั้งค่า AI API Key ใน Settings', 'info');
+            navigate('settings');
+            return false;
+        }
 
         async function fetchGeminiWithRetry(prompt, retries = 5) {
+            const apiKey = getAiApiKey();
             if (!apiKey) throw new Error("API Key not configured");
             const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
             const payload = { contents: [{ parts: [{ text: prompt }] }] };
@@ -3948,7 +3989,7 @@
         window.analyzeMethaneWithAI = async function () {
             const e = document.getElementById('methane-e').value;
             if (!e) return alert("Enter location first");
-            if (!apiKey) return alert("AI not configured");
+            if (!ensureAiConfigured()) return;
             const btnHtml = document.getElementById('btn-ai-methane').innerHTML;
             setButtonLoading('btn-ai-methane', true, btnHtml);
             const prompt = `Analyze METHANE report for MCI:\nLocation: ${e}\nType: ${document.getElementById('methane-t').value}\nHazards: ${document.getElementById('methane-h').value}`;
@@ -3964,7 +4005,7 @@
         window.suggestTriageWithAI = async function () {
             const injury = document.getElementById('sec-triage-injury').value;
             if (!injury) return alert("Enter injury description");
-            if (!apiKey) return alert("AI not configured");
+            if (!ensureAiConfigured()) return;
             const btnHtml = document.getElementById('btn-ai-triage').innerHTML;
             setButtonLoading('btn-ai-triage', true, btnHtml);
             const prompt = `Triage assessment: ${injury}\nGCS: ${document.getElementById('sec-gcs').value}\nSpO2: ${document.getElementById('sec-spo2').value}%`;
@@ -5190,8 +5231,13 @@
             if (!Array.isArray(sm.vehicleTypes)) {
                 sm.vehicleTypes = ['Ambulance (ALS)', 'Ambulance (BLS/FR)', 'Helicopter (HEMS)', 'Rescue Boat'];
             }
+            if (typeof sm.aiApiKey !== 'string') {
+                sm.aiApiKey = '';
+            }
             const sheetsUrlInput = document.getElementById('set-sheets-url');
             if (sheetsUrlInput) sheetsUrlInput.value = window.getSheetsUrl ? window.getSheetsUrl() : '';
+            const aiKeyInput = document.getElementById('set-ai-api-key');
+            if (aiKeyInput) aiKeyInput.value = sm.aiApiKey || '';
             // Populate triage model inputs
             const priInput = document.getElementById('set-primary-model');
             const secInput = document.getElementById('set-secondary-model');
@@ -5214,6 +5260,16 @@
             renderSettingsLSI();
             renderSettingsInjuries();
             renderSettingsVehicleTypes();
+        }
+
+        window.saveAiApiKey = async function () {
+            const input = document.getElementById('set-ai-api-key');
+            if (!input) return;
+            const val = String(input.value || '').trim();
+            window.state.settings.aiApiKey = val;
+            localStorage.setItem('mci_ai_api_key', val);
+            await saveGlobalStateToCloud();
+            showToast(val ? 'บันทึก AI API Key สำเร็จ' : 'ล้าง AI API Key แล้ว', 'success');
         }
 
         // ===== TRIAGE PRESETS =====
@@ -5540,7 +5596,7 @@
 
         window.generateAiReport = async function () {
             if (window.state.patients.length === 0) return alert("No data to generate report");
-            if (!apiKey) return alert("AI not configured");
+            if (!ensureAiConfigured()) return;
             const btnHtml = document.getElementById('btn-ai-report').innerHTML;
             setButtonLoading('btn-ai-report', true, btnHtml);
             const prompt = `Generate AAR report:\nTotal patients: ${window.state.patients.length}\nRed: ${window.state.patients.filter(x => x.cat === 'Red').length}`;
