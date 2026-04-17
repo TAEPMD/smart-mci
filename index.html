@@ -1609,6 +1609,8 @@
                                             AI ASSESS
                                         </button>
                                     </div>
+                                    <!-- Quick Complaint Cards -->
+                                    <div id="triage-quick-injury-container" class="flex flex-wrap gap-1.5 mt-2"></div>
                                     <p id="triage-ai-reason"
                                         class="hidden mono text-sm text-purple-400 mt-2 p-3 nasa-panel-bright"></p>
                                 </div>
@@ -2263,8 +2265,16 @@
                 signInAnonymously(auth).catch((error) => {
                     console.error(`[Firebase] Auth Error: ${error.code} — ${error.message}`);
                     const sBadge = document.getElementById('sync-status');
-                    if (sBadge) {
-                        sBadge.innerHTML = '<div class="status-dot status-red"></div><span class="text-red-400" title="' + error.message + '">AUTH FAIL</span>';
+                    if (error.code === 'auth/operation-not-allowed') {
+                        // Anonymous auth ยังไม่ได้เปิดใน Firebase Console
+                        if (sBadge) {
+                            sBadge.innerHTML = '<div class="status-dot status-red"></div><span class="text-red-400" style="cursor:pointer" onclick="alert(\'แก้ไข: ไปที่ Firebase Console → Authentication → Sign-in method → Anonymous → Enable\')">AUTH FAIL ⓘ</span>';
+                        }
+                        console.error('[Firebase] ❌ Anonymous Auth ไม่ได้เปิด!\nวิธีแก้: Firebase Console → Authentication → Sign-in method → Anonymous → Enable\nhttps://console.firebase.google.com/project/smart-mci-app/authentication/providers');
+                    } else {
+                        if (sBadge) {
+                            sBadge.innerHTML = '<div class="status-dot status-red"></div><span class="text-red-400" title="' + error.message + '">AUTH FAIL</span>';
+                        }
                     }
                 });
 
@@ -3287,23 +3297,51 @@
             input.focus();
         }
 
+        window.addQuickInjuryToTriage = function (text) {
+            const input = document.getElementById('sec-triage-injury');
+            if (!input) return;
+            input.value = input.value.trim() ? input.value + `, ${text}` : text;
+            input.focus();
+        }
+
         window.renderQuickInterventions = function () {
             const container = document.getElementById('care-quick-lsi-container');
             const injuryContainer = document.getElementById('care-quick-injury-container');
+            const triageInjuryContainer = document.getElementById('triage-quick-injury-container');
             if (!container) return;
             container.innerHTML = '';
             if (injuryContainer) injuryContainer.innerHTML = '';
-            const colors = ['bg-red-900/50 border-red-500 text-red-400', 'bg-amber-900/50 border-amber-500 text-amber-400', 'bg-blue-900/50 border-blue-500 text-blue-400'];
+            if (triageInjuryContainer) triageInjuryContainer.innerHTML = '';
+
+            const colors = [
+                'border-red-500/60 text-red-400 bg-red-900/20 hover:bg-red-900/40',
+                'border-amber-500/60 text-amber-400 bg-amber-900/20 hover:bg-amber-900/40',
+                'border-blue-500/60 text-blue-400 bg-blue-900/20 hover:bg-blue-900/40',
+                'border-purple-500/60 text-purple-400 bg-purple-900/20 hover:bg-purple-900/40',
+                'border-green-500/60 text-green-400 bg-green-900/20 hover:bg-green-900/40',
+                'border-cyan-500/60 text-cyan-400 bg-cyan-900/20 hover:bg-cyan-900/40',
+            ];
+
             window.state.settings.quickInterventions.forEach((lsi, i) => {
                 const c = colors[i % colors.length];
-                container.innerHTML += `<button type="button" onclick="addQuickIntervention('${escapeHtml(lsi).replace(/'/g, "\\'")}')" class="px-3 py-1.5 border ${c} rounded text-xs font-mono transition hover:opacity-80">${escapeHtml(lsi)}</button>`;
+                container.innerHTML += `<button type="button" onclick="addQuickIntervention('${escapeHtml(lsi).replace(/'/g, "\\'")}')" class="px-3 py-1.5 border ${c} rounded-lg text-xs font-mono transition-all">${escapeHtml(lsi)}</button>`;
             });
 
             const injuryCards = window.state.settings.quickInjuries || ['Head Injury', 'Chest Trauma', 'Abdominal Pain', 'Fracture', 'Burn', 'Laceration'];
+
+            // Care View
             if (injuryContainer) {
                 injuryCards.forEach((injury, i) => {
                     const c = colors[i % colors.length];
-                    injuryContainer.innerHTML += `<button type="button" onclick="addQuickInjury('${escapeHtml(injury).replace(/'/g, "\\'")}')" class="px-3 py-1.5 border ${c} rounded text-xs font-mono transition hover:opacity-80">${escapeHtml(injury)}</button>`;
+                    injuryContainer.innerHTML += `<button type="button" onclick="addQuickInjury('${escapeHtml(injury).replace(/'/g, "\\'")}')" class="px-3 py-1.5 border ${c} rounded-lg text-xs font-mono transition-all">${escapeHtml(injury)}</button>`;
+                });
+            }
+
+            // Secondary Triage View
+            if (triageInjuryContainer) {
+                injuryCards.forEach((injury, i) => {
+                    const c = colors[i % colors.length];
+                    triageInjuryContainer.innerHTML += `<button type="button" onclick="addQuickInjuryToTriage('${escapeHtml(injury).replace(/'/g, "\\'")}')" class="px-3 py-1.5 border ${c} rounded-lg text-xs font-mono transition-all">${escapeHtml(injury)}</button>`;
                 });
             }
         }
