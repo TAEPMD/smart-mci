@@ -3069,6 +3069,7 @@
         }
 
         function mergePolledState(polled) {
+            if (window.isCloudSyncActive) return;
             if (isSyncingFromCloud) return; // Firebase กำลัง sync อยู่ ข้าม
             let changed = false;
 
@@ -3076,9 +3077,10 @@
             collections.forEach(col => {
                 if (!polled[col]) return;
                 const oldJson = JSON.stringify(window.state[col] || []);
-                const newJson = JSON.stringify(polled[col]);
+                const incoming = col === 'hospitals' ? dedupeHospitals(polled[col]) : polled[col];
+                const newJson = JSON.stringify(incoming);
                 if (oldJson !== newJson) {
-                    window.state[col] = polled[col];
+                    window.state[col] = incoming;
                     changed = true;
                 }
             });
@@ -3530,6 +3532,35 @@
             const stage = String(patient.stage || '').trim();
             // Show only patients waiting for secondary triage.
             return stage === 'Primary';
+        }
+
+        function normalizeHospitalKey(name) {
+            return String(name || '').trim().toLowerCase();
+        }
+
+        function dedupeHospitals(list) {
+            const byId = new Map();
+            const byName = new Map();
+            (list || []).forEach(h => {
+                const item = {
+                    id: String(h?.id || '').trim(),
+                    name: String(h?.name || '').trim(),
+                    capRed: parseInt(h?.capRed) || 0,
+                    capYellow: parseInt(h?.capYellow) || 0,
+                    capGreen: parseInt(h?.capGreen) || 0
+                };
+                if (!item.name) return;
+
+                if (item.id) {
+                    byId.set(item.id, item);
+                    byName.set(normalizeHospitalKey(item.name), item);
+                    return;
+                }
+
+                const nameKey = normalizeHospitalKey(item.name);
+                if (!byName.has(nameKey)) byName.set(nameKey, item);
+            });
+            return Array.from(byName.values());
         }
 
         function removePatientFromVehicleAssignments(patientId) {
@@ -5195,6 +5226,7 @@ SpO2: ${document.getElementById('sec-spo2').value}%
             const tbody = document.getElementById('hospital-table-body');
             if (!tbody) return;
             tbody.innerHTML = '';
+            window.state.hospitals = dedupeHospitals(window.state.hospitals);
             window.state.hospitals.forEach(h => {
                 const capRed = parseInt(h.capRed) || 0;
                 const capYellow = parseInt(h.capYellow) || 0;
@@ -5207,16 +5239,27 @@ SpO2: ${document.getElementById('sec-spo2').value}%
 
         window.handleAddHospital = async function (e) {
             e.preventDefault();
-            const hId = Date.now().toString();
+            const hospitalName = document.getElementById('hosp-name').value.trim();
+            if (!hospitalName) return;
+
+            const existing = (window.state.hospitals || []).find(h => normalizeHospitalKey(h.name) === normalizeHospitalKey(hospitalName));
+            const hId = existing?.id || Date.now().toString();
             const hData = {
-                id: hId, name: document.getElementById('hosp-name').value.trim(),
+                id: hId, name: hospitalName,
                 capRed: parseInt(document.getElementById('hosp-red').value) || 0,
                 capYellow: parseInt(document.getElementById('hosp-yellow').value) || 0,
                 capGreen: parseInt(document.getElementById('hosp-green').value) || 0
             };
-            window.state.hospitals.push(hData);
+
+            if (existing) {
+                Object.assign(existing, hData);
+            } else {
+                window.state.hospitals.push(hData);
+            }
+            window.state.hospitals = dedupeHospitals(window.state.hospitals);
+
             await saveToCloud('hospitals', hId, hData);
-            await addEventLog(`Add hospital: ${hData.name}`, 'SYSTEM');
+            await addEventLog(`${existing ? 'Update' : 'Add'} hospital: ${hData.name}`, 'SYSTEM');
             e.target.reset();
             renderHospitals();
         }
