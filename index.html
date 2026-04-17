@@ -1726,7 +1726,7 @@
                                         class="block mono text-cyan-400 text-xs mb-2 uppercase tracking-wider">Patient
                                         ID / SMART Tag</label>
                                     <div class="flex gap-2">
-                                        <input type="text" id="pri-triage-pid" list="triage-patient-list" oninput="syncLinkedSelect('pri-triage-pid','pri-triage-pid-select')"
+                                        <input type="text" id="pri-triage-pid" list="pri-triage-patient-list" oninput="syncLinkedSelect('pri-triage-pid','pri-triage-pid-select')"
                                             class="nasa-input flex-1 uppercase font-mono"
                                             placeholder="SCAN OR ENTER ID">
                                         <button type="button" onclick="scanCarePID('pri-triage-pid')" class="nasa-btn"
@@ -1740,7 +1740,7 @@
                                         class="nasa-input w-full mt-2">
                                         <option value="">SELECT EXISTING PATIENT ID</option>
                                     </select>
-                                    <datalist id="triage-patient-list"></datalist>
+                                    <datalist id="pri-triage-patient-list"></datalist>
                                 </div>
 
                                 <div>
@@ -1856,7 +1856,7 @@
                                         <label class="block mono text-cyan-400 text-xs mb-2 uppercase">Patient
                                             ID</label>
                                         <div class="flex gap-2">
-                                            <input type="text" id="sec-triage-pid" list="triage-patient-list" oninput="syncLinkedSelect('sec-triage-pid','sec-triage-pid-select')"
+                                            <input type="text" id="sec-triage-pid" list="sec-triage-patient-list" oninput="syncLinkedSelect('sec-triage-pid','sec-triage-pid-select')"
                                                 class="nasa-input flex-1 uppercase" required>
                                             <button type="button" onclick="scanCarePID('sec-triage-pid')"
                                                 class="nasa-btn">
@@ -1868,6 +1868,7 @@
                                             class="nasa-input w-full mt-2">
                                             <option value="">SELECT EXISTING PATIENT ID</option>
                                         </select>
+                                        <datalist id="sec-triage-patient-list"></datalist>
                                     </div>
                                     <div>
                                         <label class="block mono text-cyan-400 text-xs mb-2 uppercase">Gender</label>
@@ -3517,6 +3518,20 @@
             return currentState.phase !== 'transport' && currentState.phase !== 'hospital';
         }
 
+        function isPatientPrimaryTriageEligible(patient) {
+            if (!patient || isBlackTriage(patient)) return false;
+            const stage = String(patient.stage || '').trim();
+            // Hide patients that already moved past primary triage.
+            return stage !== 'Secondary';
+        }
+
+        function isPatientSecondaryTriageEligible(patient) {
+            if (!patient || isBlackTriage(patient)) return false;
+            const stage = String(patient.stage || '').trim();
+            // Show only patients waiting for secondary triage.
+            return stage === 'Primary';
+        }
+
         function removePatientFromVehicleAssignments(patientId) {
             const touchedVehicles = [];
             (window.state.vehicles || []).forEach(vehicle => {
@@ -4222,6 +4237,7 @@ SpO2: ${document.getElementById('sec-spo2').value}%
                 if (validUser) {
                     const normalizedRole = normalizeUserRole(validUser.role);
                     window.state.currentUser = { ...validUser, role: normalizedRole };
+                    localStorage.setItem('mci_current_user', JSON.stringify({ username: validUser.username, role: normalizedRole }));
 
                     const displayNameEl = document.getElementById('user-display-name');
                     if (displayNameEl) displayNameEl.textContent = validUser.username.toUpperCase();
@@ -4251,8 +4267,47 @@ SpO2: ${document.getElementById('sec-spo2').value}%
 
         window.logout = function () {
             window.state.currentUser = null;
+            localStorage.removeItem('mci_current_user');
             document.getElementById('main-layout').classList.add('hidden');
             document.getElementById('view-login').classList.add('active');
+        }
+
+        function restoreSessionAfterRefresh() {
+            try {
+                const raw = localStorage.getItem('mci_current_user');
+                if (!raw) return false;
+
+                const sessionUser = JSON.parse(raw);
+                const username = String(sessionUser?.username || '').trim();
+                if (!username) return false;
+
+                let foundUser = (window.state.users || []).find(u => String(u.username || '').toLowerCase() === username.toLowerCase());
+                if (!foundUser && username.toLowerCase() === 'admin') {
+                    foundUser = { username: 'admin', agency: 'MCI Command', pinHash: DEFAULT_ADMIN_HASH, role: 'commander' };
+                }
+                if (!foundUser) return false;
+
+                const normalizedRole = normalizeUserRole(foundUser.role || sessionUser?.role);
+                window.state.currentUser = { ...foundUser, role: normalizedRole };
+
+                const displayNameEl = document.getElementById('user-display-name');
+                if (displayNameEl) displayNameEl.textContent = foundUser.username.toUpperCase();
+                const roleBadgeEl = document.getElementById('user-role-badge');
+                if (roleBadgeEl) roleBadgeEl.textContent = getRoleLabel(normalizedRole);
+
+                applyRoleAccessToMenus();
+                document.getElementById('view-login')?.classList.remove('active');
+                document.getElementById('main-layout')?.classList.remove('hidden');
+                document.getElementById('global-loading')?.classList.add('hidden');
+                navigate('dashboard');
+                refreshUIs();
+                updateSyncStatus();
+                if (SHEETS_API_URL) pollSheetsState();
+                return true;
+            } catch (err) {
+                console.warn('Restore session failed:', err?.message || err);
+                return false;
+            }
         }
 
         function normalizeUserRole(role) {
@@ -4928,24 +4983,46 @@ SpO2: ${document.getElementById('sec-spo2').value}%
         window.populateCareDropdowns = function () {
             const careList = document.getElementById('care-patient-list');
             const careSelect = document.getElementById('care-patient-select-dropdown');
-            const triageList = document.getElementById('triage-patient-list');
+            const priTriageList = document.getElementById('pri-triage-patient-list');
+            const secTriageList = document.getElementById('sec-triage-patient-list');
             const priTriageSelect = document.getElementById('pri-triage-pid-select');
             const secTriageSelect = document.getElementById('sec-triage-pid-select');
             if (careList) careList.innerHTML = '';
             if (careSelect) careSelect.innerHTML = '<option value="">SELECT EXISTING PATIENT ID</option>';
-            if (triageList) triageList.innerHTML = '';
+            if (priTriageList) priTriageList.innerHTML = '';
+            if (secTriageList) secTriageList.innerHTML = '';
             if (priTriageSelect) priTriageSelect.innerHTML = '<option value="">SELECT EXISTING PATIENT ID</option>';
             if (secTriageSelect) secTriageSelect.innerHTML = '<option value="">SELECT EXISTING PATIENT ID</option>';
-            window.state.patients.filter(isPatientTreatmentEligible).forEach(p => {
+
+            const treatmentEligiblePatients = window.state.patients.filter(isPatientTreatmentEligible);
+            const primaryEligiblePatients = window.state.patients.filter(isPatientPrimaryTriageEligible);
+            const secondaryEligiblePatients = window.state.patients.filter(isPatientSecondaryTriageEligible);
+
+            treatmentEligiblePatients.forEach(p => {
                 const option = `<option value="${escapeHtml(p.id)}">${escapeHtml(p.cat)} - ${escapeHtml(p.injury || 'No data')}</option>`;
                 if (careList) careList.innerHTML += option;
                 if (careSelect) {
                     careSelect.innerHTML += `<option value="${escapeHtml(p.id)}">${escapeHtml(p.id)} | ${escapeHtml(p.cat)} | ${escapeHtml(p.injury || 'No data')}</option>`;
                 }
-                if (triageList) triageList.innerHTML += option;
+            });
+
+            primaryEligiblePatients.forEach(p => {
+                const option = `<option value="${escapeHtml(p.id)}">${escapeHtml(p.cat)} - ${escapeHtml(p.injury || 'No data')}</option>`;
+                if (priTriageList) priTriageList.innerHTML += option;
+            });
+
+            secondaryEligiblePatients.forEach(p => {
+                const option = `<option value="${escapeHtml(p.id)}">${escapeHtml(p.cat)} - ${escapeHtml(p.injury || 'No data')}</option>`;
+                if (secTriageList) secTriageList.innerHTML += option;
+            });
+
+            primaryEligiblePatients.forEach(p => {
                 if (priTriageSelect) {
                     priTriageSelect.innerHTML += `<option value="${escapeHtml(p.id)}">${escapeHtml(p.id)} | ${escapeHtml(p.cat)} | ${escapeHtml(p.injury || 'No data')}</option>`;
                 }
+            });
+
+            secondaryEligiblePatients.forEach(p => {
                 if (secTriageSelect) {
                     secTriageSelect.innerHTML += `<option value="${escapeHtml(p.id)}">${escapeHtml(p.id)} | ${escapeHtml(p.cat)} | ${escapeHtml(p.injury || 'No data')}</option>`;
                 }
@@ -5854,8 +5931,9 @@ SpO2: ${document.getElementById('sec-spo2').value}%
                 window.state.users = [...defaultUsers];
                 saveLocalState();
             }
+            const sessionRestored = restoreSessionAfterRefresh();
             setTimeout(() => {
-                if (!window.isCloudSyncActive) {
+                if (!window.isCloudSyncActive && !window.state.currentUser && !sessionRestored) {
                     document.getElementById('global-loading')?.classList.add('hidden');
                     document.getElementById('view-login')?.classList.add('active');
                 }
