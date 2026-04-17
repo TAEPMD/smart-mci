@@ -2259,27 +2259,37 @@
                 auth = getAuth(app);
                 db = getFirestore(app);
 
-                // Sign in anonymously for easy access or require specific auth
-                // Typically you can use anonymous auth or custom setup
+                // Sign in anonymously
                 signInAnonymously(auth).catch((error) => {
-                    console.warn(`Auth Error: ${error.message}`);
+                    console.error(`[Firebase] Auth Error: ${error.code} — ${error.message}`);
+                    const sBadge = document.getElementById('sync-status');
+                    if (sBadge) {
+                        sBadge.innerHTML = '<div class="status-dot status-red"></div><span class="text-red-400" title="' + error.message + '">AUTH FAIL</span>';
+                    }
                 });
 
                 onAuthStateChanged(auth, user => {
+                    const sBadge = document.getElementById('sync-status');
                     if (user) {
                         window.isCloudSyncActive = true;
-                        const sBadge = document.getElementById('sync-status');
+                        console.log('[Firebase] ✓ Signed in anonymously, uid:', user.uid);
                         if (sBadge) {
                             sBadge.innerHTML = '<div class="status-dot status-green"></div><button onclick="promptToLogin()" class="text-green-400">CLOUD SYNC</button>';
                         }
                         startFirestoreListeners();
+                    } else {
+                        window.isCloudSyncActive = false;
+                        console.warn('[Firebase] Not signed in — offline mode');
+                        if (sBadge) {
+                            sBadge.innerHTML = '<div class="status-dot status-red"></div><span class="text-red-400">OFFLINE</span>';
+                        }
                     }
                 });
             } else {
                 console.warn("Firebase config not set. Running in Offline Local Mode.");
             }
         } catch (e) {
-            console.warn("Firebase init error (Offline mode active):", e);
+            console.error("[Firebase] Init error:", e);
         }
 
         function startFirestoreListeners() {
@@ -2307,21 +2317,57 @@
             });
         }
 
+        function showToast(msg, type = 'success') {
+            const existing = document.getElementById('app-toast');
+            if (existing) existing.remove();
+            const t = document.createElement('div');
+            t.id = 'app-toast';
+            t.style.cssText = `position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);z-index:9999;padding:10px 20px;border-radius:10px;font-size:13px;font-weight:600;font-family:Inter,sans-serif;opacity:0;transition:all .3s ease;pointer-events:none;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,.3);`;
+            if (type === 'success') { t.style.background = '#1c7a40'; t.style.color = '#fff'; t.textContent = '✓ ' + msg; }
+            else if (type === 'error') { t.style.background = '#c0392b'; t.style.color = '#fff'; t.textContent = '✕ ' + msg; }
+            else { t.style.background = '#2d3c4e'; t.style.color = '#7ec8e3'; t.textContent = 'ℹ ' + msg; }
+            document.body.appendChild(t);
+            requestAnimationFrame(() => { t.style.opacity = '1'; t.style.transform = 'translateX(-50%) translateY(0)'; });
+            setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 300); }, 3000);
+        }
+        window.showToast = showToast;
+
         window.saveToCloud = async function (collectionName, docId, data) {
-            if (!window.isCloudSyncActive || !auth.currentUser) return saveLocalState();
+            saveLocalState(); // บันทึก local เสมอ
+            if (!window.isCloudSyncActive || !auth.currentUser) {
+                console.warn('[Firebase] Not connected — saved locally only.');
+                return;
+            }
             try {
                 await setDoc(doc(db, 'artifacts', appId, 'public', 'data', collectionName, docId), data);
-            } catch (e) { console.error(e); }
+                console.log(`[Firebase] ✓ Saved to ${collectionName}/${docId}`);
+            } catch (e) {
+                console.error('[Firebase] Write error:', e.code, e.message);
+                showToast('Firebase error: ' + e.message, 'error');
+            }
         };
 
         window.deleteFromCloud = async function (collectionName, docId) {
-            if (!window.isCloudSyncActive || !auth.currentUser) return saveLocalState();
-            try { await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', collectionName, docId)); }
-            catch (e) { console.error(e); }
+            saveLocalState();
+            if (!window.isCloudSyncActive || !auth.currentUser) {
+                console.warn('[Firebase] Not connected — deleted locally only.');
+                return;
+            }
+            try {
+                await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', collectionName, docId));
+                console.log(`[Firebase] ✓ Deleted ${collectionName}/${docId}`);
+            } catch (e) {
+                console.error('[Firebase] Delete error:', e.code, e.message);
+                showToast('Firebase delete error: ' + e.message, 'error');
+            }
         };
 
         window.saveGlobalStateToCloud = async function () {
-            if (!window.isCloudSyncActive || !auth.currentUser) return saveLocalState();
+            saveLocalState(); // บันทึก local เสมอ
+            if (!window.isCloudSyncActive || !auth.currentUser) {
+                console.warn('[Firebase] Not connected — saved locally only.');
+                return;
+            }
             try {
                 await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'global', 'state'), {
                     methane: window.state.methane,
@@ -2329,7 +2375,11 @@
                     settings: window.state.settings,
                     users: window.state.users
                 });
-            } catch (e) { console.error(e); }
+                console.log('[Firebase] ✓ Global state saved');
+            } catch (e) {
+                console.error('[Firebase] Global state write error:', e.code, e.message);
+                showToast('Firebase error: ' + e.message, 'error');
+            }
         }
 
         function loadLocalState() {
