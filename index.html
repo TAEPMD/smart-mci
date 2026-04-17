@@ -4221,7 +4221,7 @@ SpO2: ${document.getElementById('sec-spo2').value}%
         function getAllowedViewsForRole(role) {
             const normalized = normalizeUserRole(role);
             const base = ['dashboard'];
-            if (normalized === 'commander') return [...base, 'triage', 'care', 'tracking', 'transport', 'hospitals', 'history'];
+            if (normalized === 'commander') return [...base, 'triage', 'care', 'tracking', 'transport', 'hospitals', 'history', 'settings', 'users'];
             if (normalized === 'medical') return [...base, 'triage', 'care', 'tracking'];
             if (normalized === 'loading') return [...base, 'transport', 'tracking'];
             if (normalized === 'liaison') return [...base, 'hospitals', 'tracking'];
