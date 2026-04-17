@@ -40,12 +40,37 @@
             --apple-surface-3: #fafafa;
             --apple-border: #d2d2d7;
             --apple-text: #1d1d1f;
-            --apple-text-secondary: #6e6e73;
-            --apple-text-tertiary: #aeaeb2;
+            --apple-text-secondary: #4f4f55;
+            --apple-text-tertiary: #68686d;
             --apple-red: #ff3b30;
             --apple-green: #34c759;
             --apple-orange: #ff9500;
             --apple-purple: #af52de;
+        }
+
+        body.theme-dark {
+            --nasa-dark: #0f1115;
+            --nasa-panel: #171a21;
+            --nasa-panel-light: #1a1e26;
+            --nasa-border: #2f3643;
+            --nasa-border-bright: #3a4252;
+            --nasa-text: #f3f5f9;
+            --nasa-text-dim: #b1b7c5;
+            --nasa-text-bright: #ffffff;
+
+            --apple-blue: #4aa3ff;
+            --apple-blue-hover: #67b3ff;
+            --apple-surface: #171a21;
+            --apple-surface-2: #0f1115;
+            --apple-surface-3: #1d2230;
+            --apple-border: #2f3643;
+            --apple-text: #f3f5f9;
+            --apple-text-secondary: #d4d9e4;
+            --apple-text-tertiary: #9fa8bc;
+            --apple-red: #ff5e57;
+            --apple-green: #4ade80;
+            --apple-orange: #ffb020;
+            --apple-purple: #b68bff;
         }
 
         * {
@@ -226,6 +251,29 @@
             border: 1.5px solid var(--apple-border);
             color: var(--apple-text-secondary);
             border-radius: 12px;
+        }
+
+        .triage-option {
+            position: relative;
+            transition: transform .15s, box-shadow .18s, filter .15s;
+        }
+
+        .triage-option:hover {
+            filter: brightness(1.03);
+        }
+
+        .triage-option .selected-mark {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: .04em;
+            padding: 3px 7px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, .9);
+            color: #111;
+            box-shadow: 0 1px 8px rgba(0, 0, 0, .2);
         }
 
         /* ── Buttons ── */
@@ -604,6 +652,10 @@
             color: var(--apple-text-tertiary) !important;
         }
 
+        .text-gray-400 {
+            color: var(--apple-text-secondary) !important;
+        }
+
         .text-white {
             color: var(--apple-text) !important;
         }
@@ -832,6 +884,30 @@
             background: var(--apple-surface-2);
             border-top: 1px solid var(--apple-border);
         }
+
+        #scanner-video {
+            width: 100%;
+            max-height: 56vh;
+            border-radius: 14px;
+            background: #000;
+            object-fit: cover;
+        }
+
+        #scanner-box {
+            border: 2px dashed rgba(255, 255, 255, 0.85);
+            border-radius: 14px;
+            box-shadow: 0 0 0 100vmax rgba(0, 0, 0, 0.25);
+        }
+
+        body.theme-dark #sidebar {
+            background: rgba(16, 18, 24, 0.86) !important;
+            border-right: 1px solid var(--apple-border) !important;
+        }
+
+        body.theme-dark header.nasa-panel-light {
+            background: rgba(18, 21, 30, 0.84) !important;
+            border-bottom: 1px solid var(--apple-border) !important;
+        }
     </style>
 </head>
 
@@ -863,6 +939,24 @@
             <div class="p-6 overflow-y-auto flex-1">
                 <div id="ai-modal-content" class="mono text-sm text-nasa-text leading-relaxed"></div>
             </div>
+        </div>
+    </div>
+
+    <!-- Scanner Modal -->
+    <div id="scanner-modal" class="hidden fixed inset-0 bg-black/85 z-[110] flex items-center justify-center p-4">
+        <div class="nasa-panel-bright w-full max-w-lg p-4 md:p-5">
+            <div class="flex items-center justify-between mb-3">
+                <h3 class="nasa-font text-cyan-400 text-lg flex items-center gap-2">
+                    <i data-lucide="scan-line" class="w-5 h-5"></i>
+                    SCAN QR / BARCODE
+                </h3>
+                <button onclick="stopScanner()" class="nasa-btn text-xs">CLOSE</button>
+            </div>
+            <div class="relative">
+                <video id="scanner-video" autoplay playsinline muted></video>
+                <div id="scanner-box" class="absolute inset-x-12 inset-y-12 pointer-events-none"></div>
+            </div>
+            <p id="scanner-status" class="mono text-xs mt-3 text-gray-200">กำลังเริ่มกล้อง...</p>
         </div>
     </div>
 
@@ -1059,6 +1153,11 @@
                 </div>
 
                 <div class="flex items-center gap-4 md:gap-6">
+                    <button id="btn-theme-toggle" onclick="toggleTheme()" class="nasa-btn text-xs flex items-center gap-2" title="Toggle dark mode">
+                        <i data-lucide="moon" class="w-4 h-4"></i>
+                        <span class="hidden sm:inline">Dark</span>
+                    </button>
+
                     <!-- Mission Clock -->
                     <div class="hidden sm:flex items-center gap-2">
                         <i data-lucide="clock" class="w-4 h-4 text-amber-400"></i>
@@ -1472,7 +1571,8 @@
                                             <input type="radio" name="pri-triage-cat" value="Red" class="peer sr-only"
                                                 required>
                                             <div
-                                                class="triage-red p-4 text-center peer-checked:scale-105 transition cursor-pointer">
+                                                class="triage-option triage-red p-4 text-center peer-checked:scale-105 peer-checked:ring-4 peer-checked:ring-red-500/40 peer-checked:shadow-lg transition cursor-pointer">
+                                                <span class="selected-mark hidden peer-checked:inline-block">SELECTED</span>
                                                 <span class="nasa-font text-xl block">RED</span>
                                                 <span class="mono text-xs opacity-80">IMMEDIATE</span>
                                             </div>
@@ -1481,7 +1581,8 @@
                                             <input type="radio" name="pri-triage-cat" value="Yellow"
                                                 class="peer sr-only">
                                             <div
-                                                class="triage-amber p-4 text-center peer-checked:scale-105 transition cursor-pointer">
+                                                class="triage-option triage-amber p-4 text-center peer-checked:scale-105 peer-checked:ring-4 peer-checked:ring-amber-500/40 peer-checked:shadow-lg transition cursor-pointer">
+                                                <span class="selected-mark hidden peer-checked:inline-block">SELECTED</span>
                                                 <span class="nasa-font text-xl block">YELLOW</span>
                                                 <span class="mono text-xs opacity-80">DELAYED</span>
                                             </div>
@@ -1490,7 +1591,8 @@
                                             <input type="radio" name="pri-triage-cat" value="Green"
                                                 class="peer sr-only">
                                             <div
-                                                class="triage-green p-4 text-center peer-checked:scale-105 transition cursor-pointer">
+                                                class="triage-option triage-green p-4 text-center peer-checked:scale-105 peer-checked:ring-4 peer-checked:ring-green-500/40 peer-checked:shadow-lg transition cursor-pointer">
+                                                <span class="selected-mark hidden peer-checked:inline-block">SELECTED</span>
                                                 <span class="nasa-font text-xl block">GREEN</span>
                                                 <span class="mono text-xs opacity-80">MINOR</span>
                                             </div>
@@ -1499,7 +1601,8 @@
                                             <input type="radio" name="pri-triage-cat" value="Black"
                                                 class="peer sr-only">
                                             <div
-                                                class="triage-black p-4 text-center peer-checked:scale-105 transition cursor-pointer">
+                                                class="triage-option triage-black p-4 text-center peer-checked:scale-105 peer-checked:ring-4 peer-checked:ring-gray-500/40 peer-checked:shadow-lg transition cursor-pointer">
+                                                <span class="selected-mark hidden peer-checked:inline-block">SELECTED</span>
                                                 <span class="nasa-font text-xl block">BLACK</span>
                                                 <span class="mono text-xs opacity-80">DECEASED</span>
                                             </div>
@@ -1647,7 +1750,8 @@
                                             <input type="radio" name="sec-triage-cat" value="Red" class="peer sr-only"
                                                 required>
                                             <div
-                                                class="triage-red p-4 text-center peer-checked:scale-105 transition cursor-pointer">
+                                                class="triage-option triage-red p-4 text-center peer-checked:scale-105 peer-checked:ring-4 peer-checked:ring-red-500/40 peer-checked:shadow-lg transition cursor-pointer">
+                                                <span class="selected-mark hidden peer-checked:inline-block">SELECTED</span>
                                                 <span class="nasa-font text-xl block">RED</span>
                                             </div>
                                         </label>
@@ -1655,7 +1759,8 @@
                                             <input type="radio" name="sec-triage-cat" value="Yellow"
                                                 class="peer sr-only">
                                             <div
-                                                class="triage-amber p-4 text-center peer-checked:scale-105 transition cursor-pointer">
+                                                class="triage-option triage-amber p-4 text-center peer-checked:scale-105 peer-checked:ring-4 peer-checked:ring-amber-500/40 peer-checked:shadow-lg transition cursor-pointer">
+                                                <span class="selected-mark hidden peer-checked:inline-block">SELECTED</span>
                                                 <span class="nasa-font text-xl block">YELLOW</span>
                                             </div>
                                         </label>
@@ -1663,7 +1768,8 @@
                                             <input type="radio" name="sec-triage-cat" value="Green"
                                                 class="peer sr-only">
                                             <div
-                                                class="triage-green p-4 text-center peer-checked:scale-105 transition cursor-pointer">
+                                                class="triage-option triage-green p-4 text-center peer-checked:scale-105 peer-checked:ring-4 peer-checked:ring-green-500/40 peer-checked:shadow-lg transition cursor-pointer">
+                                                <span class="selected-mark hidden peer-checked:inline-block">SELECTED</span>
                                                 <span class="nasa-font text-xl block">GREEN</span>
                                             </div>
                                         </label>
@@ -1671,7 +1777,8 @@
                                             <input type="radio" name="sec-triage-cat" value="Black"
                                                 class="peer sr-only">
                                             <div
-                                                class="triage-black p-4 text-center peer-checked:scale-105 transition cursor-pointer">
+                                                class="triage-option triage-black p-4 text-center peer-checked:scale-105 peer-checked:ring-4 peer-checked:ring-gray-500/40 peer-checked:shadow-lg transition cursor-pointer">
+                                                <span class="selected-mark hidden peer-checked:inline-block">SELECTED</span>
                                                 <span class="nasa-font text-xl block">BLACK</span>
                                             </div>
                                         </label>
@@ -2245,7 +2352,8 @@
                         <div class="p-6 border-b border-nasa-border">
                             <h3 class="nasa-font text-cyan-400 text-xl flex items-center gap-2">
                                 <i data-lucide="users-cog" class="w-6 h-6"></i>
-                                PERSONNEL MANAGEMENT (MULTI-AGENCY)
+                                USER & AGENCY MANAGEMENT
+                                <span class="nasa-badge" style="margin-left:8px;border-color:var(--apple-blue);color:var(--apple-blue);">MULTI-AGENCY</span>
                             </h3>
                         </div>
                         <div class="p-6 space-y-6">
@@ -2792,6 +2900,25 @@
 
         const delay = ms => new Promise(res => setTimeout(res, ms));
 
+        function applyTheme(theme) {
+            const dark = theme === 'dark';
+            document.body.classList.toggle('theme-dark', dark);
+            localStorage.setItem('mci_theme', dark ? 'dark' : 'light');
+            const btn = document.getElementById('btn-theme-toggle');
+            if (btn) {
+                btn.innerHTML = dark
+                    ? '<i data-lucide="sun" class="w-4 h-4"></i><span class="hidden sm:inline">Light</span>'
+                    : '<i data-lucide="moon" class="w-4 h-4"></i><span class="hidden sm:inline">Dark</span>';
+                btn.title = dark ? 'Switch to light mode' : 'Switch to dark mode';
+                requestAnimationFrame(() => lucide.createIcons());
+            }
+        }
+
+        window.toggleTheme = function () {
+            const current = localStorage.getItem('mci_theme') || 'light';
+            applyTheme(current === 'dark' ? 'light' : 'dark');
+        };
+
         function setButtonLoading(btnId, isLoading, originalHtml) {
             const btn = document.getElementById(btnId);
             if (!btn) return;
@@ -3294,7 +3421,22 @@
                 'tracking': 'PATIENT TRACKING', 'transport': 'TRANSPORT', 'hospitals': 'HOSPITAL ISOS',
                 'history': 'AAR REPORT', 'settings': 'SETTINGS', 'users': 'USER MANAGEMENT'
             };
-            document.getElementById('page-title').textContent = titles[targetId] || targetId;
+            const titleIcons = {
+                'dashboard': 'radar',
+                'triage': 'user-plus',
+                'care': 'heart-pulse',
+                'tracking': 'map-pin',
+                'transport': 'ambulance',
+                'hospitals': 'building-2',
+                'history': 'file-check',
+                'settings': 'settings',
+                'users': 'users-cog'
+            };
+            const pageTitle = document.getElementById('page-title');
+            if (pageTitle) {
+                pageTitle.innerHTML = `<i data-lucide="${titleIcons[targetId] || 'layout-dashboard'}" class="w-5 h-5 inline-block mr-2 align-[-2px]"></i>${titles[targetId] || targetId}`;
+                requestAnimationFrame(() => lucide.createIcons());
+            }
             if (targetId === 'dashboard') { updateDashboardStats(); setTimeout(() => initMap(), 300); }
             if (targetId === 'care') populateCareDropdowns();
             if (targetId === 'hospitals') renderHospitals();
@@ -3559,18 +3701,99 @@
         }
 
         window.scanCarePID = function (targetId) {
+            startScanner(targetId);
+        }
+
+        let scannerStream = null;
+        let scannerDetector = null;
+        let scannerRunning = false;
+        let scannerTargetId = '';
+
+        async function startScanner(targetId) {
             const target = document.getElementById(targetId);
             if (!target) return;
-            let pid = prompt("Simulate Scan - Enter Patient ID:", `SMART-${Math.floor(100000 + Math.random() * 900000)}`);
-            if (pid) {
-                target.value = pid.trim();
-                if (targetId === 'care-patient-select') renderPatientCareDetails();
-                if (targetId === 'sec-triage-pid') {
-                    const secSelect = document.getElementById('sec-triage-pid-select');
-                    if (secSelect) secSelect.value = pid.trim();
-                }
+
+            if (!('BarcodeDetector' in window)) {
+                showToast('อุปกรณ์นี้ไม่รองรับ BarcodeDetector', 'error');
+                return;
+            }
+
+            scannerTargetId = targetId;
+            const modal = document.getElementById('scanner-modal');
+            const status = document.getElementById('scanner-status');
+            const video = document.getElementById('scanner-video');
+
+            try {
+                scannerDetector = new BarcodeDetector({
+                    formats: ['qr_code', 'code_128', 'code_39', 'ean_13', 'ean_8', 'upc_a', 'upc_e', 'itf']
+                });
+            } catch (_) {
+                showToast('เบราว์เซอร์ไม่รองรับ format ที่ต้องการ', 'error');
+                return;
+            }
+
+            try {
+                scannerStream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: { ideal: 'environment' } },
+                    audio: false
+                });
+                video.srcObject = scannerStream;
+                modal.classList.remove('hidden');
+                status.textContent = 'เล็งกล้องไปที่ QR/Barcode...';
+                scannerRunning = true;
+                scanFrame();
+            } catch (err) {
+                status.textContent = 'ไม่สามารถเปิดกล้องได้: ' + err.message;
+                showToast('ไม่สามารถเปิดกล้องสแกนได้', 'error');
+                stopScanner();
             }
         }
+
+        async function scanFrame() {
+            if (!scannerRunning || !scannerDetector) return;
+            const video = document.getElementById('scanner-video');
+            const status = document.getElementById('scanner-status');
+            try {
+                const codes = await scannerDetector.detect(video);
+                if (codes && codes.length > 0) {
+                    const value = (codes[0].rawValue || '').trim();
+                    if (value) {
+                        applyScannedValue(value);
+                        stopScanner();
+                        showToast('สแกนสำเร็จ: ' + value, 'success');
+                        return;
+                    }
+                }
+            } catch (_) {
+                status.textContent = 'กำลังพยายามสแกน...';
+            }
+            requestAnimationFrame(scanFrame);
+        }
+
+        function applyScannedValue(value) {
+            const target = document.getElementById(scannerTargetId);
+            if (!target) return;
+            target.value = value;
+            target.dispatchEvent(new Event('input', { bubbles: true }));
+            target.dispatchEvent(new Event('change', { bubbles: true }));
+            if (scannerTargetId === 'care-patient-select') renderPatientCareDetails();
+            if (scannerTargetId === 'sec-triage-pid') {
+                const secSelect = document.getElementById('sec-triage-pid-select');
+                if (secSelect) secSelect.value = value;
+            }
+        }
+
+        window.stopScanner = function () {
+            scannerRunning = false;
+            const modal = document.getElementById('scanner-modal');
+            const video = document.getElementById('scanner-video');
+            if (modal) modal.classList.add('hidden');
+            if (video) video.srcObject = null;
+            if (scannerStream) {
+                scannerStream.getTracks().forEach(t => t.stop());
+                scannerStream = null;
+            }
+        };
 
         window.selectSecondaryTriagePatient = function (pid) {
             const cleanPid = (pid || '').trim();
@@ -4292,6 +4515,7 @@
         // ===== INIT =====
         document.addEventListener('DOMContentLoaded', () => {
             lucide.createIcons();
+            applyTheme(localStorage.getItem('mci_theme') || 'light');
             loadLocalState();
             if (window.state.users.length === 0) {
                 window.state.users = [...defaultUsers];
