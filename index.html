@@ -2749,6 +2749,7 @@
         let db, auth;
         window.isCloudSyncActive = false;
         let isSyncingFromCloud = false;
+        let firestoreUnsubscribers = [];
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'mci-app';
 
         // ===== FIREBASE CONFIGURATION =====
@@ -2796,12 +2797,15 @@
                             sBadge.innerHTML = '<div class="status-dot status-green"></div><button onclick="promptToLogin()" class="text-green-400">CLOUD SYNC</button>';
                         }
                         startFirestoreListeners();
+                        reconcileSyncMode();
                     } else {
                         window.isCloudSyncActive = false;
+                        stopFirestoreListeners();
                         console.warn('[Firebase] Not signed in — offline mode');
                         if (sBadge) {
                             sBadge.innerHTML = '<div class="status-dot status-red"></div><span class="text-red-400">OFFLINE</span>';
                         }
+                        reconcileSyncMode();
                     }
                 });
             } else {
@@ -2811,10 +2815,20 @@
             console.error("[Firebase] Init error:", e);
         }
 
+        function stopFirestoreListeners() {
+            if (firestoreUnsubscribers.length === 0) return;
+            firestoreUnsubscribers.forEach(unsub => {
+                try { unsub(); } catch (_) {}
+            });
+            firestoreUnsubscribers = [];
+        }
+
         function startFirestoreListeners() {
+            if (!db) return;
+            stopFirestoreListeners();
             const collections = ['patients', 'careRecords', 'vehicles', 'dispatches', 'hospitals', 'eventLogs'];
             collections.forEach(colName => {
-                onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', colName), (snap) => {
+                const unsub = onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', colName), (snap) => {
                     if (isSyncingFromCloud) return;
                     isSyncingFromCloud = true;
                     window.state[colName] = [];
@@ -2822,9 +2836,10 @@
                     refreshUIs();
                     setTimeout(() => { isSyncingFromCloud = false; }, 100);
                 });
+                firestoreUnsubscribers.push(unsub);
             });
 
-            onSnapshot(doc(db, 'artifacts', appId, 'public', 'data', 'global', 'state'), (docSnap) => {
+            const unsubGlobal = onSnapshot(doc(db, 'artifacts', appId, 'public', 'data', 'global', 'state'), (docSnap) => {
                 if (docSnap.exists()) {
                     const data = docSnap.data();
                     window.state.methane = data.methane || window.state.methane;
@@ -2834,6 +2849,16 @@
                     refreshUIs();
                 }
             });
+            firestoreUnsubscribers.push(unsubGlobal);
+        }
+
+        function reconcileSyncMode() {
+            if (window.isCloudSyncActive) {
+                stopSheetsPolling();
+                return;
+            }
+            if (SHEETS_API_URL) startSheetsPolling();
+            else stopSheetsPolling();
         }
 
         function showToast(msg, type = 'success') {
@@ -2872,7 +2897,7 @@
             localStorage.setItem('mci_sheets_url', SHEETS_API_URL);
             updateSyncStatus();
             if (SHEETS_API_URL && sheetsQueue.length > 0) scheduleSheetsFlush();
-            if (SHEETS_API_URL) startSheetsPolling(); else stopSheetsPolling();
+            reconcileSyncMode();
         };
 
         // Debounce helper
@@ -3107,7 +3132,7 @@
 
         function startSheetsPolling() {
             stopSheetsPolling();
-            if (!SHEETS_API_URL) return;
+            if (!SHEETS_API_URL || window.isCloudSyncActive) return;
             pollSheetsState(); // poll ทันทีเมื่อเริ่ม
             sheetsPollingTimer = setInterval(pollSheetsState, SHEETS_POLL_INTERVAL_MS);
             console.log('[Sheets Poll] ✓ Started, interval:', SHEETS_POLL_INTERVAL_MS, 'ms');
@@ -3124,10 +3149,8 @@
         window.startSheetsPolling = startSheetsPolling;
         window.stopSheetsPolling = stopSheetsPolling;
 
-        // เริ่ม polling อัตโนมัติถ้ามี URL แล้ว
-        if (SHEETS_API_URL) {
-            startSheetsPolling();
-        }
+        // เริ่มโหมด sync ตามสถานะปัจจุบัน (Firebase หลัก, Sheets สำรอง)
+        reconcileSyncMode();
 
         // Debounced global state sync to Sheets (5 seconds)
         const debouncedSheetsGlobalSync = debounce(() => {
