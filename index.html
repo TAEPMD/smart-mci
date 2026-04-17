@@ -2119,6 +2119,34 @@
                         <div class="p-6 space-y-6">
                             <div class="nasa-panel-bright p-4">
                                 <div class="flex justify-between items-center mb-4">
+                                    <h4 class="nasa-font text-cyan-400 text-sm uppercase">Google Sheets Sync</h4>
+                                    <div class="mono text-xs" style="color:var(--apple-text-tertiary);">Web App URL</div>
+                                </div>
+                                <form onsubmit="saveSheetsUrlFromSettings(event)" class="space-y-3">
+                                    <div>
+                                        <label class="block mono text-xs text-gray-400 mb-1 uppercase">Sheets Script URL</label>
+                                        <input type="url" id="set-sheets-url" class="nasa-input w-full"
+                                            placeholder="https://script.google.com/macros/s/.../exec">
+                                    </div>
+                                    <div class="flex flex-wrap gap-2">
+                                        <button type="submit" id="btn-save-sheets-url"
+                                            class="nasa-btn nasa-btn-primary text-xs flex items-center gap-1">
+                                            <i data-lucide="save" class="w-3 h-3"></i>
+                                            บันทึก URL
+                                        </button>
+                                        <button type="button" id="btn-test-sheets" onclick="testSheetsConnection()"
+                                            class="nasa-btn text-xs flex items-center gap-1">
+                                            <i data-lucide="wifi" class="w-3 h-3"></i>
+                                            Test Connection
+                                        </button>
+                                    </div>
+                                </form>
+                                <p class="mono text-xs mt-3" style="color:var(--apple-text-tertiary);">
+                                    วาง URL ของ Apps Script Web App ที่ deploy แล้ว (ลงท้ายด้วย /exec)
+                                </p>
+                            </div>
+                            <div class="nasa-panel-bright p-4">
+                                <div class="flex justify-between items-center mb-4">
                                     <h4 class="nasa-font text-cyan-400 text-sm uppercase">Triage Models</h4>
                                     <button onclick="saveTriageModels()" id="btn-save-triage-models"
                                         class="nasa-btn nasa-btn-primary text-xs flex items-center gap-1">
@@ -3924,6 +3952,8 @@
             if (!Array.isArray(sm.quickInjuries) || sm.quickInjuries.length === 0) {
                 sm.quickInjuries = ['Head Injury', 'Chest Trauma', 'Abdominal Pain', 'Fracture', 'Burn', 'Laceration'];
             }
+            const sheetsUrlInput = document.getElementById('set-sheets-url');
+            if (sheetsUrlInput) sheetsUrlInput.value = window.getSheetsUrl ? window.getSheetsUrl() : '';
             // Populate triage model inputs
             const priInput = document.getElementById('set-primary-model');
             const secInput = document.getElementById('set-secondary-model');
@@ -4076,6 +4106,23 @@
                 const sel = document.getElementById(side === 'primary' ? 'set-primary-preset' : 'set-secondary-preset');
                 if (sel) sel.value = key; // keep showing selected item
             }, 50);
+        };
+
+        window.saveSheetsUrlFromSettings = function (e) {
+            if (e) e.preventDefault();
+            const input = document.getElementById('set-sheets-url');
+            const url = (input?.value || '').trim();
+            if (!url) {
+                setSheetsUrl('');
+                showToast('ปิด Google Sheets sync แล้ว', 'info');
+                return;
+            }
+            if (!/^https:\/\/.+\/(exec|dev)(\?.*)?$/.test(url)) {
+                showToast('URL ต้องเป็น Apps Script Web App (/exec หรือ /dev)', 'error');
+                return;
+            }
+            setSheetsUrl(url);
+            showToast('บันทึก Sheets URL สำเร็จ', 'success');
         };
 
         window.saveTriageModels = async function () {
