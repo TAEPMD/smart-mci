@@ -2247,8 +2247,8 @@
                             <div class="flex flex-wrap gap-2">
                                 <button onclick="resetIncident()" id="btn-reset-incident"
                                     class="nasa-btn nasa-btn-danger flex items-center gap-2">
-                                    <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
-                                    RESET INCIDENT
+                                    <i data-lucide="power" class="w-4 h-4"></i>
+                                    ปิดสถานการณ์
                                 </button>
                                 <button onclick="generateAiReport()" id="btn-ai-report"
                                     class="nasa-btn nasa-btn-primary flex items-center gap-2">
@@ -2571,6 +2571,7 @@
 
         window.state = {
             currentUser: null,
+            incidentStartTime: Date.now(),
             settings: {
                 primaryModel: 'START', secondaryModel: 'SORT', idPrefix: 'SMART', seq: 1,
                 quickInterventions: ['Tourniquet', 'Needle Decompression', 'Pelvic Binder', 'Airway Adjunct', 'IV Access', 'Wound Packing'],
@@ -2961,6 +2962,7 @@
                     const parsed = JSON.parse(saved);
                     window.state.settings = parsed.settings || window.state.settings;
                     window.state.users = parsed.users && parsed.users.length > 0 ? parsed.users : defaultUsers;
+                    window.state.incidentStartTime = parsed.incidentStartTime || window.state.incidentStartTime;
                     window.state.patients = parsed.patients || [];
                     window.state.careRecords = parsed.careRecords || [];
                     window.state.vehicles = parsed.vehicles || [];
@@ -3077,7 +3079,13 @@
         }
 
         window.resetIncident = async function () {
-            if (!confirm('เริ่มเหตุการณ์ใหม่? ระบบจะล้างผู้ป่วย, เวชระเบียน, รถ, dispatch, โรงพยาบาล และ event log ทั้งหมด')) return;
+            if (!confirm('ยืนยันปิดสถานการณ์? ระบบจะเปิดหน้าต่าง Save to PDF อัตโนมัติก่อนปิดสถานการณ์')) return;
+
+            prepareIncidentReportForPrint();
+            window.print();
+
+            if (!confirm('บันทึก PDF เรียบร้อยแล้วใช่หรือไม่?\nกด "ตกลง" เพื่อปิดสถานการณ์')) return;
+
             const btn = document.getElementById('btn-reset-incident');
             const btnHtml = btn ? btn.innerHTML : '';
             if (btn) setButtonLoading('btn-reset-incident', true, btnHtml);
@@ -3106,14 +3114,23 @@
                 window.state.dispatches = [];
                 window.state.hospitals = [];
                 window.state.eventLogs = [];
+                window.state.incidentStartTime = Date.now();
                 window.state.methane = { m: 'Standby', e: '', t: '', h: '', a: '', n: '', e2: '' };
                 window.state.cscattt = { c1: false, s: false, c2: false, a: false, t1: false, t2: false, t3: false };
 
+                const reportContentEl = document.getElementById('report-content');
+                const reportContainerEl = document.getElementById('report-container');
+                const reportEmptyEl = document.getElementById('report-empty');
+                if (reportContentEl) reportContentEl.innerHTML = '';
+                if (reportContainerEl) reportContainerEl.classList.add('hidden');
+                if (reportEmptyEl) reportEmptyEl.classList.remove('hidden');
+
                 await saveGlobalStateToCloud();
                 queueSheetsAction('reset_incident', {}, { highPriority: true });
+                missionStartTime = window.state.incidentStartTime;
                 saveLocalState();
                 refreshUIs();
-                showToast('เริ่มเหตุการณ์ใหม่แล้ว', 'success');
+                showToast('ปิดสถานการณ์และเริ่มเหตุการณ์ใหม่แล้ว', 'success');
             } finally {
                 if (btn) setButtonLoading('btn-reset-incident', false, btnHtml);
             }
@@ -3162,6 +3179,15 @@
 
         // ===== MISSION CLOCK =====
         let missionStartTime = Date.now();
+
+        function ensureIncidentStartTime() {
+            if (!window.state.incidentStartTime) {
+                window.state.incidentStartTime = Date.now();
+                saveLocalState();
+            }
+            missionStartTime = Number(window.state.incidentStartTime) || Date.now();
+        }
+
         function updateMissionClock() {
             const elapsed = Date.now() - missionStartTime;
             const hours = Math.floor(elapsed / 3600000);
@@ -3597,7 +3623,6 @@
 
                 if (validUser) {
                     window.state.currentUser = validUser;
-                    missionStartTime = Date.now();
 
                     const displayNameEl = document.getElementById('user-display-name');
                     if (displayNameEl) displayNameEl.textContent = validUser.username.toUpperCase();
@@ -4780,11 +4805,50 @@
             try { await navigator.clipboard.writeText(content); alert('Copied'); } catch { alert('Copy failed'); }
         }
 
+        function prepareIncidentReportForPrint() {
+            const reportContainer = document.getElementById('report-container');
+            const reportEmpty = document.getElementById('report-empty');
+            const reportContent = document.getElementById('report-content');
+            if (!reportContainer || !reportEmpty || !reportContent) return;
+
+            const hasReport = (reportContent.innerText || '').trim().length > 0;
+            if (!hasReport) {
+                const red = window.state.patients.filter(x => x.cat === 'Red').length;
+                const yellow = window.state.patients.filter(x => x.cat === 'Yellow').length;
+                const green = window.state.patients.filter(x => x.cat === 'Green').length;
+                const black = window.state.patients.filter(x => x.cat === 'Black').length;
+                const now = new Date().toLocaleString('th-TH', { hour12: false });
+                const summary = [
+                    'MCI INCIDENT SUMMARY',
+                    `Generated: ${now}`,
+                    '',
+                    `Total Patients: ${window.state.patients.length}`,
+                    `Red: ${red}`,
+                    `Yellow: ${yellow}`,
+                    `Green: ${green}`,
+                    `Black: ${black}`,
+                    '',
+                    `Care Records: ${window.state.careRecords.length}`,
+                    `Dispatches: ${window.state.dispatches.length}`,
+                    `Vehicles: ${window.state.vehicles.length}`,
+                    `Hospitals: ${window.state.hospitals.length}`,
+                    `Event Logs: ${window.state.eventLogs.length}`,
+                    '',
+                    'Mission Time: ' + (document.getElementById('mission-clock')?.innerText || '00:00:00')
+                ].join('\n');
+                reportContent.innerHTML = `<pre class="whitespace-pre-wrap">${escapeHtml(summary)}</pre>`;
+            }
+
+            reportEmpty.classList.add('hidden');
+            reportContainer.classList.remove('hidden');
+        }
+
         // ===== INIT =====
         document.addEventListener('DOMContentLoaded', () => {
             lucide.createIcons();
             applyTheme(localStorage.getItem('mci_theme') || 'light');
             loadLocalState();
+            ensureIncidentStartTime();
             if (window.state.users.length === 0) {
                 window.state.users = [...defaultUsers];
                 saveLocalState();
