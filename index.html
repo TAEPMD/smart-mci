@@ -409,27 +409,102 @@
 
         /* ── Mobile bottom nav ── */
         .nasa-mobile-nav {
-            background: rgba(255, 255, 255, 0.88);
-            backdrop-filter: saturate(180%) blur(20px);
-            -webkit-backdrop-filter: saturate(180%) blur(20px);
-            border-top: 1px solid var(--apple-border);
-            padding: 8px 16px 24px;
+            background: rgba(15, 15, 20, 0.95);
+            backdrop-filter: saturate(180%) blur(24px);
+            -webkit-backdrop-filter: saturate(180%) blur(24px);
+            border-top: 1px solid rgba(255,255,255,0.08);
+            padding: 6px 4px env(safe-area-inset-bottom, 10px);
+            box-shadow: 0 -4px 24px rgba(0,0,0,0.4);
         }
 
         .nasa-mobile-nav-item {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 3px;
-            padding: 8px;
-            color: var(--apple-text-secondary);
-            font-size: 10px;
-            font-weight: 500;
-            transition: color 0.15s;
+            justify-content: center;
+            gap: 2px;
+            padding: 6px 4px;
+            min-width: 0;
+            flex: 1;
+            color: rgba(255,255,255,0.45);
+            font-size: 9px;
+            font-weight: 600;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            transition: color 0.15s, transform 0.1s;
+            border-radius: 10px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .nasa-mobile-nav-item:active {
+            transform: scale(0.92);
         }
 
         .nasa-mobile-nav-item.active {
-            color: var(--apple-blue);
+            color: #0a84ff;
+        }
+
+        .nasa-mobile-nav-item.active i {
+            filter: drop-shadow(0 0 6px rgba(10, 132, 255, 0.6));
+        }
+
+        /* ── More Drawer ── */
+        #mobile-more-drawer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 50;
+            transform: translateY(100%);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            pointer-events: none;
+        }
+
+        #mobile-more-drawer.open {
+            transform: translateY(0);
+            pointer-events: all;
+        }
+
+        #mobile-more-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 49;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s;
+        }
+
+        #mobile-more-backdrop.open {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .mobile-more-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 20px;
+            color: rgba(255,255,255,0.85);
+            font-size: 15px;
+            font-weight: 600;
+            border-radius: 14px;
+            cursor: pointer;
+            transition: background 0.15s;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .mobile-more-item:active {
+            background: rgba(255,255,255,0.08);
+        }
+
+        .mobile-more-item i {
+            color: #0a84ff;
+            flex-shrink: 0;
         }
 
         /* ── Map ── */
@@ -990,10 +1065,16 @@
                         <span id="mission-clock" class="mission-clock">00:00:00</span>
                     </div>
 
-                    <!-- Sync Status -->
+                    <!-- Firebase Sync Status -->
                     <div id="sync-status" class="hidden sm:flex items-center gap-2 mono text-xs">
                         <div class="spinner w-4 h-4"></div>
                         <span class="text-gray-500">SYNCING</span>
+                    </div>
+
+                    <!-- Sheets Sync Status -->
+                    <div id="sheets-sync-badge" class="hidden sm:flex items-center gap-2 mono text-xs cursor-pointer" onclick="navigate('settings')" title="Google Sheets Sync">
+                        <div class="status-dot" style="background:#888"></div>
+                        <span style="color:#888">SHEETS OFF</span>
                     </div>
 
                     <!-- User Info -->
@@ -2177,6 +2258,35 @@
             </div>
         </main>
 
+        <!-- More Drawer Backdrop -->
+        <div id="mobile-more-backdrop" onclick="closeMoreMenu()"></div>
+
+        <!-- More Drawer -->
+        <div id="mobile-more-drawer" class="md:hidden">
+            <div style="background:rgba(18,18,24,0.98);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-radius:20px 20px 0 0;border-top:1px solid rgba(255,255,255,0.1);padding:12px 12px env(safe-area-inset-bottom,16px);box-shadow:0 -8px 32px rgba(0,0,0,0.5);">
+                <!-- Handle -->
+                <div style="width:36px;height:4px;background:rgba(255,255,255,0.2);border-radius:2px;margin:0 auto 16px;"></div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                    <button onclick="mobileNavigate('hospitals')" class="mobile-more-item">
+                        <i data-lucide="hospital" class="w-5 h-5"></i>
+                        <span>Hospitals</span>
+                    </button>
+                    <button onclick="mobileNavigate('history')" class="mobile-more-item">
+                        <i data-lucide="file-text" class="w-5 h-5"></i>
+                        <span>AAR Report</span>
+                    </button>
+                    <button onclick="mobileNavigate('settings')" class="mobile-more-item">
+                        <i data-lucide="settings" class="w-5 h-5"></i>
+                        <span>Settings</span>
+                    </button>
+                    <button onclick="mobileNavigate('users')" class="mobile-more-item">
+                        <i data-lucide="users-cog" class="w-5 h-5"></i>
+                        <span>Users</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <!-- Mobile Bottom Nav -->
         <div class="nasa-mobile-nav md:hidden fixed bottom-0 left-0 right-0 z-40">
             <div class="flex justify-around items-center">
@@ -2188,17 +2298,17 @@
                     <i data-lucide="heart-pulse" class="w-5 h-5"></i>
                     <span>Care</span>
                 </button>
-                <button onclick="navigate('dashboard')" class="nasa-mobile-nav-item active" data-target="dashboard">
-                    <i data-lucide="radar" class="w-6 h-6"></i>
-                    <span>Command</span>
+                <button onclick="navigate('dashboard')" class="nasa-mobile-nav-item active" data-target="dashboard" style="position:relative;">
+                    <div style="position:absolute;top:-2px;left:50%;transform:translateX(-50%);width:36px;height:36px;background:linear-gradient(135deg,#0a84ff,#5e5ce6);border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(10,132,255,0.5);"><i data-lucide="radar" class="w-5 h-5" style="color:#fff;"></i></div>
+                    <span style="margin-top:18px;">Command</span>
                 </button>
                 <button onclick="navigate('tracking')" class="nasa-mobile-nav-item" data-target="tracking">
                     <i data-lucide="map-pin" class="w-5 h-5"></i>
-                    <span>Tracking</span>
+                    <span>Track</span>
                 </button>
-                <button onclick="navigate('transport')" class="nasa-mobile-nav-item" data-target="transport">
-                    <i data-lucide="ambulance" class="w-5 h-5"></i>
-                    <span>Transport</span>
+                <button onclick="toggleMoreMenu()" class="nasa-mobile-nav-item" id="btn-more-menu" data-target="__more__">
+                    <i data-lucide="grid-3x3" class="w-5 h-5"></i>
+                    <span>More</span>
                 </button>
             </div>
         </div>
@@ -2332,7 +2442,7 @@
             if (existing) existing.remove();
             const t = document.createElement('div');
             t.id = 'app-toast';
-            t.style.cssText = `position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);z-index:9999;padding:10px 20px;border-radius:10px;font-size:13px;font-weight:600;font-family:Inter,sans-serif;opacity:0;transition:all .3s ease;pointer-events:none;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,.3);`;
+            t.style.cssText = `position:fixed;bottom:88px;left:50%;transform:translateX(-50%) translateY(20px);z-index:9999;padding:10px 20px;border-radius:10px;font-size:13px;font-weight:600;font-family:Inter,sans-serif;opacity:0;transition:all .3s ease;pointer-events:none;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,.3);`;
             if (type === 'success') { t.style.background = '#1c7a40'; t.style.color = '#fff'; t.textContent = '✓ ' + msg; }
             else if (type === 'error') { t.style.background = '#c0392b'; t.style.color = '#fff'; t.textContent = '✕ ' + msg; }
             else { t.style.background = '#2d3c4e'; t.style.color = '#7ec8e3'; t.textContent = 'ℹ ' + msg; }
@@ -2342,54 +2452,225 @@
         }
         window.showToast = showToast;
 
-        window.saveToCloud = async function (collectionName, docId, data) {
-            saveLocalState(); // บันทึก local เสมอ
-            if (!window.isCloudSyncActive || !auth.currentUser) {
-                console.warn('[Firebase] Not connected — saved locally only.');
+        // ===== GOOGLE SHEETS SYNC LAYER =====
+        let SHEETS_API_URL = localStorage.getItem('mci_sheets_url') || '';
+        const SHEETS_FLUSH_INTERVAL_MS = 1200;
+        const SHEETS_MAX_BATCH = 25;
+        let sheetsQueue = [];
+        let sheetsFlushTimer = null;
+        let sheetsFlushInProgress = false;
+        window.getSheetsUrl = () => SHEETS_API_URL;
+        window.setSheetsUrl = (url) => {
+            SHEETS_API_URL = (url || '').trim();
+            localStorage.setItem('mci_sheets_url', SHEETS_API_URL);
+            updateSyncStatus();
+            if (SHEETS_API_URL && sheetsQueue.length > 0) scheduleSheetsFlush();
+        };
+
+        // Debounce helper
+        function debounce(fn, ms) {
+            let timer;
+            return (...args) => { clearTimeout(timer); timer = setTimeout(() => fn(...args), ms); };
+        }
+
+        // Sheets status badge
+        function updateSyncStatus() {
+            const badge = document.getElementById('sheets-sync-badge');
+            if (!badge) return;
+            if (SHEETS_API_URL) {
+                badge.innerHTML = '<div class="status-dot status-green"></div><span class="text-green-400">SHEETS SYNC</span>';
+                badge.title = SHEETS_API_URL;
+            } else {
+                badge.innerHTML = '<div class="status-dot" style="background:#888"></div><span style="color:#888">SHEETS OFF</span>';
+                badge.title = 'ตั้งค่า Sheets URL ใน Settings';
+            }
+        }
+
+        async function postToSheets(payload, label = 'batch') {
+            if (!SHEETS_API_URL) return;
+            const badge = document.getElementById('sheets-sync-badge');
+            try {
+                if (badge) badge.innerHTML = '<div class="status-dot status-amber blink"></div><span class="text-amber-400">SYNCING</span>';
+                const resp = await fetch(SHEETS_API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain' }, // Apps Script ต้องการ text/plain ไม่ใช่ application/json
+                    body: JSON.stringify(payload),
+                    redirect: 'follow'
+                });
+                if (resp.ok) {
+                    console.log(`[Sheets] ✓ ${label}`);
+                    if (badge) badge.innerHTML = '<div class="status-dot status-green"></div><span class="text-green-400">SHEETS SYNC</span>';
+                } else {
+                    throw new Error(`HTTP ${resp.status}`);
+                }
+            } catch (e) {
+                console.warn('[Sheets] Write failed:', label, e.message);
+                if (badge) badge.innerHTML = '<div class="status-dot status-red"></div><span class="text-red-400">SHEETS ERR</span>';
+                // restore after 10s
+                setTimeout(updateSyncStatus, 10000);
+            }
+        }
+
+        // Core Sheets POST function — direct send
+        async function saveToSheets(action, data) {
+            await postToSheets({ action, data }, action);
+        }
+        window.saveToSheets = saveToSheets;
+
+        function scheduleSheetsFlush() {
+            if (!SHEETS_API_URL || sheetsFlushTimer || sheetsFlushInProgress || sheetsQueue.length === 0) return;
+            sheetsFlushTimer = setTimeout(() => {
+                sheetsFlushTimer = null;
+                flushSheetsQueue();
+            }, SHEETS_FLUSH_INTERVAL_MS);
+        }
+
+        async function flushSheetsQueue(forceAll = false) {
+            if (!SHEETS_API_URL || sheetsFlushInProgress || sheetsQueue.length === 0) return;
+            sheetsFlushInProgress = true;
+            try {
+                const batchSize = forceAll ? sheetsQueue.length : Math.min(SHEETS_MAX_BATCH, sheetsQueue.length);
+                const operations = sheetsQueue.splice(0, batchSize);
+                if (operations.length === 1) {
+                    const op = operations[0];
+                    await saveToSheets(op.action, op.data);
+                } else {
+                    await postToSheets({ action: 'batch_ops', data: { operations } }, `batch_ops (${operations.length})`);
+                }
+            } finally {
+                sheetsFlushInProgress = false;
+                if (sheetsQueue.length > 0) scheduleSheetsFlush();
+            }
+        }
+
+        function queueSheetsAction(action, data, opts = {}) {
+            if (!action) return;
+            sheetsQueue.push({ action, data, ts: Date.now() });
+            if (opts.highPriority) {
+                flushSheetsQueue(true);
                 return;
             }
-            try {
-                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', collectionName, docId), data);
-                console.log(`[Firebase] ✓ Saved to ${collectionName}/${docId}`);
-            } catch (e) {
-                console.error('[Firebase] Write error:', e.code, e.message);
-                showToast('Firebase error: ' + e.message, 'error');
+            if (sheetsQueue.length >= SHEETS_MAX_BATCH) {
+                flushSheetsQueue();
+                return;
             }
+            scheduleSheetsFlush();
+        }
+        window.flushSheetsQueue = () => flushSheetsQueue(true);
+
+        // Debounced global state sync to Sheets (5 seconds)
+        const debouncedSheetsGlobalSync = debounce(() => {
+            queueSheetsAction('save_global', {
+                methane: window.state.methane,
+                cscattt: window.state.cscattt,
+                settings: window.state.settings,
+                users: window.state.users
+            });
+        }, 5000);
+
+        window.batchSyncToSheets = async function () {
+            if (!SHEETS_API_URL) return;
+            await postToSheets({
+                action: 'batch_sync',
+                data: {
+                    patients: window.state.patients,
+                    careRecords: window.state.careRecords,
+                    vehicles: window.state.vehicles,
+                    dispatches: window.state.dispatches,
+                    hospitals: window.state.hospitals,
+                    methane: window.state.methane,
+                    cscattt: window.state.cscattt,
+                    users: window.state.users,
+                    settings: window.state.settings
+                }
+            }, 'batch_sync');
+        };
+
+        // Test Sheets connection
+        window.testSheetsConnection = async function () {
+            if (!SHEETS_API_URL) return alert('กรุณาใส่ Sheets URL ก่อน');
+            const btn = document.getElementById('btn-test-sheets');
+            if (btn) { btn.disabled = true; btn.textContent = 'Testing...'; }
+            try {
+                const resp = await fetch(SHEETS_API_URL, { method: 'GET', redirect: 'follow' });
+                if (resp.ok) {
+                    showToast('Sheets connection OK!', 'success');
+                } else {
+                    showToast('Sheets error: HTTP ' + resp.status, 'error');
+                }
+            } catch (e) {
+                showToast('Cannot reach Sheets: ' + e.message, 'error');
+            } finally {
+                if (btn) { btn.disabled = false; btn.textContent = 'Test Connection'; }
+            }
+        };
+
+        // ===== FIREBASE + SHEETS UNIFIED SAVE =====
+        window.saveToCloud = async function (collectionName, docId, data) {
+            saveLocalState(); // localStorage ทันที
+
+            // Sheets (background, non-blocking)
+            const actionMap = { patients: 'upsert_patient', careRecords: 'upsert_careRecord', vehicles: 'upsert_vehicle', hospitals: 'upsert_hospital', dispatches: 'upsert_dispatch' };
+            const sheetAction = actionMap[collectionName];
+            if (sheetAction) queueSheetsAction(sheetAction, data);
+
+            // Firebase
+            if (!window.isCloudSyncActive || !auth.currentUser) {
+                console.warn('[Firebase] Not connected — saved locally + Sheets only.');
+                return;
+            }
+            setDoc(doc(db, 'artifacts', appId, 'public', 'data', collectionName, docId), data).then(() => {
+                console.log(`[Firebase] ✓ ${collectionName}/${docId}`);
+            }).catch((e) => {
+                console.error('[Firebase] Write error:', e.code, e.message);
+            });
         };
 
         window.deleteFromCloud = async function (collectionName, docId) {
             saveLocalState();
-            if (!window.isCloudSyncActive || !auth.currentUser) {
-                console.warn('[Firebase] Not connected — deleted locally only.');
-                return;
-            }
-            try {
-                await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', collectionName, docId));
+
+            // Sheets (background)
+            const sheetDeleteMap = {
+                patients: 'delete_patient',
+                vehicles: 'delete_vehicle',
+                hospitals: 'delete_hospital',
+                dispatches: 'delete_dispatch',
+                careRecords: 'delete_careRecord'
+            };
+            const sheetAction = sheetDeleteMap[collectionName];
+            if (sheetAction) queueSheetsAction(sheetAction, { id: docId });
+
+            // Firebase
+            if (!window.isCloudSyncActive || !auth.currentUser) return;
+            deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', collectionName, docId)).then(() => {
                 console.log(`[Firebase] ✓ Deleted ${collectionName}/${docId}`);
-            } catch (e) {
+            }).catch((e) => {
                 console.error('[Firebase] Delete error:', e.code, e.message);
                 showToast('Firebase delete error: ' + e.message, 'error');
-            }
+            });
         };
 
         window.saveGlobalStateToCloud = async function () {
             saveLocalState(); // บันทึก local เสมอ
+
+            // Sheets sync queued/debounced to reduce write pressure
+            debouncedSheetsGlobalSync();
+
             if (!window.isCloudSyncActive || !auth.currentUser) {
                 console.warn('[Firebase] Not connected — saved locally only.');
                 return;
             }
-            try {
-                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'global', 'state'), {
+            setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'global', 'state'), {
                     methane: window.state.methane,
                     cscattt: window.state.cscattt,
                     settings: window.state.settings,
                     users: window.state.users
-                });
+                }).then(() => {
                 console.log('[Firebase] ✓ Global state saved');
-            } catch (e) {
+                }).catch((e) => {
                 console.error('[Firebase] Global state write error:', e.code, e.message);
                 showToast('Firebase error: ' + e.message, 'error');
-            }
+                });
         }
 
         function loadLocalState() {
@@ -2916,6 +3197,9 @@
                     document.getElementById('main-layout').classList.remove('hidden');
                     navigate('dashboard');
                     refreshUIs();
+                    // Sync สถานะ Sheets badge และ batch sync ครั้งแรก
+                    updateSyncStatus();
+                    setTimeout(() => batchSyncToSheets(), 2000); // delay 2s ให้ UI load ก่อน
                 } else {
                     alert('Invalid credentials');
                 }
@@ -2935,7 +3219,15 @@
 
         window.navigate = function (targetId) {
             document.querySelectorAll('.nasa-nav-item').forEach(el => el.classList.toggle('active', el.dataset.target === targetId));
-            document.querySelectorAll('.nasa-mobile-nav-item').forEach(el => el.classList.toggle('active', el.dataset.target === targetId));
+            // Mobile nav: ถ้า targetId เป็นเมนู "More" ให้ active ปุ่ม More แทน
+            const moreTargets = ['hospitals', 'history', 'settings', 'users'];
+            document.querySelectorAll('.nasa-mobile-nav-item').forEach(el => {
+                if (el.dataset.target === '__more__') {
+                    el.classList.toggle('active', moreTargets.includes(targetId));
+                } else {
+                    el.classList.toggle('active', el.dataset.target === targetId);
+                }
+            });
             document.querySelectorAll('.app-view').forEach(view => view.classList.remove('active'));
             document.getElementById(`view-${targetId}`).classList.add('active');
             const titles = {
@@ -2947,6 +3239,41 @@
             if (targetId === 'dashboard') { updateDashboardStats(); setTimeout(() => initMap(), 300); }
             if (targetId === 'care') populateCareDropdowns();
             if (targetId === 'hospitals') renderHospitals();
+        }
+
+        // Mobile hamburger (sidebar on mobile)
+        window.toggleMobileMenu = function () {
+            const aside = document.querySelector('aside');
+            if (!aside) return;
+            aside.classList.toggle('hidden');
+        }
+
+        // More drawer (bottom sheet)
+        window.toggleMoreMenu = function () {
+            const drawer = document.getElementById('mobile-more-drawer');
+            const backdrop = document.getElementById('mobile-more-backdrop');
+            if (!drawer) return;
+            const isOpen = drawer.classList.contains('open');
+            if (isOpen) {
+                closeMoreMenu();
+            } else {
+                drawer.classList.add('open');
+                backdrop.classList.add('open');
+                requestAnimationFrame(() => lucide.createIcons());
+            }
+        }
+
+        window.closeMoreMenu = function () {
+            const drawer = document.getElementById('mobile-more-drawer');
+            const backdrop = document.getElementById('mobile-more-backdrop');
+            if (drawer) drawer.classList.remove('open');
+            if (backdrop) backdrop.classList.remove('open');
+        }
+
+        // Navigate from More drawer
+        window.mobileNavigate = function (targetId) {
+            closeMoreMenu();
+            navigate(targetId);
         }
 
         function updateDashboardStats() {
