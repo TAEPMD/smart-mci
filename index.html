@@ -2244,13 +2244,41 @@
                                 <i data-lucide="file-check" class="w-6 h-6"></i>
                                 AFTER ACTION REPORT (AAR)
                             </h3>
-                            <button onclick="generateAiReport()" id="btn-ai-report"
-                                class="nasa-btn nasa-btn-primary flex items-center gap-2">
-                                <i data-lucide="sparkles" class="w-4 h-4"></i>
-                                AI GENERATE REPORT
-                            </button>
+                            <div class="flex flex-wrap gap-2">
+                                <button onclick="resetIncident()" id="btn-reset-incident"
+                                    class="nasa-btn nasa-btn-danger flex items-center gap-2">
+                                    <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+                                    RESET INCIDENT
+                                </button>
+                                <button onclick="generateAiReport()" id="btn-ai-report"
+                                    class="nasa-btn nasa-btn-primary flex items-center gap-2">
+                                    <i data-lucide="sparkles" class="w-4 h-4"></i>
+                                    AI GENERATE REPORT
+                                </button>
+                            </div>
                         </div>
                         <div class="p-6 flex-1 flex flex-col">
+                            <div class="nasa-panel-bright p-4 mb-4">
+                                <div class="flex justify-between items-center mb-3">
+                                    <h4 class="mono text-cyan-400 text-sm uppercase flex items-center gap-2">
+                                        <i data-lucide="scroll-text" class="w-4 h-4"></i>
+                                        EVENT LOG
+                                    </h4>
+                                    <span class="mono text-xs" style="color:var(--apple-text-tertiary);">เรียงจากล่าสุด</span>
+                                </div>
+                                <div class="overflow-x-auto border border-nasa-border rounded-lg">
+                                    <table class="nasa-table w-full">
+                                        <thead>
+                                            <tr>
+                                                <th>Time</th>
+                                                <th>Event</th>
+                                                <th>User</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="history-eventlog-body"></tbody>
+                                    </table>
+                                </div>
+                            </div>
                             <div id="report-container" class="hidden flex-1 flex flex-col">
                                 <div id="report-content"
                                     class="mono text-sm text-nasa-text bg-nasa-dark p-6 border border-nasa-border flex-1 overflow-y-auto mb-4">
@@ -2554,7 +2582,7 @@
                 }
             },
             users: [],
-            patients: [], careRecords: [], vehicles: [], dispatches: [], hospitals: [],
+            patients: [], careRecords: [], vehicles: [], dispatches: [], hospitals: [], eventLogs: [],
             methane: { m: 'Standby', e: '', t: '', h: '', a: '', n: '', e2: '' },
             cscattt: { c1: false, s: false, c2: false, a: false, t1: false, t2: false, t3: false }
         };
@@ -2626,7 +2654,7 @@
         }
 
         function startFirestoreListeners() {
-            const collections = ['patients', 'careRecords', 'vehicles', 'dispatches', 'hospitals'];
+            const collections = ['patients', 'careRecords', 'vehicles', 'dispatches', 'hospitals', 'eventLogs'];
             collections.forEach(colName => {
                 onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', colName), (snap) => {
                     if (isSyncingFromCloud) return;
@@ -2813,6 +2841,7 @@
                     vehicles: window.state.vehicles,
                     dispatches: window.state.dispatches,
                     hospitals: window.state.hospitals,
+                    eventLogs: window.state.eventLogs,
                     methane: window.state.methane,
                     cscattt: window.state.cscattt,
                     users: window.state.users,
@@ -2854,7 +2883,14 @@
             saveLocalState(); // localStorage ทันที
 
             // Sheets (background, non-blocking)
-            const actionMap = { patients: 'upsert_patient', careRecords: 'upsert_careRecord', vehicles: 'upsert_vehicle', hospitals: 'upsert_hospital', dispatches: 'upsert_dispatch' };
+            const actionMap = {
+                patients: 'upsert_patient',
+                careRecords: 'upsert_careRecord',
+                vehicles: 'upsert_vehicle',
+                hospitals: 'upsert_hospital',
+                dispatches: 'upsert_dispatch',
+                eventLogs: 'upsert_eventLog'
+            };
             const sheetAction = actionMap[collectionName];
             if (sheetAction) queueSheetsAction(sheetAction, data);
 
@@ -2879,7 +2915,8 @@
                 vehicles: 'delete_vehicle',
                 hospitals: 'delete_hospital',
                 dispatches: 'delete_dispatch',
-                careRecords: 'delete_careRecord'
+                careRecords: 'delete_careRecord',
+                eventLogs: 'delete_eventLog'
             };
             const sheetAction = sheetDeleteMap[collectionName];
             if (sheetAction) queueSheetsAction(sheetAction, { id: docId });
@@ -2929,6 +2966,7 @@
                     window.state.vehicles = parsed.vehicles || [];
                     window.state.dispatches = parsed.dispatches || [];
                     window.state.hospitals = parsed.hospitals || [];
+                    window.state.eventLogs = parsed.eventLogs || [];
                     window.state.methane = parsed.methane || window.state.methane;
                     window.state.cscattt = parsed.cscattt || window.state.cscattt;
                 } catch (e) { console.error(e); }
@@ -2950,6 +2988,7 @@
         window.refreshUIs = function () {
             if (document.getElementById('view-dashboard').classList.contains('active')) updateDashboardStats();
             if (document.getElementById('view-hospitals').classList.contains('active')) renderHospitals();
+            if (document.getElementById('view-history').classList.contains('active')) renderEventLogs();
             syncSettingsToUI();
             renderUserTable();
             renderPatientTable();
@@ -2990,6 +3029,94 @@
             if (!vehicle) return '';
             const type = String(vehicle.type || '').trim();
             return type ? `${vehicle.id} (${type})` : `${vehicle.id}`;
+        }
+
+        function formatVehicleStatus(status) {
+            if (status === 'Standby') return 'Stand by';
+            if (status === 'En route') return 'En route';
+            if (status === 'Demobilize') return 'Demobilize';
+            return status || '-';
+        }
+
+        window.addEventLog = async function (message, type = 'INFO') {
+            const cleanMessage = String(message || '').trim();
+            if (!cleanMessage) return;
+            const logId = Date.now().toString() + '-' + Math.random().toString(36).slice(2, 7);
+            const logItem = {
+                id: logId,
+                time: new Date().toLocaleString('th-TH', { hour12: false }),
+                type: type || 'INFO',
+                message: cleanMessage,
+                user: window.state.currentUser?.username || 'SYSTEM'
+            };
+            window.state.eventLogs.push(logItem);
+            await saveToCloud('eventLogs', logId, logItem);
+        }
+
+        window.renderEventLogs = function () {
+            const tbody = document.getElementById('history-eventlog-body');
+            if (!tbody) return;
+            const sorted = [...(window.state.eventLogs || [])].sort((a, b) => {
+                const ta = Number(String(a.id || '').split('-')[0]) || 0;
+                const tb = Number(String(b.id || '').split('-')[0]) || 0;
+                return tb - ta;
+            });
+            if (sorted.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3" class="text-center text-gray-600 py-6 mono">NO EVENT LOGS</td></tr>';
+                return;
+            }
+            tbody.innerHTML = sorted.map(e => {
+                const typeColor = e.type === 'DISPATCH' ? 'text-amber-400'
+                    : e.type === 'TRIAGE' ? 'text-red-400'
+                    : e.type === 'CARE' ? 'text-cyan-400'
+                    : e.type === 'VEHICLE' ? 'text-blue-400'
+                    : e.type === 'SYSTEM' ? 'text-purple-400'
+                    : 'text-gray-300';
+                return `<tr><td class="mono text-gray-400">${escapeHtml(e.time || '-')}</td><td class="mono ${typeColor}">${escapeHtml(e.message || '-')}</td><td class="mono text-gray-300">${escapeHtml(e.user || '-')}</td></tr>`;
+            }).join('');
+        }
+
+        window.resetIncident = async function () {
+            if (!confirm('เริ่มเหตุการณ์ใหม่? ระบบจะล้างผู้ป่วย, เวชระเบียน, รถ, dispatch, โรงพยาบาล และ event log ทั้งหมด')) return;
+            const btn = document.getElementById('btn-reset-incident');
+            const btnHtml = btn ? btn.innerHTML : '';
+            if (btn) setButtonLoading('btn-reset-incident', true, btnHtml);
+            try {
+                const collectionsToClear = ['patients', 'careRecords', 'vehicles', 'dispatches', 'hospitals', 'eventLogs'];
+                const idsByCollection = {
+                    patients: window.state.patients.map(x => x.id),
+                    careRecords: window.state.careRecords.map(x => x.id),
+                    vehicles: window.state.vehicles.map(x => x.id),
+                    dispatches: window.state.dispatches.map(x => x.id),
+                    hospitals: window.state.hospitals.map(x => x.id),
+                    eventLogs: window.state.eventLogs.map(x => x.id)
+                };
+
+                for (const col of collectionsToClear) {
+                    const ids = idsByCollection[col] || [];
+                    for (const id of ids) {
+                        if (!id) continue;
+                        await deleteFromCloud(col, id);
+                    }
+                }
+
+                window.state.patients = [];
+                window.state.careRecords = [];
+                window.state.vehicles = [];
+                window.state.dispatches = [];
+                window.state.hospitals = [];
+                window.state.eventLogs = [];
+                window.state.methane = { m: 'Standby', e: '', t: '', h: '', a: '', n: '', e2: '' };
+                window.state.cscattt = { c1: false, s: false, c2: false, a: false, t1: false, t2: false, t3: false };
+
+                await saveGlobalStateToCloud();
+                queueSheetsAction('reset_incident', {}, { highPriority: true });
+                saveLocalState();
+                refreshUIs();
+                showToast('เริ่มเหตุการณ์ใหม่แล้ว', 'success');
+            } finally {
+                if (btn) setButtonLoading('btn-reset-incident', false, btnHtml);
+            }
         }
 
         async function sha256(message) {
@@ -3541,6 +3668,7 @@
             if (targetId === 'dashboard') { updateDashboardStats(); setTimeout(() => initMap(), 300); }
             if (targetId === 'care') populateCareDropdowns();
             if (targetId === 'hospitals') renderHospitals();
+            if (targetId === 'history') renderEventLogs();
 
             // Close mobile sidebar after selecting menu.
             if (window.innerWidth < 768) {
@@ -3627,7 +3755,7 @@
                             '<div style="flex:1;min-width:0;">' +
                             '<div style="display:flex;align-items:center;gap:6px;">' +
                             '<span style="font-size:13px;font-weight:700;color:var(--apple-text);">' + escapeHtml(v.id) + '</span>' +
-                            '<span style="font-size:10px;padding:1px 6px;border-radius:99px;background:color-mix(in srgb,' + sc + ' 12%,transparent);color:' + sc + ';font-weight:600;">' + escapeHtml(v.status) + '</span>' +
+                            '<span style="font-size:10px;padding:1px 6px;border-radius:99px;background:color-mix(in srgb,' + sc + ' 12%,transparent);color:' + sc + ';font-weight:600;">' + escapeHtml(formatVehicleStatus(v.status)) + '</span>' +
                             '</div>' +
                             '<div style="font-size:11px;color:var(--apple-text-secondary);">' + escapeHtml(v.type || '-') + ' \u00b7 ' + escapeHtml(v.agency || '-') + '</div>' +
                             ptRow +
@@ -3949,6 +4077,7 @@
             if (pIndex > -1) { Object.assign(window.state.patients[pIndex], ptData); }
             else { window.state.patients.push(ptData); }
             await saveToCloud('patients', pid, ptData);
+            await addEventLog(`Primary triage: ${pid} -> ${cat}`, 'TRIAGE');
             await saveGlobalStateToCloud();
             document.getElementById('primary-triage-form').reset();
             clearPhoto('pri-photo', 'pri-photo-preview');
@@ -3985,6 +4114,7 @@
             if (pIndex > -1) { Object.assign(window.state.patients[pIndex], ptData); }
             else { window.state.patients.push(ptData); window.state.settings.seq++; await saveGlobalStateToCloud(); }
             await saveToCloud('patients', pid, ptData);
+            await addEventLog(`Secondary triage: ${pid} -> ${cat}`, 'TRIAGE');
             document.getElementById('secondary-triage-form').reset();
             clearPhoto('sec-photo', 'sec-photo-preview');
             setButtonLoading('btn-submit-sec', false, btnHtml);
@@ -4130,7 +4260,9 @@
                 const record = { id: careId, pId: pId, time: new Date().toLocaleTimeString('th-TH', { hour12: false }), action: action };
                 window.state.careRecords.push(record);
                 await saveToCloud('careRecords', careId, record);
+                await addEventLog(`Care record: ${pId} -> ${action}`, 'CARE');
             }
+            if (injury) await addEventLog(`Injury update: ${pId} -> ${injury}`, 'CARE');
 
             document.getElementById('care-intervention').value = '';
             document.getElementById('care-injury').value = '';
@@ -4174,6 +4306,7 @@
             };
             window.state.hospitals.push(hData);
             await saveToCloud('hospitals', hId, hData);
+            await addEventLog(`Add hospital: ${hData.name}`, 'SYSTEM');
             e.target.reset();
             renderHospitals();
         }
@@ -4182,6 +4315,7 @@
             if (confirm('Remove this hospital?')) {
                 window.state.hospitals = window.state.hospitals.filter(h => h.id !== hId);
                 await deleteFromCloud('hospitals', hId);
+                await addEventLog(`Remove hospital: ${hId}`, 'SYSTEM');
                 renderHospitals();
             }
         }
@@ -4239,7 +4373,8 @@
             window.state.vehicles.forEach(v => {
                 const dotClass = v.status === 'Standby' ? 'status-green' : v.status === 'En route' ? 'status-amber' : 'status-off';
                 const passengers = getVehiclePatientList(v);
-                list.innerHTML += `<div class="nasa-panel-bright p-3 flex justify-between items-center"><div><div class="flex items-center gap-2"><div class="status-dot ${dotClass}"></div><span class="mono text-sm font-bold text-white">${escapeHtml(v.id)}</span></div><div class="mono text-xs text-gray-500">${escapeHtml(v.type)} [${escapeHtml(v.agency)}]</div>${passengers.length > 0 ? `<div class="mono text-xs text-amber-400 mt-1">→ ${escapeHtml(passengers.join(', '))}</div>` : ''}</div><div class="flex gap-1"><button onclick="changeVehicleStatus('${escapeHtml(v.id).replace(/'/g, "\\'")}', '${v.status === 'Standby' ? 'Demobilize' : 'Standby'}')" class="nasa-btn text-xs">${v.status === 'Standby' ? 'DEMOB' : 'STBY'}</button><button onclick="removeVehicle('${escapeHtml(v.id).replace(/'/g, "\\'")}')" class="text-red-400 hover:text-red-300 p-1"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div></div>`;
+                const statusColor = v.status === 'Standby' ? 'var(--apple-green)' : v.status === 'En route' ? 'var(--apple-orange)' : 'var(--apple-text-tertiary)';
+                list.innerHTML += `<div class="nasa-panel-bright p-3 flex justify-between items-center"><div><div class="flex items-center gap-2"><div class="status-dot ${dotClass}"></div><span class="mono text-sm font-bold text-white">${escapeHtml(v.id)}</span><span class="mono text-[10px] px-2 py-0.5 rounded-full" style="background:color-mix(in srgb, ${statusColor} 15%, transparent);color:${statusColor};">${escapeHtml(formatVehicleStatus(v.status))}</span></div><div class="mono text-xs text-gray-500">${escapeHtml(v.type)} [${escapeHtml(v.agency)}]</div>${passengers.length > 0 ? `<div class="mono text-xs text-amber-400 mt-1">→ ${escapeHtml(passengers.join(', '))}</div>` : ''}</div><div class="flex gap-1"><button onclick="changeVehicleStatus('${escapeHtml(v.id).replace(/'/g, "\\'")}', '${v.status === 'Standby' ? 'Demobilize' : 'Standby'}')" class="nasa-btn text-xs">${v.status === 'Standby' ? 'DEMOB' : 'STBY'}</button><button onclick="removeVehicle('${escapeHtml(v.id).replace(/'/g, "\\'")}')" class="text-red-400 hover:text-red-300 p-1"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div></div>`;
             });
             lucide.createIcons();
             populateDispatchDropdowns();
@@ -4253,6 +4388,7 @@
             const vData = { id, agency, type: document.getElementById('veh-type').value, status: 'Standby', currentPatient: null };
             window.state.vehicles.push(vData);
             await saveToCloud('vehicles', id, vData);
+            await addEventLog(`Add vehicle: ${id} (${vData.type})`, 'VEHICLE');
             e.target.reset();
             refreshUIs();
         }
@@ -4261,6 +4397,7 @@
             if (confirm(`Remove vehicle ${id}?`)) {
                 window.state.vehicles = window.state.vehicles.filter(v => v.id !== id);
                 await deleteFromCloud('vehicles', id);
+                await addEventLog(`Remove vehicle: ${id}`, 'VEHICLE');
                 refreshUIs();
             }
         }
@@ -4271,6 +4408,7 @@
                 window.state.vehicles[vIndex].status = newStatus;
                 if (newStatus !== 'En route') window.state.vehicles[vIndex].currentPatient = null;
                 await saveToCloud('vehicles', id, window.state.vehicles[vIndex]);
+                await addEventLog(`Vehicle status: ${id} -> ${newStatus}`, 'VEHICLE');
                 refreshUIs();
             }
         }
@@ -4293,7 +4431,7 @@
             const vSel = document.getElementById('dispatch-vehicle');
             vSel.innerHTML = '<option value="">-- SELECT VEHICLE --</option>';
             window.state.vehicles
-                .filter(v => v.status === 'Standby' || v.status === 'En route')
+                .filter(v => v.status === 'Standby')
                 .forEach(v => vSel.innerHTML += `<option value="${escapeHtml(v.id)}">${escapeHtml(getVehicleDisplayLabel(v))}</option>`);
             const dSel = document.getElementById('dispatch-dest');
             dSel.innerHTML = '<option value="">-- SELECT HOSPITAL --</option>';
@@ -4319,6 +4457,7 @@
             const dData = { id: dId, time: new Date().toLocaleTimeString('th-TH', { hour12: false }), pId, vId, dest };
             window.state.dispatches.push(dData);
             await saveToCloud('dispatches', dId, dData);
+            await addEventLog(`Dispatch: ${pId} -> ${dest} via ${vId}`, 'DISPATCH');
             refreshUIs();
         }
 
