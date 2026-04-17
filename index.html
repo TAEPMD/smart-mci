@@ -1452,7 +1452,7 @@
                                 </div>
 
                                 <!-- Summary Badges -->
-                                <div class="flex gap-2 mb-3">
+                                <div class="grid grid-cols-3 gap-2 mb-3">
                                     <div
                                         style="flex:1;text-align:center;padding:6px 4px;border-radius:10px;background:var(--apple-surface-2);border:1px solid var(--apple-border);">
                                         <div class="nasa-font text-xl" style="color:var(--apple-text);"
@@ -1470,12 +1470,36 @@
                                             Standby</div>
                                     </div>
                                     <div
+                                        style="flex:1;text-align:center;padding:6px 4px;border-radius:10px;background:rgba(175,82,222,0.08);border:1px solid rgba(175,82,222,0.3);">
+                                        <div class="nasa-font text-xl" style="color:var(--apple-purple);"
+                                            id="dash-veh-loading">0</div>
+                                        <div
+                                            style="font-size:10px;font-weight:600;color:var(--apple-purple);text-transform:uppercase;opacity:.8;">
+                                            Loading</div>
+                                    </div>
+                                    <div
                                         style="flex:1;text-align:center;padding:6px 4px;border-radius:10px;background:rgba(255,149,0,0.08);border:1px solid rgba(255,149,0,0.3);">
                                         <div class="nasa-font text-xl" style="color:var(--apple-orange);"
                                             id="dash-veh-enroute">0</div>
                                         <div
                                             style="font-size:10px;font-weight:600;color:var(--apple-orange);text-transform:uppercase;opacity:.8;">
                                             En Route</div>
+                                    </div>
+                                    <div
+                                        style="flex:1;text-align:center;padding:6px 4px;border-radius:10px;background:rgba(0,113,227,0.08);border:1px solid rgba(0,113,227,0.3);">
+                                        <div class="nasa-font text-xl" style="color:var(--apple-blue);"
+                                            id="dash-veh-athospital">0</div>
+                                        <div
+                                            style="font-size:10px;font-weight:600;color:var(--apple-blue);text-transform:uppercase;opacity:.8;">
+                                            At Hospital</div>
+                                    </div>
+                                    <div
+                                        style="flex:1;text-align:center;padding:6px 4px;border-radius:10px;background:rgba(255,149,0,0.08);border:1px solid rgba(255,149,0,0.3);">
+                                        <div class="nasa-font text-xl" style="color:var(--apple-orange);"
+                                            id="dash-veh-returning">0</div>
+                                        <div
+                                            style="font-size:10px;font-weight:600;color:var(--apple-orange);text-transform:uppercase;opacity:.8;">
+                                            Returning</div>
                                     </div>
                                 </div>
 
@@ -1534,7 +1558,8 @@
                                         <th>Patient ID</th>
                                         <th>Triage</th>
                                         <th>Stage</th>
-                                        <th>Status</th>
+                                        <th>Current Status</th>
+                                        <th>Current Location</th>
                                         <th>Updated</th>
                                         <th>Action</th>
                                     </tr>
@@ -2134,7 +2159,8 @@
                                         <th>Patient ID</th>
                                         <th>Triage</th>
                                         <th>Injury</th>
-                                        <th>Status</th>
+                                        <th>Current Status</th>
+                                        <th>Current Location</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
@@ -2143,12 +2169,15 @@
                         </div>
                         <div id="tracking-flow-panel" class="hidden border-t border-nasa-border p-4">
                             <div class="flex justify-between items-center mb-4">
-                                <h4 class="mono text-cyan-400 text-sm">
-                                    TRACKING FLOW: <span id="tracking-flow-pid" class="font-bold"></span>
-                                </h4>
+                                <div>
+                                    <h4 class="mono text-cyan-400 text-sm">
+                                        TRACKING FLOW: <span id="tracking-flow-pid" class="font-bold"></span>
+                                    </h4>
+                                    <div id="tracking-flow-summary" class="mt-1 flex flex-wrap items-center gap-2"></div>
+                                </div>
                                 <button onclick="closePatientTrackingFlow()" class="nasa-btn text-xs">CLOSE</button>
                             </div>
-                            <div id="tracking-flow-steps" class="grid grid-cols-2 md:grid-cols-5 gap-3"></div>
+                            <div id="tracking-flow-steps" class="grid grid-cols-2 md:grid-cols-4 gap-3"></div>
                         </div>
                     </div>
                 </div>
@@ -2178,12 +2207,7 @@
                                     </div>
                                     <div>
                                         <label class="block mono text-xs text-gray-400 mb-1 uppercase">Type</label>
-                                        <select id="veh-type" class="nasa-input w-full">
-                                            <option>Ambulance (ALS)</option>
-                                            <option>Ambulance (BLS/FR)</option>
-                                            <option>Helicopter (HEMS)</option>
-                                            <option>Rescue Boat</option>
-                                        </select>
+                                        <select id="veh-type" class="nasa-input w-full"></select>
                                     </div>
                                     <button type="submit"
                                         class="nasa-btn nasa-btn-primary w-full flex items-center justify-center gap-2">
@@ -2192,6 +2216,10 @@
                                     </button>
                                 </form>
                                 <div id="vehicle-list" class="space-y-2 max-h-64 overflow-y-auto"></div>
+                                <div class="pt-2 border-t border-nasa-border">
+                                    <h4 class="mono text-amber-400 text-xs mb-2 uppercase">Mission Vehicles</h4>
+                                    <div id="vehicle-mission-list" class="space-y-2 max-h-56 overflow-y-auto"></div>
+                                </div>
                             </div>
                         </div>
 
@@ -2243,6 +2271,8 @@
                                                     <th>Patient ID</th>
                                                     <th>Vehicle</th>
                                                     <th>Hospital</th>
+                                                    <th>Status</th>
+                                                    <th>Action</th>
                                                 </tr>
                                             </thead>
                                             <tbody id="dispatch-table-body"></tbody>
@@ -2531,6 +2561,19 @@
                                 </div>
                                 <div id="settings-injury-list" class="flex flex-wrap gap-2"></div>
                             </div>
+                            <div class="nasa-panel-bright p-4">
+                                <h4 class="nasa-font text-purple-400 text-sm mb-4 uppercase flex items-center gap-2">
+                                    <i data-lucide="truck" class="w-4 h-4"></i>
+                                    Vehicle Types
+                                </h4>
+                                <div class="flex gap-2 mb-3">
+                                    <input type="text" id="new-vehicle-type-input" class="nasa-input flex-1"
+                                        placeholder="Add vehicle type...">
+                                    <button onclick="handleAddVehicleType()"
+                                        class="nasa-btn nasa-btn-primary">ADD</button>
+                                </div>
+                                <div id="settings-vehicle-type-list" class="flex flex-wrap gap-2"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -2662,6 +2705,7 @@
                 primaryModel: 'START', secondaryModel: 'SORT', idPrefix: 'SMART', seq: 1,
                 quickInterventions: ['Tourniquet', 'Needle Decompression', 'Pelvic Binder', 'Airway Adjunct', 'IV Access', 'Wound Packing'],
                 quickInjuries: ['Head Injury', 'Chest Trauma', 'Abdominal Pain', 'Fracture', 'Burn', 'Laceration'],
+                vehicleTypes: ['Ambulance (ALS)', 'Ambulance (BLS/FR)', 'Helicopter (HEMS)', 'Rescue Boat'],
                 triageDesc: {
                     'START': 'ประเมิน RPM (หายใจ >30, Cap Refill >2s, ไม่ทำตามสั่ง -> แดง) | เดินได้ -> เขียว',
                     'SALT': 'Sort -> Assess -> Lifesaving Interventions -> Triage',
@@ -2966,6 +3010,10 @@
                 window.state.cscattt = polled.cscattt;
                 changed = true;
             }
+            if (polled.settings && JSON.stringify(polled.settings) !== JSON.stringify(window.state.settings)) {
+                window.state.settings = { ...window.state.settings, ...polled.settings };
+                changed = true;
+            }
 
             if (changed) {
                 saveLocalState();
@@ -3211,9 +3259,201 @@
 
         function formatVehicleStatus(status) {
             if (status === 'Standby') return 'Stand by';
+            if (status === 'Loading') return 'Loading';
             if (status === 'En route') return 'En route';
+            if (status === 'At Hospital') return 'At Hospital';
+            if (status === 'Returning') return 'Returning';
             if (status === 'Demobilize') return 'Demobilize';
             return status || '-';
+        }
+
+        function getVehicleStatusMeta(status) {
+            if (status === 'Standby') return { dotClass: 'status-green', color: 'var(--apple-green)', label: 'Stand by' };
+            if (status === 'Loading') return { dotClass: 'status-purple', color: 'var(--apple-purple)', label: 'Loading' };
+            if (status === 'En route') return { dotClass: 'status-amber', color: 'var(--apple-orange)', label: 'En route' };
+            if (status === 'At Hospital') return { dotClass: 'status-cyan', color: 'var(--apple-blue)', label: 'At Hospital' };
+            if (status === 'Returning') return { dotClass: 'status-amber', color: 'var(--apple-orange)', label: 'Returning' };
+            return { dotClass: 'status-off', color: 'var(--apple-text-tertiary)', label: status || '-' };
+        }
+
+        function getDispatchStatusLabel(dispatch) {
+            if (!dispatch) return '-';
+            if (dispatch.status === 'Arrived') return dispatch.arrivedAt ? `Arrived ${dispatch.arrivedAt}` : 'Arrived';
+            if (dispatch.status === 'En route') return 'En route';
+            if (dispatch.status === 'Loading') return 'Loading';
+            return dispatch.status || '-';
+        }
+
+        function getDispatchStatusMeta(dispatch) {
+            const status = dispatch?.status || '';
+            if (status === 'Loading') return { dotClass: 'status-purple', color: 'var(--apple-purple)', label: 'Loading' };
+            if (status === 'En route') return { dotClass: 'status-amber', color: 'var(--apple-orange)', label: 'En route' };
+            if (status === 'Arrived') return { dotClass: 'status-cyan', color: 'var(--apple-blue)', label: getDispatchStatusLabel(dispatch) };
+            return { dotClass: 'status-off', color: 'var(--apple-text-tertiary)', label: getDispatchStatusLabel(dispatch) };
+        }
+
+        function isMissionVehicleStatus(status) {
+            return ['Loading', 'En route', 'At Hospital', 'Returning'].includes(status);
+        }
+
+        function getMissionStatusOrder(status) {
+            if (status === 'Loading') return 1;
+            if (status === 'En route') return 2;
+            if (status === 'At Hospital') return 3;
+            if (status === 'Returning') return 4;
+            return 99;
+        }
+
+        function getVehicleNextAction(status) {
+            if (status === 'Standby') return { label: 'DEMOB', nextStatus: 'Demobilize' };
+            if (status === 'Demobilize') return { label: 'STBY', nextStatus: 'Standby' };
+            if (status === 'Loading') return { label: 'ENRT', nextStatus: 'En route' };
+            if (status === 'At Hospital') return { label: 'RETURN', nextStatus: 'Returning' };
+            if (status === 'Returning') return { label: 'STBY', nextStatus: 'Standby' };
+            return null;
+        }
+
+        function isBlackTriage(patient) {
+            return String(patient?.cat || '').trim().toLowerCase() === 'black';
+        }
+
+        function getLatestDispatchForPatient(patientId) {
+            const dispatches = (window.state.dispatches || []).filter(d => d.pId === patientId);
+            if (dispatches.length === 0) return null;
+            return dispatches.sort((a, b) => (Number(b.id) || 0) - (Number(a.id) || 0))[0];
+        }
+
+        function getAssignedVehicleForPatient(patientId) {
+            return (window.state.vehicles || []).find(v => getVehiclePatientList(v).includes(patientId)) || null;
+        }
+
+        function getPatientCurrentState(patient) {
+            const fallback = {
+                statusLabel: patient?.status || 'Unknown',
+                locationLabel: 'Unspecified',
+                phase: 'pending',
+                badgeClass: 'text-gray-400'
+            };
+            if (!patient) return fallback;
+
+            if (isBlackTriage(patient)) {
+                return {
+                    statusLabel: 'Deceased',
+                    locationLabel: 'Flow closed',
+                    phase: 'deceased',
+                    badgeClass: 'text-gray-400'
+                };
+            }
+
+            const latestDispatch = getLatestDispatchForPatient(patient.id);
+            const activeVehicle = getAssignedVehicleForPatient(patient.id);
+            const careCount = (window.state.careRecords || []).filter(r => r.pId === patient.id).length;
+
+            if (latestDispatch && latestDispatch.status === 'Arrived') {
+                return {
+                    statusLabel: 'Arrived hospital',
+                    locationLabel: latestDispatch.dest || 'Hospital',
+                    phase: 'hospital',
+                    badgeClass: 'text-green-400'
+                };
+            }
+
+            if (latestDispatch && activeVehicle && activeVehicle.status === 'Loading') {
+                return {
+                    statusLabel: 'Loading for transport',
+                    locationLabel: 'Loading area / scene',
+                    phase: 'transport',
+                    badgeClass: 'text-purple-400'
+                };
+            }
+
+            if (latestDispatch && activeVehicle && activeVehicle.status === 'En route') {
+                return {
+                    statusLabel: 'Transporting',
+                    locationLabel: `En route to ${latestDispatch.dest || 'Hospital'}`,
+                    phase: 'transport',
+                    badgeClass: 'text-amber-400'
+                };
+            }
+
+            if (latestDispatch && activeVehicle && activeVehicle.status === 'At Hospital') {
+                return {
+                    statusLabel: 'At hospital bay',
+                    locationLabel: latestDispatch.dest || 'Hospital',
+                    phase: 'transport',
+                    badgeClass: 'text-cyan-400'
+                };
+            }
+
+            if (latestDispatch) {
+                return {
+                    statusLabel: 'Queued for transport',
+                    locationLabel: latestDispatch.dest || 'Hospital',
+                    phase: 'transport',
+                    badgeClass: 'text-amber-400'
+                };
+            }
+
+            if (careCount > 0) {
+                return {
+                    statusLabel: 'Under treatment',
+                    locationLabel: 'CCP / Treatment Area',
+                    phase: 'treatment',
+                    badgeClass: 'text-cyan-400'
+                };
+            }
+
+            if (patient.stage === 'Secondary') {
+                return {
+                    statusLabel: 'Awaiting treatment',
+                    locationLabel: 'Post-triage holding area',
+                    phase: 'triage',
+                    badgeClass: 'text-blue-400'
+                };
+            }
+
+            if (patient.stage === 'Primary') {
+                return {
+                    statusLabel: 'Awaiting re-triage',
+                    locationLabel: 'Primary triage area',
+                    phase: 'triage',
+                    badgeClass: 'text-blue-400'
+                };
+            }
+
+            return fallback;
+        }
+
+        function isPatientTreatmentEligible(patient) {
+            if (!patient || isBlackTriage(patient)) return false;
+            const currentState = getPatientCurrentState(patient);
+            return currentState.phase !== 'transport' && currentState.phase !== 'hospital';
+        }
+
+        function isPatientDispatchEligible(patient) {
+            if (!patient || isBlackTriage(patient)) return false;
+            const currentState = getPatientCurrentState(patient);
+            return currentState.phase !== 'transport' && currentState.phase !== 'hospital';
+        }
+
+        function removePatientFromVehicleAssignments(patientId) {
+            const touchedVehicles = [];
+            (window.state.vehicles || []).forEach(vehicle => {
+                const currentIds = getVehiclePatientList(vehicle);
+                const nextPatientIds = currentIds.filter(id => id !== patientId);
+                if (nextPatientIds.length !== currentIds.length) {
+                    setVehiclePatientList(vehicle, nextPatientIds);
+                    touchedVehicles.push(vehicle);
+                }
+            });
+            return touchedVehicles;
+        }
+
+        function getConfiguredVehicleTypes() {
+            const defaults = ['Ambulance (ALS)', 'Ambulance (BLS/FR)', 'Helicopter (HEMS)', 'Rescue Boat'];
+            if (!Array.isArray(window.state.settings.vehicleTypes)) return defaults;
+            const cleanTypes = window.state.settings.vehicleTypes.map(type => String(type || '').trim()).filter(Boolean);
+            return [...new Set(cleanTypes)];
         }
 
         window.addEventLog = async function (message, type = 'INFO') {
@@ -3969,15 +4209,20 @@
             document.getElementById('stat-black').textContent = window.state.patients.filter(p => p.cat === 'Black').length;
             document.getElementById('dash-veh-total').textContent = window.state.vehicles.length;
             document.getElementById('dash-veh-standby').textContent = window.state.vehicles.filter(v => v.status === 'Standby').length;
+            document.getElementById('dash-veh-loading').textContent = window.state.vehicles.filter(v => v.status === 'Loading').length;
             document.getElementById('dash-veh-enroute').textContent = window.state.vehicles.filter(v => v.status === 'En route').length;
+            document.getElementById('dash-veh-athospital').textContent = window.state.vehicles.filter(v => v.status === 'At Hospital').length;
+            document.getElementById('dash-veh-returning').textContent = window.state.vehicles.filter(v => v.status === 'Returning').length;
 
             // \u2500\u2500 Vehicle detail list \u2500\u2500
             const vehList = document.getElementById('dash-veh-list');
             if (vehList) {
-                if (window.state.vehicles.length === 0) {
-                    vehList.innerHTML = '<div style="text-align:center;padding:12px;font-size:12px;color:var(--apple-text-tertiary);">\u0e22\u0e31\u0e07\u0e44\u0e21\u0e48\u0e21\u0e35\u0e22\u0e32\u0e19\u0e1e\u0e32\u0e2b\u0e19\u0e30 \u2014 \u0e44\u0e1b\u0e17\u0e35\u0e48 Transport \u0e40\u0e1e\u0e37\u0e48\u0e2d\u0e40\u0e1e\u0e34\u0e48\u0e21</div>';
+                const activeVehicles = window.state.vehicles.filter(v => !isMissionVehicleStatus(v.status));
+                const hiddenEnRouteCount = window.state.vehicles.length - activeVehicles.length;
+                if (activeVehicles.length === 0) {
+                    vehList.innerHTML = '<div style="text-align:center;padding:12px;font-size:12px;color:var(--apple-text-tertiary);">ยังไม่มีรถที่พร้อมใช้งาน</div>';
                 } else {
-                    vehList.innerHTML = window.state.vehicles.map(v => {
+                    vehList.innerHTML = activeVehicles.map(v => {
                         const isEnRoute = v.status === 'En route';
                         const isDemob = v.status === 'Demobilize';
                         const dotClass = isEnRoute ? 'status-amber' : isDemob ? 'status-off' : 'status-green';
@@ -3999,6 +4244,9 @@
                             '</div>' +
                             '</div>';
                     }).join('');
+                    if (hiddenEnRouteCount > 0) {
+                        vehList.innerHTML += `<div style="text-align:center;padding:8px 10px;font-size:11px;color:var(--apple-text-tertiary);">มีรถใน mission อยู่ ${hiddenEnRouteCount} คัน และจะกลับเข้าระบบเมื่อกลับ Stand by</div>`;
+                    }
                 }
             }
             document.getElementById('methane-e').value = window.state.methane.e || '';
@@ -4040,7 +4288,7 @@
                             const total = capRed + capYellow + capGreen;
 
                             // นับผู้ป่วยที่ส่งมาโรงพยาบาลนี้ แยกตาม triage
-                            const dispatchedToHosp = window.state.dispatches.filter(d => d.dest === h.name);
+                            const dispatchedToHosp = window.state.dispatches.filter(d => d.dest === h.name && d.status === 'Arrived');
                             let usedRed = 0, usedYellow = 0, usedGreen = 0;
                             dispatchedToHosp.forEach(d => {
                                 const pt = window.state.patients.find(p => p.id === d.pId);
@@ -4140,18 +4388,20 @@
                 .slice(0, 8);
 
             if (patients.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" class="text-center text-gray-600 py-6 mono">NO PATIENT TRACKING DATA</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center text-gray-600 py-6 mono">NO PATIENT TRACKING DATA</td></tr>';
                 return;
             }
 
             tbody.innerHTML = patients.map((p) => {
                 const triageColor = p.cat === 'Red' ? 'text-red-400' : p.cat === 'Yellow' ? 'text-amber-400' : p.cat === 'Green' ? 'text-green-400' : 'text-gray-400';
                 const safeId = escapeHtml(p.id || '').replace(/'/g, "\\'");
+                const currentState = getPatientCurrentState(p);
                 return `<tr>
                     <td class="mono text-cyan-400 font-bold cursor-pointer hover:underline" onclick="navigate('tracking'); setTimeout(() => showPatientTrackingFlow('${safeId}'), 120)">${escapeHtml(p.id || '-')}</td>
                     <td class="mono ${triageColor} font-bold">${escapeHtml(p.cat || '-')}</td>
                     <td class="mono text-gray-400">${escapeHtml(p.stage || '-')}</td>
-                    <td class="mono text-blue-400">${escapeHtml(p.status || '-')}</td>
+                    <td class="mono ${currentState.badgeClass}">${escapeHtml(currentState.statusLabel)}</td>
+                    <td class="mono text-gray-400">${escapeHtml(currentState.locationLabel)}</td>
                     <td class="mono text-gray-400">${escapeHtml(p.timestamp || '-')}</td>
                     <td><button class="nasa-btn text-xs" onclick="navigate('tracking'); setTimeout(() => showPatientTrackingFlow('${safeId}'), 120)">FLOW</button></td>
                 </tr>`;
@@ -4385,13 +4635,19 @@
             setButtonLoading('btn-submit-pri', true, btnHtml);
             try {
                 const ptData = {
-                    id: pid, cat: cat, injury: '', gender: '', status: 'CCP', stage: 'Primary', vitals: {},
+                    id: pid, cat: cat, injury: '', gender: '', status: cat === 'Black' ? 'Deceased' : 'Awaiting re-triage', stage: 'Primary', vitals: {},
                     hazmat: { decon, extricationTime: extrication }, photoUrl: photoB64,
                     timestamp: new Date().toLocaleTimeString('th-TH')
                 };
                 let pIndex = window.state.patients.findIndex(p => p.id === pid);
                 if (pIndex > -1) { Object.assign(window.state.patients[pIndex], ptData); }
                 else { window.state.patients.push(ptData); }
+                if (cat === 'Black') {
+                    const touchedVehicles = removePatientFromVehicleAssignments(pid);
+                    for (const vehicle of touchedVehicles) {
+                        await saveToCloud('vehicles', vehicle.id, vehicle);
+                    }
+                }
                 await saveToCloud('patients', pid, ptData);
                 await addEventLog(`Primary triage: ${pid} -> ${cat}`, 'TRIAGE');
                 await saveGlobalStateToCloud();
@@ -4421,7 +4677,7 @@
                 const existingPatient = pIndex > -1 ? window.state.patients[pIndex] : null;
                 const ptData = {
                     id: pid, cat: cat, gender: document.getElementById('sec-triage-gender').value,
-                    injury: document.getElementById('sec-triage-injury').value, status: 'CCP', stage: 'Secondary',
+                    injury: document.getElementById('sec-triage-injury').value, status: cat === 'Black' ? 'Deceased' : 'Awaiting treatment', stage: 'Secondary',
                     vitals: {
                         avpu: document.getElementById('sec-avpu').value,
                         gcs: document.getElementById('sec-gcs').value,
@@ -4436,6 +4692,12 @@
                 };
                 if (pIndex > -1) { Object.assign(window.state.patients[pIndex], ptData); }
                 else { window.state.patients.push(ptData); window.state.settings.seq++; await saveGlobalStateToCloud(); }
+                if (cat === 'Black') {
+                    const touchedVehicles = removePatientFromVehicleAssignments(pid);
+                    for (const vehicle of touchedVehicles) {
+                        await saveToCloud('vehicles', vehicle.id, vehicle);
+                    }
+                }
                 await saveToCloud('patients', pid, ptData);
                 await addEventLog(`Secondary triage: ${pid} -> ${cat}`, 'TRIAGE');
                 if (e.currentTarget && typeof e.currentTarget.reset === 'function') {
@@ -4461,7 +4723,7 @@
             if (triageList) triageList.innerHTML = '';
             if (priTriageSelect) priTriageSelect.innerHTML = '<option value="">SELECT EXISTING PATIENT ID</option>';
             if (secTriageSelect) secTriageSelect.innerHTML = '<option value="">SELECT EXISTING PATIENT ID</option>';
-            window.state.patients.forEach(p => {
+            window.state.patients.filter(isPatientTreatmentEligible).forEach(p => {
                 const option = `<option value="${escapeHtml(p.id)}">${escapeHtml(p.cat)} - ${escapeHtml(p.injury || 'No data')}</option>`;
                 if (careList) careList.innerHTML += option;
                 if (careSelect) {
@@ -4557,8 +4819,18 @@
             const infoDiv = document.getElementById('care-patient-info');
             const actionArea = document.getElementById('care-action-area');
             const emptyDiv = document.getElementById('care-empty-state');
+            const defaultEmptyHtml = '<i data-lucide="stethoscope" class="w-12 h-12 mx-auto mb-3 text-gray-700"></i><p class="mono text-sm">SELECT PATIENT TO BEGIN</p>';
+            emptyDiv.innerHTML = defaultEmptyHtml;
             const patient = window.state.patients.find(p => p.id.toLowerCase() === pId.toLowerCase());
             if (!patient) { infoDiv.classList.add('hidden'); actionArea.classList.add('hidden'); emptyDiv.classList.remove('hidden'); return; }
+            if (!isPatientTreatmentEligible(patient)) {
+                infoDiv.classList.add('hidden');
+                actionArea.classList.add('hidden');
+                emptyDiv.classList.remove('hidden');
+                emptyDiv.innerHTML = `<i data-lucide="circle-off" class="w-12 h-12 mx-auto mb-3 text-gray-700"></i><p class="mono text-sm">PATIENT OUT OF TREATMENT FLOW</p>`;
+                lucide.createIcons();
+                return;
+            }
             emptyDiv.classList.add('hidden'); infoDiv.classList.remove('hidden'); actionArea.classList.remove('hidden');
             document.getElementById('care-active-pid').value = patient.id;
             document.getElementById('care-info-id').textContent = patient.id;
@@ -4591,11 +4863,12 @@
             const action = document.getElementById('care-intervention').value.trim();
             const injury = document.getElementById('care-injury').value.trim();
             if (!pId || (!action && !injury)) return;
+            const patient = window.state.patients.find(p => p.id === pId);
+            if (!isPatientTreatmentEligible(patient)) return showToast('ผู้ป่วยรายนี้ไม่อยู่ใน treatment flow แล้ว', 'info');
             const btnHtml = document.getElementById('btn-save-care').innerHTML;
             setButtonLoading('btn-save-care', true, btnHtml);
 
             if (injury) {
-                const patient = window.state.patients.find(p => p.id === pId);
                 if (patient) {
                     patient.injury = injury;
                     await saveToCloud('patients', pId, patient);
@@ -4679,18 +4952,36 @@
             const patient = window.state.patients.find(p => p.id === pid);
             const panel = document.getElementById('tracking-flow-panel');
             const pidEl = document.getElementById('tracking-flow-pid');
+            const summaryEl = document.getElementById('tracking-flow-summary');
             const stepsWrap = document.getElementById('tracking-flow-steps');
             if (!patient || !panel) return;
             window.selectedTrackingPatientId = pid;
             pidEl.textContent = pid;
             const careCount = window.state.careRecords.filter(r => r.pId === pid).length;
+            const currentState = getPatientCurrentState(patient);
+            const latestDispatch = getLatestDispatchForPatient(pid);
+            if (summaryEl) {
+                summaryEl.innerHTML = `<span class="mono ${currentState.badgeClass}">${escapeHtml(currentState.statusLabel)}</span><span class="mono text-gray-500">·</span><span class="mono text-gray-400">${escapeHtml(currentState.locationLabel)}</span>`;
+            }
             const steps = [
                 { title: 'TRIAGE', status: 'done', note: `${patient.stage} / ${patient.cat}` },
-                { title: 'TREATMENT', status: careCount > 0 ? 'done' : 'current', note: careCount > 0 ? `${careCount} records` : 'Waiting' },
-                { title: 'TRANSPORT', status: patient.status.startsWith('นำส่ง') ? 'done' : 'pending', note: patient.status },
-                { title: 'HOSPITAL', status: 'pending', note: 'Waiting' }
+                {
+                    title: 'TREATMENT',
+                    status: isBlackTriage(patient) ? 'skipped' : careCount > 0 ? 'done' : currentState.phase === 'treatment' ? 'current' : 'pending',
+                    note: isBlackTriage(patient) ? 'Not applicable' : careCount > 0 ? `${careCount} records` : 'Waiting'
+                },
+                {
+                    title: 'TRANSPORT',
+                    status: isBlackTriage(patient) ? 'skipped' : currentState.phase === 'transport' ? 'current' : latestDispatch ? 'done' : 'pending',
+                    note: isBlackTriage(patient) ? 'Not applicable' : latestDispatch ? `${latestDispatch.vId || '-'} -> ${latestDispatch.dest || '-'}` : 'Waiting dispatch'
+                },
+                {
+                    title: 'HOSPITAL',
+                    status: isBlackTriage(patient) ? 'skipped' : currentState.phase === 'hospital' ? 'current' : 'pending',
+                    note: isBlackTriage(patient) ? 'Flow closed' : currentState.phase === 'hospital' ? currentState.locationLabel : 'Waiting arrival'
+                }
             ];
-            stepsWrap.innerHTML = steps.map(step => `<div class="nasa-panel p-3 ${step.status === 'done' ? 'border-green-500' : step.status === 'current' ? 'border-amber-500' : 'border-gray-600'}"><div class="flex justify-between items-center mb-1"><span class="mono text-xs text-cyan-400">${escapeHtml(step.title)}</span><div class="status-dot ${step.status === 'done' ? 'status-green' : step.status === 'current' ? 'status-amber' : 'status-off'}"></div></div><p class="mono text-xs text-gray-400">${escapeHtml(step.note)}</p></div>`).join('');
+            stepsWrap.innerHTML = steps.map(step => `<div class="nasa-panel p-3 ${step.status === 'done' ? 'border-green-500' : step.status === 'current' ? 'border-amber-500' : step.status === 'skipped' ? 'border-gray-500' : 'border-gray-600'}"><div class="flex justify-between items-center mb-1"><span class="mono text-xs text-cyan-400">${escapeHtml(step.title)}</span><div class="status-dot ${step.status === 'done' ? 'status-green' : step.status === 'current' ? 'status-amber' : 'status-off'}"></div></div><p class="mono text-xs text-gray-400">${escapeHtml(step.note)}</p></div>`).join('');
             panel.classList.remove('hidden');
             lucide.createIcons();
         }
@@ -4701,7 +4992,8 @@
             tbody.innerHTML = '';
             window.state.patients.filter(p => p.id.toLowerCase().includes(search)).forEach(p => {
                 const bColor = p.cat === 'Red' ? 'text-red-400' : p.cat === 'Yellow' ? 'text-amber-400' : p.cat === 'Green' ? 'text-green-400' : 'text-gray-400';
-                tbody.innerHTML += `<tr><td class="mono font-bold text-cyan-400 cursor-pointer hover:underline" onclick="showPatientTrackingFlow('${escapeHtml(p.id).replace(/'/g, "\\'")}')">${escapeHtml(p.id)}</td><td class="${bColor} font-bold">${escapeHtml(p.cat)}</td><td class="text-gray-400 mono text-sm truncate max-w-[150px]">${escapeHtml(p.injury || '-')}</td><td class="text-blue-400 mono text-sm">${escapeHtml(p.status)}</td><td><button onclick="deletePatient('${escapeHtml(p.id).replace(/'/g, "\\'")}')" class="text-red-400 hover:text-red-300"><i data-lucide="trash-2" class="w-4 h-4"></i></button></td></tr>`;
+                const currentState = getPatientCurrentState(p);
+                tbody.innerHTML += `<tr><td class="mono font-bold text-cyan-400 cursor-pointer hover:underline" onclick="showPatientTrackingFlow('${escapeHtml(p.id).replace(/'/g, "\\'")}')">${escapeHtml(p.id)}</td><td class="${bColor} font-bold">${escapeHtml(p.cat)}</td><td class="text-gray-400 mono text-sm truncate max-w-[150px]">${escapeHtml(p.injury || '-')}</td><td class="${currentState.badgeClass} mono text-sm">${escapeHtml(currentState.statusLabel)}</td><td class="text-gray-400 mono text-sm">${escapeHtml(currentState.locationLabel)}</td><td><button onclick="deletePatient('${escapeHtml(p.id).replace(/'/g, "\\'")}')" class="text-red-400 hover:text-red-300"><i data-lucide="trash-2" class="w-4 h-4"></i></button></td></tr>`;
             });
             lucide.createIcons();
         }
@@ -4716,13 +5008,42 @@
 
         window.renderVehicles = function () {
             const list = document.getElementById('vehicle-list');
+            const missionList = document.getElementById('vehicle-mission-list');
+            if (!list) return;
             list.innerHTML = '';
-            window.state.vehicles.forEach(v => {
-                const dotClass = v.status === 'Standby' ? 'status-green' : v.status === 'En route' ? 'status-amber' : 'status-off';
+            if (missionList) missionList.innerHTML = '';
+
+            const availableVehicles = window.state.vehicles.filter(v => !isMissionVehicleStatus(v.status));
+            const missionVehicles = window.state.vehicles
+                .filter(v => isMissionVehicleStatus(v.status))
+                .sort((a, b) => {
+                    const orderDiff = getMissionStatusOrder(a.status) - getMissionStatusOrder(b.status);
+                    if (orderDiff !== 0) return orderDiff;
+                    return String(a.id || '').localeCompare(String(b.id || ''));
+                });
+
+            if (availableVehicles.length === 0) {
+                list.innerHTML = '<div class="nasa-panel-bright p-3 text-center mono text-xs text-gray-500">ยังไม่มีรถที่พร้อมใช้งาน</div>';
+            }
+
+            availableVehicles.forEach(v => {
+                const statusMeta = getVehicleStatusMeta(v.status);
                 const passengers = getVehiclePatientList(v);
-                const statusColor = v.status === 'Standby' ? 'var(--apple-green)' : v.status === 'En route' ? 'var(--apple-orange)' : 'var(--apple-text-tertiary)';
-                list.innerHTML += `<div class="nasa-panel-bright p-3 flex justify-between items-center"><div><div class="flex items-center gap-2"><div class="status-dot ${dotClass}"></div><span class="mono text-sm font-bold text-white">${escapeHtml(v.id)}</span><span class="mono text-[10px] px-2 py-0.5 rounded-full" style="background:color-mix(in srgb, ${statusColor} 15%, transparent);color:${statusColor};">${escapeHtml(formatVehicleStatus(v.status))}</span></div><div class="mono text-xs text-gray-500">${escapeHtml(v.type)} [${escapeHtml(v.agency)}]</div>${passengers.length > 0 ? `<div class="mono text-xs text-amber-400 mt-1">→ ${escapeHtml(passengers.join(', '))}</div>` : ''}</div><div class="flex gap-1"><button onclick="changeVehicleStatus('${escapeHtml(v.id).replace(/'/g, "\\'")}', '${v.status === 'Standby' ? 'Demobilize' : 'Standby'}')" class="nasa-btn text-xs">${v.status === 'Standby' ? 'DEMOB' : 'STBY'}</button><button onclick="removeVehicle('${escapeHtml(v.id).replace(/'/g, "\\'")}')" class="text-red-400 hover:text-red-300 p-1"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div></div>`;
+                const action = getVehicleNextAction(v.status);
+                list.innerHTML += `<div class="nasa-panel-bright p-3 flex justify-between items-center"><div><div class="flex items-center gap-2"><div class="status-dot ${statusMeta.dotClass}"></div><span class="mono text-sm font-bold text-white">${escapeHtml(v.id)}</span><span class="mono text-[10px] px-2 py-0.5 rounded-full" style="background:color-mix(in srgb, ${statusMeta.color} 15%, transparent);color:${statusMeta.color};">${escapeHtml(statusMeta.label)}</span></div><div class="mono text-xs text-gray-500">${escapeHtml(v.type)} [${escapeHtml(v.agency)}]</div>${passengers.length > 0 ? `<div class="mono text-xs text-amber-400 mt-1">→ ${escapeHtml(passengers.join(', '))}</div>` : ''}</div><div class="flex gap-1">${action ? `<button onclick="changeVehicleStatus('${escapeHtml(v.id).replace(/'/g, "\\'")}', '${action.nextStatus}')" class="nasa-btn text-xs">${action.label}</button>` : ''}<button onclick="removeVehicle('${escapeHtml(v.id).replace(/'/g, "\\'")}')" class="text-red-400 hover:text-red-300 p-1"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div></div>`;
             });
+
+            if (missionList) {
+                if (missionVehicles.length === 0) {
+                    missionList.innerHTML = '<div class="nasa-panel-bright p-3 text-center mono text-xs text-gray-500">ไม่มีรถที่อยู่ระหว่างภารกิจ</div>';
+                }
+                missionVehicles.forEach(v => {
+                    const statusMeta = getVehicleStatusMeta(v.status);
+                    const passengers = getVehiclePatientList(v);
+                    const action = getVehicleNextAction(v.status);
+                    missionList.innerHTML += `<div class="nasa-panel-bright p-3 flex justify-between items-center"><div><div class="flex items-center gap-2"><div class="status-dot ${statusMeta.dotClass} ${v.status === 'En route' ? 'blink' : ''}"></div><span class="mono text-sm font-bold text-white">${escapeHtml(v.id)}</span><span class="mono text-[10px] px-2 py-0.5 rounded-full" style="background:color-mix(in srgb, ${statusMeta.color} 15%, transparent);color:${statusMeta.color};">${escapeHtml(statusMeta.label)}</span></div><div class="mono text-xs text-gray-500">${escapeHtml(v.type)} [${escapeHtml(v.agency)}]</div>${passengers.length > 0 ? `<div class="mono text-xs text-amber-400 mt-1">→ ${escapeHtml(passengers.join(', '))}</div>` : '<div class="mono text-xs text-gray-500 mt-1">No assigned patient</div>'}</div><div class="flex gap-1">${action ? `<button onclick="changeVehicleStatus('${escapeHtml(v.id).replace(/'/g, "\\'")}', '${action.nextStatus}')" class="nasa-btn text-xs">${action.label}</button>` : ''}</div></div>`;
+                });
+            }
             lucide.createIcons();
             populateDispatchDropdowns();
         }
@@ -4731,8 +5052,10 @@
             e.preventDefault();
             const id = document.getElementById('veh-id').value.trim();
             const agency = document.getElementById('veh-agency').value.trim();
+            const type = document.getElementById('veh-type').value;
             if (window.state.vehicles.some(v => v.id === id)) return alert('Vehicle already exists');
-            const vData = { id, agency, type: document.getElementById('veh-type').value, status: 'Standby', currentPatient: null };
+            if (!type) return alert('กรุณาเพิ่ม Vehicle Type ใน Settings ก่อน');
+            const vData = { id, agency, type: type, status: 'Standby', currentPatient: null };
             window.state.vehicles.push(vData);
             await saveToCloud('vehicles', id, vData);
             await addEventLog(`Add vehicle: ${id} (${vData.type})`, 'VEHICLE');
@@ -4752,12 +5075,54 @@
         window.changeVehicleStatus = async function (id, newStatus) {
             const vIndex = window.state.vehicles.findIndex(v => v.id === id);
             if (vIndex > -1) {
-                window.state.vehicles[vIndex].status = newStatus;
-                if (newStatus !== 'En route') window.state.vehicles[vIndex].currentPatient = null;
-                await saveToCloud('vehicles', id, window.state.vehicles[vIndex]);
+                const vehicle = window.state.vehicles[vIndex];
+                const dispatchesToUpdate = window.state.dispatches.filter(d => d.vId === id && d.status !== 'Arrived');
+                if ((newStatus === 'Returning' || newStatus === 'Standby') && dispatchesToUpdate.length > 0) {
+                    return showToast('ต้อง Mark Arrived Hospital ให้ครบก่อน', 'info');
+                }
+                vehicle.status = newStatus;
+                if (newStatus === 'Standby' || newStatus === 'Demobilize') vehicle.currentPatient = null;
+                await saveToCloud('vehicles', id, vehicle);
+                if (newStatus === 'En route') {
+                    for (const dispatch of dispatchesToUpdate) {
+                        dispatch.status = 'En route';
+                        await saveToCloud('dispatches', dispatch.id, dispatch);
+                        const patient = window.state.patients.find(p => p.id === dispatch.pId);
+                        if (patient) {
+                            patient.status = `En route to ${dispatch.dest}`;
+                            await saveToCloud('patients', patient.id, patient);
+                        }
+                    }
+                }
+
                 await addEventLog(`Vehicle status: ${id} -> ${newStatus}`, 'VEHICLE');
                 refreshUIs();
             }
+        }
+
+        window.markDispatchArrived = async function (dispatchId) {
+            const dispatch = window.state.dispatches.find(d => d.id === dispatchId);
+            if (!dispatch || dispatch.status === 'Arrived') return;
+            dispatch.status = 'Arrived';
+            dispatch.arrivedAt = new Date().toLocaleTimeString('th-TH', { hour12: false });
+
+            const patient = window.state.patients.find(p => p.id === dispatch.pId);
+            if (patient) {
+                patient.status = `Arrived at ${dispatch.dest}`;
+                await saveToCloud('patients', patient.id, patient);
+            }
+
+            const vehicle = window.state.vehicles.find(v => v.id === dispatch.vId);
+            if (vehicle) {
+                vehicle.status = 'At Hospital';
+                const remainingPatients = getVehiclePatientList(vehicle).filter(id => id !== dispatch.pId);
+                setVehiclePatientList(vehicle, remainingPatients);
+                await saveToCloud('vehicles', vehicle.id, vehicle);
+            }
+
+            await saveToCloud('dispatches', dispatch.id, dispatch);
+            await addEventLog(`Arrived hospital: ${dispatch.pId} @ ${dispatch.dest}`, 'DISPATCH');
+            refreshUIs();
         }
 
         window.renderDispatchLog = function () {
@@ -4765,16 +5130,24 @@
             if (!tbody) return;
             tbody.innerHTML = '';
             const sorted = [...window.state.dispatches].sort((a, b) => (Number(b.id) || 0) - (Number(a.id) || 0));
-            if (sorted.length === 0) { tbody.innerHTML = '<tr><td colspan="4" class="text-center text-gray-600 py-6 mono">NO DISPATCHES</td></tr>'; return; }
+            if (sorted.length === 0) { tbody.innerHTML = '<tr><td colspan="6" class="text-center text-gray-600 py-6 mono">NO DISPATCHES</td></tr>'; return; }
             sorted.forEach(d => {
-                tbody.innerHTML += `<tr><td class="mono text-gray-400">${escapeHtml(d.time || '-')}</td><td class="mono text-cyan-400 font-bold">${escapeHtml(d.pId || '-')}</td><td class="mono text-gray-300">${escapeHtml(d.vId || '-')}</td><td class="mono text-gray-300">${escapeHtml(d.dest || '-')}</td></tr>`;
+                const statusMeta = getDispatchStatusMeta(d);
+                const actionHtml = d.status === 'Arrived'
+                    ? `<span class="mono text-xs text-green-400">DONE</span>`
+                    : d.status === 'Loading'
+                        ? `<span class="mono text-xs text-purple-400">WAIT ENRT</span>`
+                        : `<button onclick="markDispatchArrived('${escapeHtml(d.id).replace(/'/g, "\\'")}')" class="nasa-btn text-xs">ARRIVED</button>`;
+                const statusBadge = `<span class="inline-flex items-center gap-1 mono text-[10px] px-2 py-0.5 rounded-full" style="background:color-mix(in srgb, ${statusMeta.color} 15%, transparent);color:${statusMeta.color};"><span class="status-dot ${statusMeta.dotClass}"></span>${escapeHtml(statusMeta.label)}</span>`;
+                tbody.innerHTML += `<tr><td class="mono text-gray-400">${escapeHtml(d.time || '-')}</td><td class="mono text-cyan-400 font-bold">${escapeHtml(d.pId || '-')}</td><td class="mono text-gray-300">${escapeHtml(d.vId || '-')}</td><td class="mono text-gray-300">${escapeHtml(d.dest || '-')}</td><td>${statusBadge}</td><td>${actionHtml}</td></tr>`;
             });
+            lucide.createIcons();
         }
 
         window.populateDispatchDropdowns = function () {
             const pSel = document.getElementById('dispatch-patient');
             pSel.innerHTML = '<option value="">-- SELECT PATIENT --</option>';
-            window.state.patients.filter(p => p.status === 'CCP').forEach(p => pSel.innerHTML += `<option value="${escapeHtml(p.id)}">${escapeHtml(p.id)} (${escapeHtml(p.cat)})</option>`);
+            window.state.patients.filter(isPatientDispatchEligible).forEach(p => pSel.innerHTML += `<option value="${escapeHtml(p.id)}">${escapeHtml(p.id)} (${escapeHtml(p.cat)})</option>`);
             const vSel = document.getElementById('dispatch-vehicle');
             vSel.innerHTML = '<option value="">-- SELECT VEHICLE --</option>';
             window.state.vehicles
@@ -4792,16 +5165,17 @@
             if (!pId || !vId || !dest) return alert("Select all fields");
             const pt = window.state.patients.find(p => p.id === pId);
             const veh = window.state.vehicles.find(v => v.id === vId);
-            if (pt) { pt.status = `นำส่ง ${dest}`; await saveToCloud('patients', pt.id, pt); }
+            if (pt && isBlackTriage(pt)) return alert('ผู้ป่วย BLACK ถูกตัดออกจาก transport flow');
+            if (pt) { pt.status = `Loading for transport to ${dest}`; await saveToCloud('patients', pt.id, pt); }
             if (veh) {
-                veh.status = 'En route';
+                veh.status = 'Loading';
                 const patientIds = getVehiclePatientList(veh);
                 if (!patientIds.includes(pId)) patientIds.push(pId);
                 setVehiclePatientList(veh, patientIds);
                 await saveToCloud('vehicles', veh.id, veh);
             }
             const dId = Date.now().toString();
-            const dData = { id: dId, time: new Date().toLocaleTimeString('th-TH', { hour12: false }), pId, vId, dest };
+            const dData = { id: dId, time: new Date().toLocaleTimeString('th-TH', { hour12: false }), pId, vId, dest, status: 'Loading', arrivedAt: '' };
             window.state.dispatches.push(dData);
             await saveToCloud('dispatches', dId, dData);
             await addEventLog(`Dispatch: ${pId} -> ${dest} via ${vId}`, 'DISPATCH');
@@ -4812,6 +5186,9 @@
             const sm = window.state.settings;
             if (!Array.isArray(sm.quickInjuries) || sm.quickInjuries.length === 0) {
                 sm.quickInjuries = ['Head Injury', 'Chest Trauma', 'Abdominal Pain', 'Fracture', 'Burn', 'Laceration'];
+            }
+            if (!Array.isArray(sm.vehicleTypes)) {
+                sm.vehicleTypes = ['Ambulance (ALS)', 'Ambulance (BLS/FR)', 'Helicopter (HEMS)', 'Rescue Boat'];
             }
             const sheetsUrlInput = document.getElementById('set-sheets-url');
             if (sheetsUrlInput) sheetsUrlInput.value = window.getSheetsUrl ? window.getSheetsUrl() : '';
@@ -4833,8 +5210,10 @@
             if (dispSec) dispSec.textContent = sm.secondaryModel || 'SORT';
             if (descPri) descPri.textContent = sm.triageDesc?.[sm.primaryModel] || '';
             if (descSec) descSec.textContent = sm.triageDesc?.[sm.secondaryModel] || '';
+            renderVehicleTypeOptions();
             renderSettingsLSI();
             renderSettingsInjuries();
+            renderSettingsVehicleTypes();
         }
 
         // ===== TRIAGE PRESETS =====
@@ -5022,6 +5401,36 @@
             lucide.createIcons();
         }
 
+        window.renderSettingsVehicleTypes = function () {
+            const list = document.getElementById('settings-vehicle-type-list');
+            if (!list) return;
+            const vehicleTypes = getConfiguredVehicleTypes();
+            if (vehicleTypes.length === 0) {
+                list.innerHTML = '<div class="mono text-xs text-gray-500">ยังไม่มีประเภทของยานพาหนะ</div>';
+                return;
+            }
+            list.innerHTML = vehicleTypes.map((vehicleType, i) => `<div class="flex items-center gap-2 px-3 py-1 bg-nasa-panel border border-nasa-border mono text-sm text-purple-400 rounded"><span>${escapeHtml(vehicleType)}</span><button type="button" onclick="handleRemoveVehicleType(${i})" class="text-red-400 hover:text-red-300"><i data-lucide="x" class="w-3 h-3"></i></button></div>`).join('');
+            lucide.createIcons();
+        }
+
+        window.renderVehicleTypeOptions = function () {
+            const select = document.getElementById('veh-type');
+            if (!select) return;
+            const previousValue = select.value;
+            const vehicleTypes = getConfiguredVehicleTypes();
+            if (vehicleTypes.length === 0) {
+                select.innerHTML = '<option value="">No vehicle types configured</option>';
+                select.value = '';
+                return;
+            }
+            select.innerHTML = vehicleTypes.map(vehicleType => `<option value="${escapeHtml(vehicleType)}">${escapeHtml(vehicleType)}</option>`).join('');
+            if (vehicleTypes.includes(previousValue)) {
+                select.value = previousValue;
+            } else if (vehicleTypes.length > 0) {
+                select.value = vehicleTypes[0];
+            }
+        }
+
         window.handleAddLSI = async function () {
             const input = document.getElementById('new-lsi-input');
             const val = input.value.trim();
@@ -5058,6 +5467,28 @@
         window.handleRemoveInjuryCard = async function (idx) {
             if (!Array.isArray(window.state.settings.quickInjuries)) return;
             window.state.settings.quickInjuries.splice(idx, 1);
+            await saveGlobalStateToCloud();
+            refreshUIs();
+        }
+
+        window.handleAddVehicleType = async function () {
+            const input = document.getElementById('new-vehicle-type-input');
+            const val = input.value.trim();
+            if (!Array.isArray(window.state.settings.vehicleTypes)) {
+                window.state.settings.vehicleTypes = [];
+            }
+            const exists = window.state.settings.vehicleTypes.some(item => String(item).trim().toLowerCase() === val.toLowerCase());
+            if (val && !exists) {
+                window.state.settings.vehicleTypes.push(val);
+                input.value = '';
+                await saveGlobalStateToCloud();
+                refreshUIs();
+            }
+        }
+
+        window.handleRemoveVehicleType = async function (idx) {
+            if (!Array.isArray(window.state.settings.vehicleTypes)) return;
+            window.state.settings.vehicleTypes.splice(idx, 1);
             await saveGlobalStateToCloud();
             refreshUIs();
         }
