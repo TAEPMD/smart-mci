@@ -2968,6 +2968,30 @@
             return div.innerHTML;
         }
 
+        function getVehiclePatientList(vehicle) {
+            if (!vehicle) return [];
+            const raw = vehicle.currentPatient;
+            if (Array.isArray(raw)) {
+                return raw.map(x => String(x || '').trim()).filter(Boolean);
+            }
+            if (typeof raw === 'string') {
+                return raw.split(',').map(x => x.trim()).filter(Boolean);
+            }
+            return [];
+        }
+
+        function setVehiclePatientList(vehicle, patientIds) {
+            if (!vehicle) return;
+            const uniqIds = [...new Set((patientIds || []).map(x => String(x || '').trim()).filter(Boolean))];
+            vehicle.currentPatient = uniqIds.length > 0 ? uniqIds.join(', ') : null;
+        }
+
+        function getVehicleDisplayLabel(vehicle) {
+            if (!vehicle) return '';
+            const type = String(vehicle.type || '').trim();
+            return type ? `${vehicle.id} (${type})` : `${vehicle.id}`;
+        }
+
         async function sha256(message) {
             const msgBuffer = new TextEncoder().encode(message);
             const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
@@ -3594,8 +3618,9 @@
                         const dotClass = isEnRoute ? 'status-amber' : isDemob ? 'status-off' : 'status-green';
                         const dotBlink = isEnRoute ? 'blink' : '';
                         const sc = isEnRoute ? 'var(--apple-orange)' : isDemob ? 'var(--apple-text-tertiary)' : 'var(--apple-green)';
-                        const ptRow = (isEnRoute && v.currentPatient)
-                            ? '<div style="font-size:11px;color:var(--apple-orange);margin-top:1px;">\u2192 ' + escapeHtml(v.currentPatient) + '</div>'
+                        const passengers = getVehiclePatientList(v);
+                        const ptRow = (isEnRoute && passengers.length > 0)
+                            ? '<div style="font-size:11px;color:var(--apple-orange);margin-top:1px;">\u2192 ' + escapeHtml(passengers.join(', ')) + '</div>'
                             : '';
                         return '<div style="display:flex;align-items:center;gap:8px;padding:7px 8px;border-radius:9px;background:var(--apple-surface-2);border:1px solid var(--apple-border);margin-bottom:4px;">' +
                             '<div class="status-dot ' + dotClass + ' ' + dotBlink + '" style="flex-shrink:0;"></div>' +
@@ -4213,7 +4238,8 @@
             list.innerHTML = '';
             window.state.vehicles.forEach(v => {
                 const dotClass = v.status === 'Standby' ? 'status-green' : v.status === 'En route' ? 'status-amber' : 'status-off';
-                list.innerHTML += `<div class="nasa-panel-bright p-3 flex justify-between items-center"><div><div class="flex items-center gap-2"><div class="status-dot ${dotClass}"></div><span class="mono text-sm font-bold text-white">${escapeHtml(v.id)}</span></div><div class="mono text-xs text-gray-500">${escapeHtml(v.type)} [${escapeHtml(v.agency)}]</div>${v.currentPatient ? `<div class="mono text-xs text-amber-400 mt-1">→ ${escapeHtml(v.currentPatient)}</div>` : ''}</div><div class="flex gap-1"><button onclick="changeVehicleStatus('${escapeHtml(v.id).replace(/'/g, "\\'")}', '${v.status === 'Standby' ? 'Demobilize' : 'Standby'}')" class="nasa-btn text-xs">${v.status === 'Standby' ? 'DEMOB' : 'STBY'}</button><button onclick="removeVehicle('${escapeHtml(v.id).replace(/'/g, "\\'")}')" class="text-red-400 hover:text-red-300 p-1"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div></div>`;
+                const passengers = getVehiclePatientList(v);
+                list.innerHTML += `<div class="nasa-panel-bright p-3 flex justify-between items-center"><div><div class="flex items-center gap-2"><div class="status-dot ${dotClass}"></div><span class="mono text-sm font-bold text-white">${escapeHtml(v.id)}</span></div><div class="mono text-xs text-gray-500">${escapeHtml(v.type)} [${escapeHtml(v.agency)}]</div>${passengers.length > 0 ? `<div class="mono text-xs text-amber-400 mt-1">→ ${escapeHtml(passengers.join(', '))}</div>` : ''}</div><div class="flex gap-1"><button onclick="changeVehicleStatus('${escapeHtml(v.id).replace(/'/g, "\\'")}', '${v.status === 'Standby' ? 'Demobilize' : 'Standby'}')" class="nasa-btn text-xs">${v.status === 'Standby' ? 'DEMOB' : 'STBY'}</button><button onclick="removeVehicle('${escapeHtml(v.id).replace(/'/g, "\\'")}')" class="text-red-400 hover:text-red-300 p-1"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div></div>`;
             });
             lucide.createIcons();
             populateDispatchDropdowns();
@@ -4266,7 +4292,9 @@
             window.state.patients.filter(p => p.status === 'CCP').forEach(p => pSel.innerHTML += `<option value="${escapeHtml(p.id)}">${escapeHtml(p.id)} (${escapeHtml(p.cat)})</option>`);
             const vSel = document.getElementById('dispatch-vehicle');
             vSel.innerHTML = '<option value="">-- SELECT VEHICLE --</option>';
-            window.state.vehicles.filter(v => v.status === 'Standby').forEach(v => vSel.innerHTML += `<option value="${escapeHtml(v.id)}">${escapeHtml(v.id)}</option>`);
+            window.state.vehicles
+                .filter(v => v.status === 'Standby' || v.status === 'En route')
+                .forEach(v => vSel.innerHTML += `<option value="${escapeHtml(v.id)}">${escapeHtml(getVehicleDisplayLabel(v))}</option>`);
             const dSel = document.getElementById('dispatch-dest');
             dSel.innerHTML = '<option value="">-- SELECT HOSPITAL --</option>';
             window.state.hospitals.forEach(h => dSel.innerHTML += `<option value="${escapeHtml(h.name)}">${escapeHtml(h.name)}</option>`);
@@ -4280,7 +4308,13 @@
             const pt = window.state.patients.find(p => p.id === pId);
             const veh = window.state.vehicles.find(v => v.id === vId);
             if (pt) { pt.status = `นำส่ง ${dest}`; await saveToCloud('patients', pt.id, pt); }
-            if (veh) { veh.status = 'En route'; veh.currentPatient = pId; await saveToCloud('vehicles', veh.id, veh); }
+            if (veh) {
+                veh.status = 'En route';
+                const patientIds = getVehiclePatientList(veh);
+                if (!patientIds.includes(pId)) patientIds.push(pId);
+                setVehiclePatientList(veh, patientIds);
+                await saveToCloud('vehicles', veh.id, veh);
+            }
             const dId = Date.now().toString();
             const dData = { id: dId, time: new Date().toLocaleTimeString('th-TH', { hour12: false }), pId, vId, dest };
             window.state.dispatches.push(dData);
