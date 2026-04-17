@@ -2754,6 +2754,7 @@
             localStorage.setItem('mci_sheets_url', SHEETS_API_URL);
             updateSyncStatus();
             if (SHEETS_API_URL && sheetsQueue.length > 0) scheduleSheetsFlush();
+            if (SHEETS_API_URL) startSheetsPolling(); else stopSheetsPolling();
         };
 
         // Debounce helper
@@ -2767,8 +2768,13 @@
             const badge = document.getElementById('sheets-sync-badge');
             if (!badge) return;
             if (SHEETS_API_URL) {
-                badge.innerHTML = '<div class="status-dot status-green"></div><span class="text-green-400">SHEETS SYNC</span>';
-                badge.title = SHEETS_API_URL;
+                if (sheetsPollingTimer) {
+                    badge.innerHTML = '<div class="status-dot status-green blink"></div><span class="text-green-400">SHEETS LIVE</span>';
+                    badge.title = 'Real-time polling ทุก ' + (SHEETS_POLL_INTERVAL_MS / 1000) + ' วินาที';
+                } else {
+                    badge.innerHTML = '<div class="status-dot status-green"></div><span class="text-green-400">SHEETS SYNC</span>';
+                    badge.title = SHEETS_API_URL;
+                }
             } else {
                 badge.innerHTML = '<div class="status-dot" style="background:#888"></div><span style="color:#888">SHEETS OFF</span>';
                 badge.title = 'ตั้งค่า Sheets URL ใน Settings';
@@ -2860,6 +2866,90 @@
             scheduleSheetsFlush();
         }
         window.flushSheetsQueue = () => flushSheetsQueue(true);
+
+        // ===== SHEETS REAL-TIME POLLING (multi-device sync) =====
+        const SHEETS_POLL_INTERVAL_MS = 15000; // poll ทุก 15 วินาที
+        let sheetsPollingTimer = null;
+        let isPolling = false;
+
+        async function pollSheetsState() {
+            if (!SHEETS_API_URL || isPolling || isSheetsCrossOrigin()) return;
+            isPolling = true;
+            try {
+                const resp = await fetch(SHEETS_API_URL, {
+                    method: 'POST',
+                    mode: 'cors',
+                    headers: { 'Content-Type': 'text/plain' },
+                    body: JSON.stringify({ action: 'get_state', data: {} }),
+                    redirect: 'follow'
+                });
+                if (resp.ok) {
+                    const result = await resp.json();
+                    if (result && result.ok && result.state) {
+                        mergePolledState(result.state);
+                    }
+                }
+            } catch (e) {
+                console.warn('[Sheets Poll] Error:', e.message);
+            } finally {
+                isPolling = false;
+            }
+        }
+
+        function mergePolledState(polled) {
+            if (isSyncingFromCloud) return; // Firebase กำลัง sync อยู่ ข้าม
+            let changed = false;
+
+            const collections = ['patients', 'careRecords', 'vehicles', 'dispatches', 'hospitals', 'eventLogs'];
+            collections.forEach(col => {
+                if (!polled[col]) return;
+                const oldJson = JSON.stringify(window.state[col] || []);
+                const newJson = JSON.stringify(polled[col]);
+                if (oldJson !== newJson) {
+                    window.state[col] = polled[col];
+                    changed = true;
+                }
+            });
+
+            if (polled.methane && JSON.stringify(polled.methane) !== JSON.stringify(window.state.methane)) {
+                window.state.methane = polled.methane;
+                changed = true;
+            }
+            if (polled.cscattt && JSON.stringify(polled.cscattt) !== JSON.stringify(window.state.cscattt)) {
+                window.state.cscattt = polled.cscattt;
+                changed = true;
+            }
+
+            if (changed) {
+                saveLocalState();
+                refreshUIs();
+                console.log('[Sheets Poll] ✓ State updated from Sheets');
+            }
+        }
+
+        function startSheetsPolling() {
+            stopSheetsPolling();
+            if (!SHEETS_API_URL || isSheetsCrossOrigin()) return;
+            pollSheetsState(); // poll ทันทีเมื่อเริ่ม
+            sheetsPollingTimer = setInterval(pollSheetsState, SHEETS_POLL_INTERVAL_MS);
+            console.log('[Sheets Poll] ✓ Started, interval:', SHEETS_POLL_INTERVAL_MS, 'ms');
+            updateSyncStatus();
+        }
+
+        function stopSheetsPolling() {
+            if (sheetsPollingTimer) {
+                clearInterval(sheetsPollingTimer);
+                sheetsPollingTimer = null;
+            }
+        }
+
+        window.startSheetsPolling = startSheetsPolling;
+        window.stopSheetsPolling = stopSheetsPolling;
+
+        // เริ่ม polling อัตโนมัติถ้ามี URL แล้ว
+        if (SHEETS_API_URL && !isSheetsCrossOrigin()) {
+            startSheetsPolling();
+        }
 
         // Debounced global state sync to Sheets (5 seconds)
         const debouncedSheetsGlobalSync = debounce(() => {
