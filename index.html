@@ -307,6 +307,45 @@
             transform: scale(0.97);
         }
 
+        @keyframes btn-reaction-tap {
+            0% {
+                transform: scale(1);
+            }
+
+            40% {
+                transform: scale(0.94);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        @keyframes btn-reaction-success {
+            0% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(52, 199, 89, 0.45);
+            }
+
+            55% {
+                transform: scale(1.04);
+                box-shadow: 0 0 0 10px rgba(52, 199, 89, 0.08);
+            }
+
+            100% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(52, 199, 89, 0);
+            }
+        }
+
+        .nasa-btn.reaction-tap {
+            animation: btn-reaction-tap 0.24s ease-out;
+        }
+
+        .nasa-btn.reaction-success {
+            animation: btn-reaction-success 0.55s ease-out;
+        }
+
         .nasa-btn-primary {
             background: var(--apple-blue);
             border-color: var(--apple-blue);
@@ -3177,6 +3216,16 @@
             }
         }
 
+        function triggerButtonReaction(btnId, reaction = 'tap') {
+            const btn = document.getElementById(btnId);
+            if (!btn) return;
+            const className = reaction === 'success' ? 'reaction-success' : 'reaction-tap';
+            btn.classList.remove(className);
+            void btn.offsetWidth;
+            btn.classList.add(className);
+            btn.addEventListener('animationend', () => btn.classList.remove(className), { once: true });
+        }
+
         // ===== MISSION CLOCK =====
         let missionStartTime = Date.now();
 
@@ -3915,35 +3964,49 @@
 
         window.saveMETHANE = async function () {
             const btnHtml = document.getElementById('btn-save-methane').innerHTML;
+            triggerButtonReaction('btn-save-methane', 'tap');
             setButtonLoading('btn-save-methane', true, btnHtml);
-            window.state.methane = {
-                m: document.getElementById('methane-m').value,
-                e: document.getElementById('methane-e').value,
-                t: document.getElementById('methane-t').value,
-                h: document.getElementById('methane-h').value,
-                a: document.getElementById('methane-a').value,
-                n: document.getElementById('methane-n').value,
-                e2: document.getElementById('methane-e2').value
-            };
-            await saveGlobalStateToCloud();
-            updateMapLocation();
-            setButtonLoading('btn-save-methane', false, btnHtml);
+            try {
+                window.state.methane = {
+                    m: document.getElementById('methane-m').value,
+                    e: document.getElementById('methane-e').value,
+                    t: document.getElementById('methane-t').value,
+                    h: document.getElementById('methane-h').value,
+                    a: document.getElementById('methane-a').value,
+                    n: document.getElementById('methane-n').value,
+                    e2: document.getElementById('methane-e2').value
+                };
+                await saveGlobalStateToCloud();
+                updateMapLocation();
+                triggerButtonReaction('btn-save-methane', 'success');
+            } catch (error) {
+                showToast('SAVE METHANE ล้มเหลว: ' + (error?.message || 'Unknown error'), 'error');
+            } finally {
+                setButtonLoading('btn-save-methane', false, btnHtml);
+            }
         }
 
         window.saveCSCATTT = async function () {
             const btnHtml = document.getElementById('btn-save-cscattt').innerHTML;
+            triggerButtonReaction('btn-save-cscattt', 'tap');
             setButtonLoading('btn-save-cscattt', true, btnHtml);
-            window.state.cscattt = {
-                c1: document.getElementById('cscattt-c1').checked,
-                s: document.getElementById('cscattt-s').checked,
-                c2: document.getElementById('cscattt-c2').checked,
-                a: document.getElementById('cscattt-a').checked,
-                t1: document.getElementById('cscattt-t1').checked,
-                t2: document.getElementById('cscattt-t2').checked,
-                t3: document.getElementById('cscattt-t3').checked
-            };
-            await saveGlobalStateToCloud();
-            setButtonLoading('btn-save-cscattt', false, btnHtml);
+            try {
+                window.state.cscattt = {
+                    c1: document.getElementById('cscattt-c1').checked,
+                    s: document.getElementById('cscattt-s').checked,
+                    c2: document.getElementById('cscattt-c2').checked,
+                    a: document.getElementById('cscattt-a').checked,
+                    t1: document.getElementById('cscattt-t1').checked,
+                    t2: document.getElementById('cscattt-t2').checked,
+                    t3: document.getElementById('cscattt-t3').checked
+                };
+                await saveGlobalStateToCloud();
+                triggerButtonReaction('btn-save-cscattt', 'success');
+            } catch (error) {
+                showToast('UPDATE CSCATTT ล้มเหลว: ' + (error?.message || 'Unknown error'), 'error');
+            } finally {
+                setButtonLoading('btn-save-cscattt', false, btnHtml);
+            }
         }
 
         window.switchTriageTab = function (tab) {
@@ -4093,21 +4156,28 @@
             const extrication = document.getElementById('pri-extrication').value;
             const photoB64 = document.getElementById('pri-photo-preview').dataset.b64 || '';
             setButtonLoading('btn-submit-pri', true, btnHtml);
-            const ptData = {
-                id: pid, cat: cat, injury: '', gender: '', status: 'CCP', stage: 'Primary', vitals: {},
-                hazmat: { decon, extricationTime: extrication }, photoUrl: photoB64,
-                timestamp: new Date().toLocaleTimeString('th-TH')
-            };
-            let pIndex = window.state.patients.findIndex(p => p.id === pid);
-            if (pIndex > -1) { Object.assign(window.state.patients[pIndex], ptData); }
-            else { window.state.patients.push(ptData); }
-            await saveToCloud('patients', pid, ptData);
-            await addEventLog(`Primary triage: ${pid} -> ${cat}`, 'TRIAGE');
-            await saveGlobalStateToCloud();
-            document.getElementById('primary-triage-form').reset();
-            clearPhoto('pri-photo', 'pri-photo-preview');
-            setButtonLoading('btn-submit-pri', false, btnHtml);
-            refreshUIs();
+            try {
+                const ptData = {
+                    id: pid, cat: cat, injury: '', gender: '', status: 'CCP', stage: 'Primary', vitals: {},
+                    hazmat: { decon, extricationTime: extrication }, photoUrl: photoB64,
+                    timestamp: new Date().toLocaleTimeString('th-TH')
+                };
+                let pIndex = window.state.patients.findIndex(p => p.id === pid);
+                if (pIndex > -1) { Object.assign(window.state.patients[pIndex], ptData); }
+                else { window.state.patients.push(ptData); }
+                await saveToCloud('patients', pid, ptData);
+                await addEventLog(`Primary triage: ${pid} -> ${cat}`, 'TRIAGE');
+                await saveGlobalStateToCloud();
+                if (e.currentTarget && typeof e.currentTarget.reset === 'function') {
+                    e.currentTarget.reset();
+                }
+                clearPhoto('pri-photo', 'pri-photo-preview');
+                refreshUIs();
+            } catch (error) {
+                showToast('SAVE TRIAGE DATA ล้มเหลว: ' + (error?.message || 'Unknown error'), 'error');
+            } finally {
+                setButtonLoading('btn-submit-pri', false, btnHtml);
+            }
         }
 
         window.handleSaveSecondary = async function (e) {
@@ -4119,31 +4189,38 @@
             const cat = catEl.value;
             const photoB64 = document.getElementById('sec-photo-preview').dataset.b64 || '';
             setButtonLoading('btn-submit-sec', true, btnHtml);
-            const pIndex = window.state.patients.findIndex(p => p.id === pid);
-            const existingPatient = pIndex > -1 ? window.state.patients[pIndex] : null;
-            const ptData = {
-                id: pid, cat: cat, gender: document.getElementById('sec-triage-gender').value,
-                injury: document.getElementById('sec-triage-injury').value, status: 'CCP', stage: 'Secondary',
-                vitals: {
-                    avpu: document.getElementById('sec-avpu').value,
-                    gcs: document.getElementById('sec-gcs').value,
-                    bp: document.getElementById('sec-bp').value,
-                    pr: document.getElementById('sec-pr').value,
-                    rr: document.getElementById('sec-rr').value,
-                    spo2: document.getElementById('sec-spo2').value
-                },
-                hazmat: existingPatient ? existingPatient.hazmat : {},
-                photoUrl: photoB64 || (existingPatient ? existingPatient.photoUrl : ''),
-                timestamp: new Date().toLocaleTimeString('th-TH')
-            };
-            if (pIndex > -1) { Object.assign(window.state.patients[pIndex], ptData); }
-            else { window.state.patients.push(ptData); window.state.settings.seq++; await saveGlobalStateToCloud(); }
-            await saveToCloud('patients', pid, ptData);
-            await addEventLog(`Secondary triage: ${pid} -> ${cat}`, 'TRIAGE');
-            document.getElementById('secondary-triage-form').reset();
-            clearPhoto('sec-photo', 'sec-photo-preview');
-            setButtonLoading('btn-submit-sec', false, btnHtml);
-            refreshUIs();
+            try {
+                const pIndex = window.state.patients.findIndex(p => p.id === pid);
+                const existingPatient = pIndex > -1 ? window.state.patients[pIndex] : null;
+                const ptData = {
+                    id: pid, cat: cat, gender: document.getElementById('sec-triage-gender').value,
+                    injury: document.getElementById('sec-triage-injury').value, status: 'CCP', stage: 'Secondary',
+                    vitals: {
+                        avpu: document.getElementById('sec-avpu').value,
+                        gcs: document.getElementById('sec-gcs').value,
+                        bp: document.getElementById('sec-bp').value,
+                        pr: document.getElementById('sec-pr').value,
+                        rr: document.getElementById('sec-rr').value,
+                        spo2: document.getElementById('sec-spo2').value
+                    },
+                    hazmat: existingPatient ? existingPatient.hazmat : {},
+                    photoUrl: photoB64 || (existingPatient ? existingPatient.photoUrl : ''),
+                    timestamp: new Date().toLocaleTimeString('th-TH')
+                };
+                if (pIndex > -1) { Object.assign(window.state.patients[pIndex], ptData); }
+                else { window.state.patients.push(ptData); window.state.settings.seq++; await saveGlobalStateToCloud(); }
+                await saveToCloud('patients', pid, ptData);
+                await addEventLog(`Secondary triage: ${pid} -> ${cat}`, 'TRIAGE');
+                if (e.currentTarget && typeof e.currentTarget.reset === 'function') {
+                    e.currentTarget.reset();
+                }
+                clearPhoto('sec-photo', 'sec-photo-preview');
+                refreshUIs();
+            } catch (error) {
+                showToast('SAVE RE-TRIAGE ล้มเหลว: ' + (error?.message || 'Unknown error'), 'error');
+            } finally {
+                setButtonLoading('btn-submit-sec', false, btnHtml);
+            }
         }
 
         window.populateCareDropdowns = function () {
