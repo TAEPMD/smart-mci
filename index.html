@@ -2748,8 +2748,8 @@
         // Firebase
         let db, auth;
         window.isCloudSyncActive = false;
-        let isSyncingFromCloud = false;
         let firestoreUnsubscribers = [];
+        let realtimeRefreshTimer = null;
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'mci-app';
 
         // ===== FIREBASE CONFIGURATION =====
@@ -2829,12 +2829,9 @@
             const collections = ['patients', 'careRecords', 'vehicles', 'dispatches', 'hospitals', 'eventLogs'];
             collections.forEach(colName => {
                 const unsub = onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', colName), (snap) => {
-                    if (isSyncingFromCloud) return;
-                    isSyncingFromCloud = true;
                     window.state[colName] = [];
                     snap.forEach(doc => window.state[colName].push(doc.data()));
-                    refreshUIs();
-                    setTimeout(() => { isSyncingFromCloud = false; }, 100);
+                    scheduleRealtimeRefresh();
                 });
                 firestoreUnsubscribers.push(unsub);
             });
@@ -2846,7 +2843,7 @@
                     window.state.cscattt = data.cscattt || window.state.cscattt;
                     window.state.settings = Object.keys(data.settings || {}).length > 0 ? data.settings : window.state.settings;
                     window.state.users = (data.users && data.users.length > 0) ? data.users : window.state.users;
-                    refreshUIs();
+                    scheduleRealtimeRefresh();
                 }
             });
             firestoreUnsubscribers.push(unsubGlobal);
@@ -2859,6 +2856,15 @@
             }
             if (SHEETS_API_URL) startSheetsPolling();
             else stopSheetsPolling();
+        }
+
+        function scheduleRealtimeRefresh() {
+            if (realtimeRefreshTimer) clearTimeout(realtimeRefreshTimer);
+            realtimeRefreshTimer = setTimeout(() => {
+                realtimeRefreshTimer = null;
+                saveLocalState();
+                refreshUIs();
+            }, 80);
         }
 
         function showToast(msg, type = 'success') {
@@ -3095,7 +3101,6 @@
 
         function mergePolledState(polled) {
             if (window.isCloudSyncActive) return;
-            if (isSyncingFromCloud) return; // Firebase กำลัง sync อยู่ ข้าม
             let changed = false;
 
             const collections = ['patients', 'careRecords', 'vehicles', 'dispatches', 'hospitals', 'eventLogs'];
@@ -3124,8 +3129,7 @@
             }
 
             if (changed) {
-                saveLocalState();
-                refreshUIs();
+                scheduleRealtimeRefresh();
                 console.log('[Sheets Poll] ✓ State updated from Sheets');
             }
         }
@@ -3352,6 +3356,20 @@
             return [];
         }
 
+        function getActiveDispatchesForVehicle(vehicleId) {
+            return (window.state.dispatches || []).filter(d => d.vId === vehicleId && d.status !== 'Arrived');
+        }
+
+        function getDerivedVehiclePatientList(vehicle) {
+            if (!vehicle) return [];
+            const patientIds = new Set(getVehiclePatientList(vehicle));
+            getActiveDispatchesForVehicle(vehicle.id).forEach(dispatch => {
+                const patientId = String(dispatch?.pId || '').trim();
+                if (patientId) patientIds.add(patientId);
+            });
+            return Array.from(patientIds);
+        }
+
         function setVehiclePatientList(vehicle, patientIds) {
             if (!vehicle) return;
             const uniqIds = [...new Set((patientIds || []).map(x => String(x || '').trim()).filter(Boolean))];
@@ -3431,7 +3449,12 @@
         }
 
         function getAssignedVehicleForPatient(patientId) {
-            return (window.state.vehicles || []).find(v => getVehiclePatientList(v).includes(patientId)) || null;
+            const latestDispatch = getLatestDispatchForPatient(patientId);
+            if (latestDispatch?.vId) {
+                const matchedVehicle = (window.state.vehicles || []).find(v => v.id === latestDispatch.vId);
+                if (matchedVehicle) return matchedVehicle;
+            }
+            return (window.state.vehicles || []).find(v => getDerivedVehiclePatientList(v).includes(patientId)) || null;
         }
 
         function getPatientCurrentState(patient) {
@@ -3465,7 +3488,7 @@
                 };
             }
 
-            if (latestDispatch && activeVehicle && activeVehicle.status === 'Loading') {
+            if (latestDispatch && latestDispatch.status === 'Loading') {
                 return {
                     statusLabel: 'Loading for transport',
                     locationLabel: 'Loading area / scene',
@@ -3474,7 +3497,7 @@
                 };
             }
 
-            if (latestDispatch && activeVehicle && activeVehicle.status === 'En route') {
+            if (latestDispatch && latestDispatch.status === 'En route') {
                 return {
                     statusLabel: 'Transporting',
                     locationLabel: `En route to ${latestDispatch.dest || 'Hospital'}`,
@@ -4305,9 +4328,8 @@ SpO2: ${document.getElementById('sec-spo2').value}%
                     document.getElementById('main-layout').classList.remove('hidden');
                     navigate('dashboard');
                     refreshUIs();
-                    // Sync สถานะ Sheets badge และ batch sync ครั้งแรก
+                    // Sync สถานะ badge ตาม source ปัจจุบัน
                     updateSyncStatus();
-                    setTimeout(() => batchSyncToSheets(), 2000); // delay 2s ให้ UI load ก่อน
                 } else {
                     alert('Invalid credentials');
                 }
@@ -4356,7 +4378,6 @@ SpO2: ${document.getElementById('sec-spo2').value}%
                 navigate('dashboard');
                 refreshUIs();
                 updateSyncStatus();
-                if (SHEETS_API_URL) pollSheetsState();
                 return true;
             } catch (err) {
                 console.warn('Restore session failed:', err?.message || err);
@@ -4550,7 +4571,7 @@ SpO2: ${document.getElementById('sec-spo2').value}%
                         const dotClass = isEnRoute ? 'status-amber' : isDemob ? 'status-off' : 'status-green';
                         const dotBlink = isEnRoute ? 'blink' : '';
                         const sc = isEnRoute ? 'var(--apple-orange)' : isDemob ? 'var(--apple-text-tertiary)' : 'var(--apple-green)';
-                        const passengers = getVehiclePatientList(v);
+                        const passengers = getDerivedVehiclePatientList(v);
                         const ptRow = (isEnRoute && passengers.length > 0)
                             ? '<div style="font-size:11px;color:var(--apple-orange);margin-top:1px;">\u2192 ' + escapeHtml(passengers.join(', ')) + '</div>'
                             : '';
@@ -4799,10 +4820,13 @@ SpO2: ${document.getElementById('sec-spo2').value}%
         window.generatePID = function (type) {
             const d = new Date();
             const dateStr = `${d.getFullYear().toString().substr(-2)}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}`;
-            window.state.settings.seq = (window.state.settings.seq || 1) + 1;
-            const pid = `${window.state.settings.idPrefix}-${dateStr}-${String(window.state.settings.seq).padStart(3, '0')}`;
+            const timeStr = `${String(d.getHours()).padStart(2, '0')}${String(d.getMinutes()).padStart(2, '0')}${String(d.getSeconds()).padStart(2, '0')}`;
+            let pid = '';
+            do {
+                const suffix = Math.random().toString(36).slice(2, 4).toUpperCase();
+                pid = `${window.state.settings.idPrefix}-${dateStr}-${timeStr}-${suffix}`;
+            } while ((window.state.patients || []).some(patient => patient.id === pid));
             document.getElementById(type === 'pri' ? 'pri-triage-pid' : 'sec-triage-pid').value = pid;
-            saveLocalState();
         }
 
         window.scanCarePID = function (targetId) {
@@ -4972,7 +4996,6 @@ SpO2: ${document.getElementById('sec-spo2').value}%
                 }
                 await saveToCloud('patients', pid, ptData);
                 await addEventLog(`Primary triage: ${pid} -> ${cat}`, 'TRIAGE');
-                await saveGlobalStateToCloud();
                 if (e.currentTarget && typeof e.currentTarget.reset === 'function') {
                     e.currentTarget.reset();
                 }
@@ -5013,7 +5036,7 @@ SpO2: ${document.getElementById('sec-spo2').value}%
                     timestamp: new Date().toLocaleTimeString('th-TH')
                 };
                 if (pIndex > -1) { Object.assign(window.state.patients[pIndex], ptData); }
-                else { window.state.patients.push(ptData); window.state.settings.seq++; await saveGlobalStateToCloud(); }
+                else { window.state.patients.push(ptData); }
                 if (cat === 'Black') {
                     const touchedVehicles = removePatientFromVehicleAssignments(pid);
                     for (const vehicle of touchedVehicles) {
@@ -5384,7 +5407,7 @@ SpO2: ${document.getElementById('sec-spo2').value}%
 
             availableVehicles.forEach(v => {
                 const statusMeta = getVehicleStatusMeta(v.status);
-                const passengers = getVehiclePatientList(v);
+                const passengers = getDerivedVehiclePatientList(v);
                 const action = getVehicleNextAction(v.status);
                 list.innerHTML += `<div class="nasa-panel-bright p-3 flex justify-between items-center"><div><div class="flex items-center gap-2"><div class="status-dot ${statusMeta.dotClass}"></div><span class="mono text-sm font-bold text-white">${escapeHtml(v.id)}</span><span class="mono text-[10px] px-2 py-0.5 rounded-full" style="background:color-mix(in srgb, ${statusMeta.color} 15%, transparent);color:${statusMeta.color};">${escapeHtml(statusMeta.label)}</span></div><div class="mono text-xs text-gray-500">${escapeHtml(v.type)} [${escapeHtml(v.agency)}]</div>${passengers.length > 0 ? `<div class="mono text-xs text-amber-400 mt-1">→ ${escapeHtml(passengers.join(', '))}</div>` : ''}</div><div class="flex gap-1">${action ? `<button onclick="changeVehicleStatus('${escapeHtml(v.id).replace(/'/g, "\\'")}', '${action.nextStatus}')" class="nasa-btn text-xs">${action.label}</button>` : ''}<button onclick="removeVehicle('${escapeHtml(v.id).replace(/'/g, "\\'")}')" class="text-red-400 hover:text-red-300 p-1"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div></div>`;
             });
@@ -5395,7 +5418,7 @@ SpO2: ${document.getElementById('sec-spo2').value}%
                 }
                 missionVehicles.forEach(v => {
                     const statusMeta = getVehicleStatusMeta(v.status);
-                    const passengers = getVehiclePatientList(v);
+                    const passengers = getDerivedVehiclePatientList(v);
                     const action = getVehicleNextAction(v.status);
                     missionList.innerHTML += `<div class="nasa-panel-bright p-3 flex justify-between items-center"><div><div class="flex items-center gap-2"><div class="status-dot ${statusMeta.dotClass} ${v.status === 'En route' ? 'blink' : ''}"></div><span class="mono text-sm font-bold text-white">${escapeHtml(v.id)}</span><span class="mono text-[10px] px-2 py-0.5 rounded-full" style="background:color-mix(in srgb, ${statusMeta.color} 15%, transparent);color:${statusMeta.color};">${escapeHtml(statusMeta.label)}</span></div><div class="mono text-xs text-gray-500">${escapeHtml(v.type)} [${escapeHtml(v.agency)}]</div>${passengers.length > 0 ? `<div class="mono text-xs text-amber-400 mt-1">→ ${escapeHtml(passengers.join(', '))}</div>` : '<div class="mono text-xs text-gray-500 mt-1">No assigned patient</div>'}</div><div class="flex gap-1">${action ? `<button onclick="changeVehicleStatus('${escapeHtml(v.id).replace(/'/g, "\\'")}', '${action.nextStatus}')" class="nasa-btn text-xs">${action.label}</button>` : ''}</div></div>`;
                 });
