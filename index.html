@@ -546,153 +546,243 @@
             background: var(--apple-surface);
             border: 1px solid var(--apple-border);
             color: var(--apple-blue);
-            font-family: 'Inter', sans-serif;
+        .print-sheet h1 {
+            font-size: 28px;
+            font-weight: 800;
+            letter-spacing: -.02em;
+            margin-bottom: 8px;
+            color: #0a1428;
+        }
+        
+        .print-sheet > div:first-child {
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 3px solid #0071e3;
+        }
+        
+        .print-meta {
+            font-size: 12px;
+            color: #575f6d;
+            margin-top: 4px;
             font-weight: 500;
+        }
+        
+        .print-sheet h2 {
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: .06em;
+            text-transform: uppercase;
+            margin-bottom: 14px;
+            margin-top: 28px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #e2e8f0;
+            color: #0a1428;
+        }
+        
+        .print-section:first-of-type h2 {
+            margin-top: 0;
+        }
+        
+        .print-sheet h3 {
             font-size: 13px;
-            letter-spacing: -0.1px;
-            padding: 8px 16px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: #0f172a;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+        }
+        
+        .print-summary-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 14px;
+            margin: 20px 0 28px 0;
+        }
+        
+        .print-stat {
+            border-left: 4px solid #0071e3;
+            border: 1px solid #cbd5e1;
+            border-left: 4px solid #0071e3;
             border-radius: 8px;
-            cursor: pointer;
-            transition: background 0.15s, border-color 0.15s, box-shadow 0.15s, transform 0.12s;
-            position: relative;
+            padding: 14px;
+            background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+        }
+        
+        .print-stat-label {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .1em;
+            color: #64748b;
+            font-weight: 700;
+        }
+        
+        .print-stat-value {
+            margin-top: 8px;
+            font-size: 28px;
+            font-weight: 800;
+            color: #0071e3;
+        }
+        
+        .print-section {
+            margin-top: 24px;
+            padding-top: 0;
+            border-top: none;
+            page-break-inside: avoid;
+        }
+        
+        .print-section:first-child {
+            margin-top: 0;
+        }
+        
+        .print-grid-two {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 16px;
+        }
+        
+        .print-card {
+            border: 1px solid #dbe3ee;
+            border-radius: 10px;
+            padding: 14px;
+            background: #ffffff;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+            break-inside: avoid;
+            page-break-inside: avoid;
+        }
+        
+        .print-card h3 {
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 8px;
+            margin-bottom: 12px;
+        }
+        
+        .print-kv {
+            display: grid;
+            grid-template-columns: 160px 1fr;
+            gap: 12px;
+            font-size: 12px;
+            row-gap: 10px;
+        }
+        
+        .print-kv dt {
+            color: #475569;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 11px;
+            letter-spacing: .02em;
+        }
+        
+        .print-kv dd {
+            margin: 0;
+            color: #0f172a;
+            font-weight: 600;
+        }
+        
+        .print-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .print-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            border: 1px solid #cbd5e1;
+            font-size: 11px;
+            font-weight: 700;
+            background: #f1f5f9;
+            color: #0f172a;
+            letter-spacing: .02em;
+        }
+        
+        .print-table-wrap {
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
             overflow: hidden;
+            margin-top: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
         }
-
-        .nasa-btn::before {
-            display: none;
+        
+        .print-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 11px;
+            line-height: 1.5;
         }
+        
+        .print-table thead {
+            background: linear-gradient(to right, #f0f4f8, #f8fafc);
+        }
+        
+        .print-table th {
+            background: linear-gradient(to right, #f0f4f8, #f8fafc);
+            color: #334155;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            font-size: 10px;
+            font-weight: 800;
+            padding: 12px 10px;
+            text-align: left;
+            border-bottom: 2px solid #cbd5e1;
+        }
+        
+        .print-table td {
+            padding: 10px;
+            border-bottom: 1px solid #e2e8f0;
+            text-align: left;
+            vertical-align: middle;
+            color: #0f172a;
+        }
+        
+        .print-table tbody tr:nth-child(odd) td {
+            background: #f8fafc;
+        }
+        
+        .print-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .print-table tbody tr {
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+        
+        .print-ai-report {
+            white-space: pre-wrap;
+            font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+            font-size: 11px;
+            line-height: 1.7;
+            background: #f8fafc;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            padding: 14px;
+            color: #0f172a;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+            padding: 8px 16px;
 
         .nasa-btn:hover {
-            background: var(--apple-surface-2);
-            border-color: rgba(0, 113, 227, 0.35);
-            box-shadow: 0 1px 6px rgba(0, 0, 0, 0.08);
-        }
-
         .nasa-btn:active {
-            transform: scale(0.97);
-        }
-
-        @keyframes btn-reaction-tap {
-            0% {
-                transform: scale(1);
             }
-
-            40% {
-                transform: scale(0.94);
-            }
-
-            100% {
-                transform: scale(1);
-            }
-        }
-
-        @keyframes btn-reaction-success {
-            0% {
                 transform: scale(1);
                 box-shadow: 0 0 0 0 rgba(52, 199, 89, 0.45);
-            }
-
-            55% {
-                transform: scale(1.04);
-                box-shadow: 0 0 0 10px rgba(52, 199, 89, 0.08);
-            }
-
-            100% {
-                transform: scale(1);
-                box-shadow: 0 0 0 0 rgba(52, 199, 89, 0);
-            }
-        }
 
         .nasa-btn.reaction-tap {
-            animation: btn-reaction-tap 0.24s ease-out;
         }
-
-        .nasa-btn.reaction-success {
-            animation: btn-reaction-success 0.55s ease-out;
-        }
-
-        .nasa-btn-primary {
-            background: var(--apple-blue);
-            border-color: var(--apple-blue);
-            color: #ffffff;
-            font-weight: 600;
             box-shadow: 0 1px 4px rgba(0, 113, 227, 0.25);
         }
-
-        .nasa-btn-primary:hover {
-            background: var(--apple-blue-hover);
-            border-color: var(--apple-blue-hover);
-            box-shadow: 0 2px 10px rgba(0, 113, 227, 0.3);
         }
-
-        .nasa-btn-danger {
-            border-color: rgba(255, 59, 48, 0.35);
-            color: var(--apple-red);
         }
-
-        .nasa-btn-danger:hover {
-            background: rgba(255, 59, 48, 0.06);
-            border-color: var(--apple-red);
-        }
-
-        /* ── Inputs ── */
-        .nasa-input {
-            background: var(--apple-surface);
-            border: 1px solid var(--apple-border);
             color: var(--apple-text);
-            font-family: 'Inter', sans-serif;
-            font-size: 14px;
-            padding: 10px 14px;
-            border-radius: 10px;
-            transition: border-color 0.15s, box-shadow 0.15s;
-            outline: none;
-        }
-
-        .nasa-input:focus {
             border-color: var(--apple-blue);
-            box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.15);
-        }
-
-        .nasa-input::placeholder {
-            color: var(--apple-text-tertiary);
-        }
-
-        select.nasa-input {
-            appearance: auto;
-            background: var(--apple-surface);
-        }
 
         textarea.nasa-input {
-            resize: vertical;
-        }
-
-        /* ── Nav sidebar ── */
-        .nasa-nav-item {
-            border-left: none;
-            border-radius: 10px;
             margin: 1px 8px;
-            padding: 10px 12px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: var(--apple-text-secondary);
-            font-size: 13.5px;
-            font-weight: 500;
             cursor: pointer;
-            transition: background 0.15s, color 0.15s;
-            text-decoration: none;
-        }
 
-        .nasa-nav-item:hover {
-            background: rgba(0, 0, 0, 0.06);
-            color: var(--apple-text);
-            border-left: none;
-        }
-
-        .nasa-nav-item.active {
-            background: rgba(0, 113, 227, 0.1);
-            color: var(--apple-blue);
-            border-left: none;
             font-weight: 600;
         }
 
@@ -2391,16 +2481,7 @@
                                         </div>
                                     </div>
                                     <div id="sec-batch-selected-list" class="flex flex-wrap gap-2 mb-3"></div>
-                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
-                                        <div>
-                                            <label class="block mono text-xs text-cyan-400 mb-1 uppercase">Default Triage</label>
-                                            <select id="sec-batch-cat" class="nasa-input w-full">
-                                                <option value="Green" selected>4 GREEN (DELAYED)</option>
-                                                <option value="Expectant">2 BLUE (EXPECTANT)</option>
-                                                <option value="Yellow">3 YELLOW (URGENT)</option>
-                                                <option value="Red">1 RED (IMMEDIATE)</option>
-                                            </select>
-                                        </div>
+                                    <div class="grid grid-cols-1 md:grid-cols-1 gap-3 mb-3">
                                         <div>
                                             <label class="block mono text-xs text-cyan-400 mb-1 uppercase">Send To</label>
                                             <select id="sec-batch-target" class="nasa-input w-full" onchange="onBatchPassthroughTargetChange()">
@@ -2421,7 +2502,7 @@
                                         <textarea id="sec-batch-pids" rows="4" class="nasa-input w-full" placeholder="เช่น\nG001\nG002\nG003 หรือคั่นด้วย comma" oninput="syncBatchPassthroughFromTextarea()"></textarea>
                                     </div>
                                     <div class="mb-3">
-                                        <label class="block mono text-xs text-cyan-400 mb-1 uppercase">Shared Injury / Note (Optional)</label>
+                                        <label class="block mono text-xs text-cyan-400 mb-1 uppercase">NOTE</label>
                                         <input type="text" id="sec-batch-injury" class="nasa-input w-full" placeholder="Minor abrasion, walking wounded...">
                                     </div>
                                     <div class="flex justify-end">
@@ -2433,7 +2514,7 @@
                                     </div>
                                 </div>
 
-                                <div>
+                                <div id="sec-photo-section" class="hidden">
                                     <label
                                         class="block mono text-cyan-400 text-xs mb-2 flex items-center gap-2 uppercase">
                                         <i data-lucide="camera" class="w-4 h-4"></i>
@@ -4748,11 +4829,15 @@
             const desc = document.getElementById('sec-passthrough-desc');
             const panel = document.getElementById('sec-batch-panel');
             const panelDesc = document.getElementById('sec-batch-panel-desc');
+            const photoSection = document.getElementById('sec-photo-section');
             if (!toggleInput || !button || !desc || !panel) return false;
             const nextValue = forceValue === null ? !toggleInput.checked : Boolean(forceValue);
             toggleInput.checked = nextValue;
             button.classList.toggle('is-on', nextValue);
             panel.classList.toggle('hidden', !nextValue);
+            if (photoSection) {
+                photoSection.classList.toggle('hidden', nextValue);
+            }
             desc.textContent = nextValue
                 ? 'ON · ส่งต่อผู้ป่วยปัจจุบันทันที และเลือกผู้ป่วยเพิ่มได้ด้านล่าง'
                 : 'OFF · ผู้ป่วยจะคงอยู่ใน Secondary flow ตามปกติ';
@@ -6415,7 +6500,6 @@ SpO2: ${document.getElementById('sec-spo2').value}%
             const btnHtml = btn ? btn.innerHTML : '';
             const rawPids = document.getElementById('sec-batch-pids')?.value || '';
             const target = document.getElementById('sec-batch-target')?.value || 'treatment';
-            const selectedCat = document.getElementById('sec-batch-cat')?.value || 'Green';
             const sharedInjury = (document.getElementById('sec-batch-injury')?.value || '').trim();
             const selectedHospital = (document.getElementById('sec-batch-hospital')?.value || '').trim();
 
@@ -6435,7 +6519,7 @@ SpO2: ${document.getElementById('sec-spo2').value}%
                     const existingIndex = (window.state.patients || []).findIndex(p => String(p?.id || '').toLowerCase() === pid.toLowerCase());
                     const existingPatient = existingIndex > -1 ? window.state.patients[existingIndex] : null;
                     const preservedCat = existingPatient?.cat;
-                    const nextCat = preservedCat === 'Black' ? 'Black' : (selectedCat || preservedCat || 'Green');
+                    const nextCat = preservedCat === 'Black' ? 'Black' : (preservedCat || 'Green');
 
                     if (nextCat === 'Black') {
                         skippedCount += 1;
