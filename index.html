@@ -2360,29 +2360,25 @@
                                 </div>
 
                                 <input type="checkbox" id="sec-passthrough" class="hidden">
-                                <button type="button" id="btn-sec-passthrough-toggle" class="mode-toggle-btn" onclick="toggleSecondaryPassthroughMode()">
-                                    <span>
-                                        <span class="mono text-sm text-amber-400 uppercase block">Passthrough Mode</span>
-                                        <span id="sec-passthrough-desc" class="mono text-xs text-gray-500 mt-1 block">OFF · ผู้ป่วยจะคงอยู่ใน Secondary flow ตามปกติ</span>
-                                    </span>
-                                    <span class="mode-toggle-track" aria-hidden="true"></span>
-                                </button>
 
                                 <div class="nasa-panel-bright p-4 border border-amber-500/30">
-                                    <button type="button" id="btn-batch-passthrough-toggle" class="mode-toggle-btn" onclick="toggleBatchPassthroughPanel()">
+                                    <button type="button" id="btn-sec-passthrough-toggle" class="mode-toggle-btn" onclick="toggleSecondaryPassthroughMode()">
                                         <span>
-                                            <span class="mono text-sm text-amber-400 uppercase block">Batch Passthrough Mode</span>
-                                            <span id="sec-batch-panel-desc" class="mono text-xs text-gray-500 mt-1 block">กดเพื่อเปิดส่วนเลือกผู้ป่วยแบบกลุ่ม</span>
+                                            <span class="mono text-sm text-amber-400 uppercase block">Passthrough Mode</span>
+                                            <span id="sec-passthrough-desc" class="mono text-xs text-gray-500 mt-1 block">OFF · ผู้ป่วยจะคงอยู่ใน Secondary flow ตามปกติ</span>
                                         </span>
                                         <span class="mode-toggle-track" aria-hidden="true"></span>
                                     </button>
 
                                     <div id="sec-batch-panel" class="hidden mt-4">
-                                    <div class="flex items-center gap-2 mb-3">
-                                        <i data-lucide="users-round" class="w-4 h-4 text-amber-400"></i>
-                                        <h4 class="nasa-font text-amber-400 text-sm">BATCH PASSTHROUGH</h4>
+                                    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2 mb-3">
+                                        <div class="flex items-center gap-2">
+                                            <i data-lucide="users-round" class="w-4 h-4 text-amber-400"></i>
+                                            <h4 class="nasa-font text-amber-400 text-sm">PASSTHROUGH SELECTION</h4>
+                                        </div>
+                                        <span id="sec-batch-panel-desc" class="mono text-xs text-gray-500">เลือกผู้ป่วยเพิ่มได้จากรายการด้านล่าง</span>
                                     </div>
-                                    <p class="mono text-xs text-gray-500 mb-3">ใช้กับผู้ป่วยกลุ่มที่ไม่ต้องทำ Secondary ทีละราย เช่น กลุ่มสีเขียว</p>
+                                    <p class="mono text-xs text-gray-500 mb-3">ใช้ส่งต่อผู้ป่วยที่กำลังเปิดอยู่ในฟอร์มนี้ และเพิ่มผู้ป่วยหลายรายได้ในปุ่มเดียวกัน</p>
                                     <div class="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-3 mb-3">
                                         <div>
                                             <label class="block mono text-xs text-cyan-400 mb-1 uppercase">Select Waiting Patient</label>
@@ -4750,13 +4746,23 @@
             const toggleInput = document.getElementById('sec-passthrough');
             const button = document.getElementById('btn-sec-passthrough-toggle');
             const desc = document.getElementById('sec-passthrough-desc');
-            if (!toggleInput || !button || !desc) return false;
+            const panel = document.getElementById('sec-batch-panel');
+            const panelDesc = document.getElementById('sec-batch-panel-desc');
+            if (!toggleInput || !button || !desc || !panel) return false;
             const nextValue = forceValue === null ? !toggleInput.checked : Boolean(forceValue);
             toggleInput.checked = nextValue;
             button.classList.toggle('is-on', nextValue);
+            panel.classList.toggle('hidden', !nextValue);
             desc.textContent = nextValue
-                ? 'ON · บันทึกแล้วผู้ป่วยจะถูกส่งเข้าสู่ Patient Care ทันที'
+                ? 'ON · ส่งต่อผู้ป่วยปัจจุบันทันที และเลือกผู้ป่วยเพิ่มได้ด้านล่าง'
                 : 'OFF · ผู้ป่วยจะคงอยู่ใน Secondary flow ตามปกติ';
+            if (panelDesc) {
+                panelDesc.textContent = nextValue
+                    ? 'เลือกผู้ป่วยเพิ่มได้จากรายการด้านล่าง'
+                    : 'ปิด Passthrough อยู่';
+            }
+            renderBatchPassthroughPatientPicker();
+            if (nextValue) renderBatchPassthroughSelections();
             return nextValue;
         }
         window.toggleSecondaryPassthroughMode = toggleSecondaryPassthroughMode;
@@ -4778,6 +4784,35 @@
                 .filter(Boolean))];
         }
 
+        function getSecondaryPassthroughActivePid() {
+            const isEnabled = Boolean(document.getElementById('sec-passthrough')?.checked);
+            if (!isEnabled) return '';
+            return String(document.getElementById('sec-triage-pid')?.value || '').trim().toUpperCase();
+        }
+
+        function renderBatchPassthroughPatientPicker(secondaryEligiblePatients = null) {
+            const picker = document.getElementById('sec-batch-patient-picker');
+            if (!picker) return;
+            const currentValue = picker.value;
+            const excludedIds = new Set(getBatchPassthroughSelectedIds());
+            const activePid = getSecondaryPassthroughActivePid();
+            if (activePid) excludedIds.add(activePid);
+            const eligiblePatients = Array.isArray(secondaryEligiblePatients)
+                ? secondaryEligiblePatients
+                : (window.state.patients || []).filter(isPatientSecondaryTriageEligible);
+
+            picker.innerHTML = '<option value="">SELECT PATIENT TO ADD</option>';
+            eligiblePatients
+                .filter(patient => !excludedIds.has(String(patient?.id || '').trim().toUpperCase()))
+                .forEach(patient => {
+                    picker.innerHTML += `<option value="${escapeHtml(patient.id)}">${escapeHtml(patient.id)} | ${escapeHtml(formatTriageDisplay(patient.cat))} | ${escapeHtml(patient.injury || 'No data')}</option>`;
+                });
+
+            if (currentValue && Array.from(picker.options).some(option => option.value === currentValue)) {
+                picker.value = currentValue;
+            }
+        }
+
         function renderBatchPassthroughSelections() {
             const wrap = document.getElementById('sec-batch-selected-list');
             if (!wrap) return;
@@ -4794,10 +4829,12 @@
             if (!textarea) return;
             textarea.value = [...new Set((ids || []).map(id => String(id || '').trim().toUpperCase()).filter(Boolean))].join('\n');
             renderBatchPassthroughSelections();
+            renderBatchPassthroughPatientPicker();
         }
 
         function syncBatchPassthroughFromTextarea() {
             renderBatchPassthroughSelections();
+            renderBatchPassthroughPatientPicker();
         }
         window.syncBatchPassthroughFromTextarea = syncBatchPassthroughFromTextarea;
 
@@ -4819,18 +4856,7 @@
         window.removeBatchPassthroughPatient = removeBatchPassthroughPatient;
 
         function toggleBatchPassthroughPanel(forceValue = null) {
-            const panel = document.getElementById('sec-batch-panel');
-            const button = document.getElementById('btn-batch-passthrough-toggle');
-            const desc = document.getElementById('sec-batch-panel-desc');
-            if (!panel || !button || !desc) return false;
-            const nextValue = forceValue === null ? panel.classList.contains('hidden') : Boolean(forceValue);
-            panel.classList.toggle('hidden', !nextValue);
-            button.classList.toggle('is-on', nextValue);
-            if (nextValue) renderBatchPassthroughSelections();
-            desc.textContent = nextValue
-                ? 'เปิดแล้ว · เลือกผู้ป่วยจากรายการหรือพิมพ์หลายรหัสได้'
-                : 'กดเพื่อเปิดส่วนเลือกผู้ป่วยแบบกลุ่ม';
-            return nextValue;
+            return toggleSecondaryPassthroughMode(forceValue);
         }
         window.toggleBatchPassthroughPanel = toggleBatchPassthroughPanel;
 
@@ -6501,6 +6527,9 @@ SpO2: ${document.getElementById('sec-spo2').value}%
             const select = document.getElementById(selectId);
             if (!input || !select) return;
             select.value = (input.value || '').trim();
+            if (inputId === 'sec-triage-pid') {
+                renderBatchPassthroughPatientPicker();
+            }
         }
 
         window.handleSavePrimary = async function (e) {
@@ -6631,9 +6660,6 @@ SpO2: ${document.getElementById('sec-spo2').value}%
             if (secTriageList) secTriageList.innerHTML = '';
             if (priTriageSelect) priTriageSelect.innerHTML = '<option value="">SELECT EXISTING PATIENT ID</option>';
             if (secTriageSelect) secTriageSelect.innerHTML = '<option value="">SELECT EXISTING PATIENT ID</option>';
-            const batchPicker = document.getElementById('sec-batch-patient-picker');
-            if (batchPicker) batchPicker.innerHTML = '<option value="">SELECT PATIENT TO ADD</option>';
-
             const treatmentEligiblePatients = window.state.patients.filter(isPatientTreatmentEligible);
             const primaryEligiblePatients = window.state.patients.filter(isPatientPrimaryTriageEligible);
             const secondaryEligiblePatients = window.state.patients.filter(isPatientSecondaryTriageEligible);
@@ -6654,9 +6680,6 @@ SpO2: ${document.getElementById('sec-spo2').value}%
             secondaryEligiblePatients.forEach(p => {
                 const option = `<option value="${escapeHtml(p.id)}">${escapeHtml(formatTriageDisplay(p.cat))} - ${escapeHtml(p.injury || 'No data')}</option>`;
                 if (secTriageList) secTriageList.innerHTML += option;
-                if (batchPicker) {
-                    batchPicker.innerHTML += `<option value="${escapeHtml(p.id)}">${escapeHtml(p.id)} | ${escapeHtml(formatTriageDisplay(p.cat))} | ${escapeHtml(p.injury || 'No data')}</option>`;
-                }
             });
 
             primaryEligiblePatients.forEach(p => {
@@ -6686,6 +6709,7 @@ SpO2: ${document.getElementById('sec-spo2').value}%
 
             renderBatchPassthroughHospitalOptions();
             onBatchPassthroughTargetChange();
+            renderBatchPassthroughPatientPicker(secondaryEligiblePatients);
             renderBatchPassthroughSelections();
 
             renderSecondaryWaitingList();
