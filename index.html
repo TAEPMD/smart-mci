@@ -652,6 +652,18 @@
 
         /* ── Print ── */
         @media print {
+            @page {
+                size: auto;
+                margin: 12mm;
+            }
+
+            html,
+            body {
+                height: auto !important;
+                overflow: visible !important;
+                background: white !important;
+            }
+
             body * {
                 visibility: hidden;
             }
@@ -662,10 +674,45 @@
             }
 
             #view-history {
-                position: absolute;
-                left: 0;
-                top: 0;
-                width: 100%;
+                position: static !important;
+                left: auto;
+                top: auto;
+                width: auto;
+                display: block !important;
+            }
+
+            #main-layout,
+            #main-layout > main,
+            #main-layout > main > .flex-1,
+            #view-history,
+            #view-history .nasa-panel,
+            #view-history .nasa-panel > .p-6,
+            #view-history #report-container,
+            #view-history #report-content,
+            #view-history .overflow-x-auto {
+                height: auto !important;
+                min-height: 0 !important;
+                max-height: none !important;
+                overflow: visible !important;
+            }
+
+            #view-history #report-container {
+                display: block !important;
+                flex: none !important;
+            }
+
+            #view-history table {
+                page-break-inside: auto;
+            }
+
+            #view-history thead {
+                display: table-header-group;
+            }
+
+            #view-history tr,
+            #view-history pre {
+                break-inside: avoid;
+                page-break-inside: avoid;
             }
 
             #sidebar,
@@ -680,6 +727,10 @@
                 background: white;
                 color: black;
                 font-size: 12px;
+                margin: 0;
+                padding: 0;
+                border-radius: 0;
+                box-shadow: none;
             }
         }
 
@@ -4187,10 +4238,16 @@
             }).join('');
         }
 
+        async function waitForPrintLayout() {
+            await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+            await delay(80);
+        }
+
         window.resetIncident = async function () {
             if (!confirm('ยืนยันปิดสถานการณ์? ระบบจะเปิดหน้าต่าง Save to PDF อัตโนมัติก่อนปิดสถานการณ์')) return;
 
             prepareIncidentReportForPrint();
+            await waitForPrintLayout();
             window.print();
 
             if (!confirm('บันทึก PDF เรียบร้อยแล้วใช่หรือไม่?\nกด "ตกลง" เพื่อปิดสถานการณ์')) return;
