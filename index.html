@@ -1321,6 +1321,17 @@
                 <!-- ===== DASHBOARD VIEW ===== -->
                 <div id="view-dashboard" class="app-view space-y-6">
 
+                    <div class="nasa-panel p-4">
+                        <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                            <h3 class="nasa-font text-cyan-400 flex items-center gap-2 text-sm md:text-base">
+                                <i data-lucide="users" class="w-4 h-4"></i>
+                                ONLINE OPERATORS
+                            </h3>
+                            <span id="online-operators-count" class="mono text-xs text-gray-500">0 ONLINE</span>
+                        </div>
+                        <div id="online-operators-list" class="flex flex-wrap gap-2"></div>
+                    </div>
+
                     <!-- Stats Row -->
                     <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
                         <div class="nasa-panel p-4 text-center">
@@ -1364,6 +1375,21 @@
                                         class="nasa-btn text-xs flex items-center gap-1">
                                         <i data-lucide="map-pin" class="w-3 h-3"></i>
                                         <span id="map-mode-label">เพิ่มหมุด</span>
+                                    </button>
+                                    <button onclick="toggleRouteDrawMode()" id="btn-map-route"
+                                        class="nasa-btn text-xs flex items-center gap-1">
+                                        <i data-lucide="pen-line" class="w-3 h-3"></i>
+                                        <span id="map-route-label">วาดเส้นทาง</span>
+                                    </button>
+                                    <button onclick="finishRouteDraw()" id="btn-map-route-finish"
+                                        class="nasa-btn nasa-btn-primary text-xs hidden flex items-center gap-1">
+                                        <i data-lucide="check" class="w-3 h-3"></i>
+                                        จบเส้นทาง
+                                    </button>
+                                    <button onclick="clearRouteLines()"
+                                        class="nasa-btn nasa-btn-danger text-xs flex items-center gap-1">
+                                        <i data-lucide="route-off" class="w-3 h-3"></i>
+                                        ลบเส้นทาง
                                     </button>
                                     <button onclick="clearCustomPins()"
                                         class="nasa-btn nasa-btn-danger text-xs flex items-center gap-1">
@@ -2722,10 +2748,68 @@
         const DEFAULT_COMMANDER_HASH = '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92';
         // SHA-256 ของ "140433" = pre-seeded system admin PIN
         const DEFAULT_SYSTEM_ADMIN_HASH = '6b5b5ebf8358ece5942f4f8a9b3fc65823b6b8ce93efaef74acee7d8f0ca013e';
+        const DEFAULT_MAP_STATE = {
+            center: { lat: 13.7468, lng: 100.5348 },
+            radii: { red: 100, yellow: 250, green: 500 },
+            pins: [],
+            routes: []
+        };
         const defaultUsers = [
             { username: 'admin', agency: 'MCI Command', pinHash: DEFAULT_SYSTEM_ADMIN_HASH, role: 'admin' },
             { username: 'commander', agency: 'MCI Command', pinHash: DEFAULT_COMMANDER_HASH, role: 'commander' }
         ];
+
+        function sanitizeMapState(raw) {
+            const src = raw || {};
+            const center = src.center || {};
+            const radii = src.radii || {};
+            const pins = Array.isArray(src.pins) ? src.pins : [];
+            const routes = Array.isArray(src.routes) ? src.routes : [];
+
+            return {
+                center: {
+                    lat: Number(center.lat) || DEFAULT_MAP_STATE.center.lat,
+                    lng: Number(center.lng) || DEFAULT_MAP_STATE.center.lng
+                },
+                radii: {
+                    red: Math.max(50, Number(radii.red) || DEFAULT_MAP_STATE.radii.red),
+                    yellow: Math.max(50, Number(radii.yellow) || DEFAULT_MAP_STATE.radii.yellow),
+                    green: Math.max(50, Number(radii.green) || DEFAULT_MAP_STATE.radii.green)
+                },
+                pins: pins
+                    .map(pin => ({
+                        id: String(pin?.id || '').trim() || (Date.now().toString() + Math.random().toString(36).slice(2, 7)),
+                        lat: Number(pin?.lat),
+                        lng: Number(pin?.lng),
+                        name: String(pin?.name || '').trim() || 'จุด'
+                    }))
+                    .filter(pin => Number.isFinite(pin.lat) && Number.isFinite(pin.lng)),
+                routes: routes
+                    .map(route => ({
+                        id: String(route?.id || '').trim() || (Date.now().toString() + Math.random().toString(36).slice(2, 7)),
+                        name: String(route?.name || '').trim() || 'Route',
+                        color: String(route?.color || '#00a3ff'),
+                        points: Array.isArray(route?.points)
+                            ? route.points.map(pt => ({ lat: Number(pt?.lat), lng: Number(pt?.lng) })).filter(pt => Number.isFinite(pt.lat) && Number.isFinite(pt.lng))
+                            : []
+                    }))
+                    .filter(route => route.points.length >= 2)
+            };
+        }
+
+        function getMapStateFromLocal() {
+            try {
+                const saved = JSON.parse(localStorage.getItem('mci_map_state') || '{}');
+                return sanitizeMapState(saved);
+            } catch (_) {
+                return {
+                    center: { ...DEFAULT_MAP_STATE.center },
+                    radii: { ...DEFAULT_MAP_STATE.radii },
+                    pins: [],
+                    routes: []
+                };
+            }
+        }
 
         function cloneDefaultUsers() {
             return defaultUsers.map(user => ({ ...user }));
@@ -2766,6 +2850,7 @@
         window.state = {
             currentUser: null,
             incidentStartTime: Date.now(),
+            mapState: getMapStateFromLocal(),
             settings: {
                 primaryModel: 'START', secondaryModel: 'SORT', idPrefix: 'SMART', seq: 1,
                 quickInterventions: ['Tourniquet', 'Needle Decompression', 'Pelvic Binder', 'Airway Adjunct', 'IV Access', 'Wound Packing'],
@@ -2779,6 +2864,7 @@
                 }
             },
             users: [],
+            onlineUsers: [],
             patients: [], careRecords: [], vehicles: [], dispatches: [], hospitals: [], eventLogs: [],
             methane: { m: 'Standby', e: '', t: '', h: '', a: '', n: '', e2: '' },
             cscattt: { c1: false, s: false, c2: false, a: false, t1: false, t2: false, t3: false }
@@ -2789,7 +2875,81 @@
         window.isCloudSyncActive = false;
         let firestoreUnsubscribers = [];
         let realtimeRefreshTimer = null;
+        let presenceHeartbeatTimer = null;
+        let presenceDocId = null;
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'mci-app';
+
+        function normalizePresenceItem(raw) {
+            const username = String(raw?.username || '').trim();
+            if (!username) return null;
+            const role = normalizeUserRole(raw?.role || 'guest');
+            const lastSeen = Number(raw?.lastSeen) || 0;
+            const freshThresholdMs = 45000;
+            const isFresh = lastSeen > 0 && (Date.now() - lastSeen) <= freshThresholdMs;
+            const isOnline = Boolean(raw?.online) && isFresh;
+            return {
+                id: String(raw?.id || username),
+                username,
+                role,
+                online: isOnline,
+                lastSeen,
+                device: String(raw?.device || '').trim()
+            };
+        }
+
+        function upsertCurrentUserOnlineSnapshot() {
+            const current = window.state?.currentUser;
+            if (!current) return;
+            const normalized = normalizePresenceItem({
+                id: current.username,
+                username: current.username,
+                role: current.role,
+                online: true,
+                lastSeen: Date.now(),
+                device: 'This Device'
+            });
+            if (!normalized) return;
+            const others = (window.state.onlineUsers || []).filter(item => String(item.username || '').toLowerCase() !== String(current.username || '').toLowerCase());
+            window.state.onlineUsers = [normalized, ...others];
+        }
+
+        function stopPresenceHeartbeat() {
+            if (presenceHeartbeatTimer) {
+                clearInterval(presenceHeartbeatTimer);
+                presenceHeartbeatTimer = null;
+            }
+        }
+
+        async function updatePresenceStatus(isOnline) {
+            try {
+                if (!db || !auth?.currentUser || !window.state?.currentUser) return;
+                const current = window.state.currentUser;
+                presenceDocId = `${auth.currentUser.uid}_${String(current.username || '').toLowerCase()}`;
+                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'presence', presenceDocId), {
+                    id: presenceDocId,
+                    username: current.username,
+                    role: normalizeUserRole(current.role),
+                    online: Boolean(isOnline),
+                    lastSeen: Date.now(),
+                    device: navigator.userAgent.includes('Mobile') ? 'mobile' : 'desktop'
+                });
+            } catch (err) {
+                console.warn('Presence update failed:', err?.message || err);
+            }
+        }
+
+        function startPresenceHeartbeat() {
+            stopPresenceHeartbeat();
+            updatePresenceStatus(true);
+            presenceHeartbeatTimer = setInterval(() => {
+                updatePresenceStatus(true);
+            }, 20000);
+        }
+
+        window.addEventListener('beforeunload', () => {
+            updatePresenceStatus(false);
+            stopPresenceHeartbeat();
+        });
 
         // ===== FIREBASE CONFIGURATION =====
         // วาง Firebase Config ของคุณที่นี่ (นำมาจาก Firebase Console -> Project Settings)
@@ -2839,6 +2999,8 @@
                         reconcileSyncMode();
                     } else {
                         window.isCloudSyncActive = false;
+                        stopPresenceHeartbeat();
+                        window.state.onlineUsers = [];
                         stopFirestoreListeners();
                         console.warn('[Firebase] Not signed in — offline mode');
                         if (sBadge) {
@@ -2870,6 +3032,9 @@
                 const unsub = onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', colName), (snap) => {
                     window.state[colName] = [];
                     snap.forEach(doc => window.state[colName].push(doc.data()));
+                    if (colName === 'hospitals') {
+                        window.state.hospitals = dedupeHospitals(window.state.hospitals);
+                    }
                     scheduleRealtimeRefresh();
                 });
                 firestoreUnsubscribers.push(unsub);
@@ -2880,12 +3045,27 @@
                     const data = docSnap.data();
                     window.state.methane = data.methane || window.state.methane;
                     window.state.cscattt = data.cscattt || window.state.cscattt;
+                    window.state.mapState = data.mapState ? sanitizeMapState(data.mapState) : window.state.mapState;
                     window.state.settings = Object.keys(data.settings || {}).length > 0 ? data.settings : window.state.settings;
                     window.state.users = (data.users && data.users.length > 0) ? reconcileUsers(data.users) : window.state.users;
+                    applyMapStateToMap();
                     scheduleRealtimeRefresh();
                 }
             });
             firestoreUnsubscribers.push(unsubGlobal);
+
+            const unsubPresence = onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'presence'), (snap) => {
+                const onlineUsers = [];
+                snap.forEach(docSnap => {
+                    const item = normalizePresenceItem(docSnap.data());
+                    if (item && item.online) onlineUsers.push(item);
+                });
+                onlineUsers.sort((a, b) => b.lastSeen - a.lastSeen);
+                window.state.onlineUsers = onlineUsers;
+                upsertCurrentUserOnlineSnapshot();
+                scheduleRealtimeRefresh();
+            });
+            firestoreUnsubscribers.push(unsubPresence);
         }
 
         function reconcileSyncMode() {
@@ -2950,6 +3130,12 @@
             let timer;
             return (...args) => { clearTimeout(timer); timer = setTimeout(() => fn(...args), ms); };
         }
+
+        const debouncedMapStateSync = debounce(() => {
+            if (typeof window.saveGlobalStateToCloud === 'function') {
+                window.saveGlobalStateToCloud();
+            }
+        }, 1200);
 
         // Sheets status badge
         function updateSyncStatus() {
@@ -3166,6 +3352,14 @@
                 window.state.settings = { ...window.state.settings, ...polled.settings };
                 changed = true;
             }
+            if (polled.mapState) {
+                const nextMapState = sanitizeMapState(polled.mapState);
+                if (JSON.stringify(nextMapState) !== JSON.stringify(window.state.mapState)) {
+                    window.state.mapState = nextMapState;
+                    applyMapStateToMap();
+                    changed = true;
+                }
+            }
             if (polled.users) {
                 const nextUsers = reconcileUsers(polled.users);
                 if (JSON.stringify(nextUsers) !== JSON.stringify(window.state.users)) {
@@ -3207,6 +3401,7 @@
             queueSheetsAction('save_global', {
                 methane: window.state.methane,
                 cscattt: window.state.cscattt,
+                mapState: window.state.mapState,
                 settings: window.state.settings,
                 users: window.state.users
             });
@@ -3225,6 +3420,7 @@
                     eventLogs: window.state.eventLogs,
                     methane: window.state.methane,
                     cscattt: window.state.cscattt,
+                    mapState: window.state.mapState,
                     users: window.state.users,
                     settings: window.state.settings
                 }
@@ -3325,6 +3521,7 @@
             setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'global', 'state'), {
                     methane: window.state.methane,
                     cscattt: window.state.cscattt,
+                    mapState: window.state.mapState,
                     settings: window.state.settings,
                     users: window.state.users
                 }).then(() => {
@@ -3342,12 +3539,13 @@
                     const parsed = JSON.parse(saved);
                     window.state.settings = parsed.settings || window.state.settings;
                     window.state.users = parsed.users && parsed.users.length > 0 ? reconcileUsers(parsed.users) : cloneDefaultUsers();
+                    window.state.mapState = parsed.mapState ? sanitizeMapState(parsed.mapState) : getMapStateFromLocal();
                     window.state.incidentStartTime = parsed.incidentStartTime || window.state.incidentStartTime;
                     window.state.patients = parsed.patients || [];
                     window.state.careRecords = parsed.careRecords || [];
                     window.state.vehicles = parsed.vehicles || [];
                     window.state.dispatches = parsed.dispatches || [];
-                    window.state.hospitals = parsed.hospitals || [];
+                    window.state.hospitals = dedupeHospitals(parsed.hospitals || []);
                     window.state.eventLogs = parsed.eventLogs || [];
                     window.state.methane = parsed.methane || window.state.methane;
                     window.state.cscattt = parsed.cscattt || window.state.cscattt;
@@ -3369,6 +3567,7 @@
 
         window.refreshUIs = function () {
             applyRoleAccessToMenus();
+            renderOnlineOperatorsPanel();
             if (document.getElementById('view-dashboard').classList.contains('active')) updateDashboardStats();
             if (document.getElementById('view-hospitals').classList.contains('active')) renderHospitals();
             if (document.getElementById('view-history').classList.contains('active')) renderEventLogs();
@@ -3381,6 +3580,47 @@
             populateCareDropdowns();
             renderQuickInterventions();
         };
+
+        function renderOnlineOperatorsPanel() {
+            const listEl = document.getElementById('online-operators-list');
+            const countEl = document.getElementById('online-operators-count');
+            if (!listEl || !countEl) return;
+
+            const seen = new Set();
+            const onlineUsers = (window.state.onlineUsers || []).filter(item => {
+                const key = String(item.username || '').toLowerCase();
+                if (!key || seen.has(key)) return false;
+                seen.add(key);
+                return true;
+            });
+
+            if (onlineUsers.length === 0 && window.state.currentUser) {
+                onlineUsers.push({
+                    username: window.state.currentUser.username,
+                    role: window.state.currentUser.role,
+                    online: true,
+                    lastSeen: Date.now(),
+                    device: 'local'
+                });
+            }
+
+            countEl.textContent = `${onlineUsers.length} ONLINE`;
+
+            if (onlineUsers.length === 0) {
+                listEl.innerHTML = '<span class="mono text-xs text-gray-500">ยังไม่มีผู้ใช้งานออนไลน์</span>';
+                return;
+            }
+
+            listEl.innerHTML = onlineUsers.map(item => {
+                const role = getRoleLabel(item.role || 'guest');
+                const roleColor = item.role === 'admin' ? 'var(--apple-red)' : item.role === 'commander' ? 'var(--apple-blue)' : 'var(--apple-text-secondary)';
+                return `<div style="display:inline-flex;align-items:center;gap:8px;padding:7px 10px;border:1px solid var(--apple-border);border-radius:999px;background:var(--apple-surface-2);">
+                    <span class="status-dot status-green blink"></span>
+                    <span class="mono text-xs" style="color:var(--apple-text);font-weight:600;">${escapeHtml(item.username)}</span>
+                    <span class="mono text-[10px] uppercase" style="color:${roleColor};">${escapeHtml(role)}</span>
+                </div>`;
+            }).join('');
+        }
 
         // ===== UTILITIES =====
         function escapeHtml(str) {
@@ -3907,21 +4147,57 @@
         let incidentMap = null;
         let markers = [];
         let customPins = [];
+        let customRoutes = [];
         let incidentMarker = null;
         let zoneCircles = { red: null, yellow: null, green: null };
         let mapAddPinMode = false;
+        let mapRouteDrawMode = false;
+        let activeRoutePoints = [];
+        let activeRoutePreview = null;
 
-        // ── โหลด state ที่บันทึกไว้จาก localStorage ──
-        const _mapSaved = JSON.parse(localStorage.getItem('mci_map_state') || '{}');
-        let incidentCenter = _mapSaved.center || { lat: 13.7468, lng: 100.5348 };
-        const _savedRadii = _mapSaved.radii || { red: 100, yellow: 250, green: 500 };
+        let incidentCenter = { ...window.state.mapState.center };
+        const _savedRadii = { ...window.state.mapState.radii };
+
+        function applyMapStateToMap() {
+            const normalizedMapState = sanitizeMapState(window.state.mapState);
+            window.state.mapState = normalizedMapState;
+            incidentCenter = { ...normalizedMapState.center };
+
+            ['red', 'yellow', 'green'].forEach(c => {
+                const radius = Number(normalizedMapState.radii[c]) || 0;
+                const el = document.getElementById('circle-' + c);
+                if (el) {
+                    el.value = radius;
+                    updateCircleLabel(c, radius);
+                }
+                if (zoneCircles[c]) {
+                    zoneCircles[c].setRadius(radius);
+                    zoneCircles[c].setCenter(incidentCenter);
+                }
+            });
+
+            if (incidentMarker) incidentMarker.setPosition(incidentCenter);
+            if (incidentMap) {
+                incidentMap.setCenter(incidentCenter);
+                customPins.forEach(pin => {
+                    try { pin.marker.setMap(null); } catch (_) {}
+                });
+                customPins = [];
+                normalizedMapState.pins.forEach(pin => addCustomPin(pin.lat, pin.lng, pin.name, false, pin.id));
+
+                customRoutes.forEach(route => {
+                    try { route.polyline.setMap(null); } catch (_) {}
+                });
+                customRoutes = [];
+                normalizedMapState.routes.forEach(route => addRouteLineFromState(route, false));
+            }
+
+            localStorage.setItem('mci_map_state', JSON.stringify(normalizedMapState));
+        }
 
         // ตั้งค่า slider และ label จากที่บันทึกไว้
         document.addEventListener('DOMContentLoaded', () => {
-            ['red', 'yellow', 'green'].forEach(c => {
-                const el = document.getElementById('circle-' + c);
-                if (el) { el.value = _savedRadii[c]; updateCircleLabel(c, _savedRadii[c]); }
-            });
+            applyMapStateToMap();
         });
 
         function saveMapState() {
@@ -3931,11 +4207,21 @@
                 green: parseInt(document.getElementById('circle-green')?.value || _savedRadii.green),
             };
             const pins = customPins.map(p => ({ id: p.id, lat: p.lat, lng: p.lng, name: p.name }));
-            localStorage.setItem('mci_map_state', JSON.stringify({
+            const routes = customRoutes.map(route => ({
+                id: route.id,
+                name: route.name,
+                color: route.color,
+                points: route.points.map(pt => ({ lat: pt.lat, lng: pt.lng }))
+            }));
+            const nextMapState = sanitizeMapState({
                 center: incidentCenter,
                 radii,
-                pins
-            }));
+                pins,
+                routes
+            });
+            window.state.mapState = nextMapState;
+            localStorage.setItem('mci_map_state', JSON.stringify(nextMapState));
+            debouncedMapStateSync();
         }
 
         // ใส่ Google Maps API Key ที่นี่
@@ -4016,7 +4302,7 @@
                 saveMapState(); // persist
             });
 
-            const _savedR = _mapSaved.radii || { red: 100, yellow: 250, green: 500 };
+            const _savedR = window.state.mapState?.radii || { red: 100, yellow: 250, green: 500 };
             const circleConfig = [
                 { key: 'red', color: '#ff3b30', radius: _savedR.red },
                 { key: 'yellow', color: '#ff9500', radius: _savedR.yellow },
@@ -4043,6 +4329,27 @@
 
             // Click to add pin
             incidentMap.addListener('click', (e) => {
+                if (mapRouteDrawMode) {
+                    activeRoutePoints.push({ lat: e.latLng.lat(), lng: e.latLng.lng() });
+                    if (!activeRoutePreview) {
+                        activeRoutePreview = new google.maps.Polyline({
+                            path: activeRoutePoints,
+                            map: incidentMap,
+                            geodesic: true,
+                            strokeColor: '#00a3ff',
+                            strokeOpacity: 0.9,
+                            strokeWeight: 4,
+                            icons: [{
+                                icon: { path: 'M 0,-1 0,1', strokeOpacity: 1, scale: 2 },
+                                offset: '0',
+                                repeat: '14px'
+                            }]
+                        });
+                    } else {
+                        activeRoutePreview.setPath(activeRoutePoints);
+                    }
+                    return;
+                }
                 if (!mapAddPinMode) return;
                 const name = prompt('ชื่อหมุด:', 'จุด ' + (customPins.length + 1));
                 if (name === null) return;
@@ -4050,8 +4357,10 @@
             });
 
             // โหลด pin ที่บันทึกไว้ใน localStorage
-            const _savedPins = (_mapSaved.pins || []);
+            const _savedPins = (window.state.mapState?.pins || []);
             _savedPins.forEach(p => addCustomPin(p.lat, p.lng, p.name, false, p.id));
+            const _savedRoutes = (window.state.mapState?.routes || []);
+            _savedRoutes.forEach(route => addRouteLineFromState(route, false));
         };
 
         let _pinIdCounter = Date.now();
@@ -4089,6 +4398,132 @@
             if (save) saveMapState();
         }
 
+        function addRouteLineFromState(route, save = true) {
+            if (!incidentMap || !window.google || !route || !Array.isArray(route.points) || route.points.length < 2) return;
+            const id = String(route.id || (Date.now().toString() + Math.random().toString(36).slice(2, 7)));
+            const path = route.points.map(pt => ({ lat: Number(pt.lat), lng: Number(pt.lng) })).filter(pt => Number.isFinite(pt.lat) && Number.isFinite(pt.lng));
+            if (path.length < 2) return;
+            const color = String(route.color || '#00a3ff');
+            const name = String(route.name || 'Route');
+
+            const polyline = new google.maps.Polyline({
+                path,
+                map: incidentMap,
+                geodesic: true,
+                strokeColor: color,
+                strokeOpacity: 0.9,
+                strokeWeight: 4
+            });
+
+            const routeInfoWindow = new google.maps.InfoWindow({
+                content: `<div style="font-family:Inter,sans-serif;min-width:150px;"><b>${escapeHtml(name)}</b><br><small style="color:#6e6e73;">${path.length} points</small><br><button onclick="removeRouteLineById('${id}')" style="margin-top:6px;font-size:11px;color:#ff3b30;border:none;background:none;cursor:pointer;">🗑 ลบเส้นทางนี้</button></div>`
+            });
+            polyline.addListener('click', (e) => {
+                routeInfoWindow.setPosition(e.latLng);
+                routeInfoWindow.open(incidentMap);
+            });
+
+            customRoutes.push({ id, name, color, points: path, polyline });
+            if (save) saveMapState();
+        }
+
+        window.removeRouteLineById = function (id) {
+            const target = customRoutes.find(route => route.id === id);
+            if (!target) return;
+            target.polyline.setMap(null);
+            customRoutes = customRoutes.filter(route => route.id !== id);
+            saveMapState();
+        };
+
+        function setMapInteractionCursor() {
+            if (!incidentMap) return;
+            if (mapRouteDrawMode || mapAddPinMode) {
+                incidentMap.setOptions({ draggableCursor: 'crosshair' });
+            } else {
+                incidentMap.setOptions({ draggableCursor: '' });
+            }
+        }
+
+        window.toggleRouteDrawMode = function () {
+            mapRouteDrawMode = !mapRouteDrawMode;
+            if (mapRouteDrawMode) {
+                mapAddPinMode = false;
+                const pinBtn = document.getElementById('btn-map-mode');
+                const pinLabel = document.getElementById('map-mode-label');
+                if (pinBtn) pinBtn.classList.remove('nasa-btn-primary');
+                if (pinLabel) pinLabel.textContent = 'เพิ่มหมุด';
+                showToast('โหมดวาดเส้นทาง: คลิกแผนที่เพื่อเพิ่มจุด แล้วกด "จบเส้นทาง"', 'info');
+            } else {
+                if (activeRoutePreview) {
+                    activeRoutePreview.setMap(null);
+                    activeRoutePreview = null;
+                }
+                activeRoutePoints = [];
+            }
+
+            const btn = document.getElementById('btn-map-route');
+            const label = document.getElementById('map-route-label');
+            const finishBtn = document.getElementById('btn-map-route-finish');
+            if (btn) btn.classList.toggle('nasa-btn-primary', mapRouteDrawMode);
+            if (label) label.textContent = mapRouteDrawMode ? 'กำลังวาดเส้น...' : 'วาดเส้นทาง';
+            if (finishBtn) finishBtn.classList.toggle('hidden', !mapRouteDrawMode);
+            setMapInteractionCursor();
+            lucide.createIcons();
+        };
+
+        window.finishRouteDraw = function () {
+            if (!mapRouteDrawMode) return;
+            if (activeRoutePoints.length < 2) {
+                showToast('ต้องมีอย่างน้อย 2 จุดในการสร้างเส้นทาง', 'error');
+                return;
+            }
+            if (activeRoutePreview) {
+                activeRoutePreview.setMap(null);
+                activeRoutePreview = null;
+            }
+            const routeNumber = (customRoutes.length + 1);
+            addRouteLineFromState({
+                id: Date.now().toString() + '-' + Math.random().toString(36).slice(2, 6),
+                name: 'Route ' + routeNumber,
+                color: '#00a3ff',
+                points: activeRoutePoints
+            }, true);
+            activeRoutePoints = [];
+            mapRouteDrawMode = false;
+            const btn = document.getElementById('btn-map-route');
+            const label = document.getElementById('map-route-label');
+            const finishBtn = document.getElementById('btn-map-route-finish');
+            if (btn) btn.classList.remove('nasa-btn-primary');
+            if (label) label.textContent = 'วาดเส้นทาง';
+            if (finishBtn) finishBtn.classList.add('hidden');
+            setMapInteractionCursor();
+            showToast('บันทึกเส้นทางแล้ว', 'success');
+            lucide.createIcons();
+        };
+
+        window.clearRouteLines = function () {
+            if (!customRoutes.length) return;
+            if (!confirm('ลบเส้นทางทั้งหมด?')) return;
+            customRoutes.forEach(route => {
+                try { route.polyline.setMap(null); } catch (_) {}
+            });
+            customRoutes = [];
+            if (activeRoutePreview) {
+                activeRoutePreview.setMap(null);
+                activeRoutePreview = null;
+            }
+            activeRoutePoints = [];
+            mapRouteDrawMode = false;
+            const btn = document.getElementById('btn-map-route');
+            const label = document.getElementById('map-route-label');
+            const finishBtn = document.getElementById('btn-map-route-finish');
+            if (btn) btn.classList.remove('nasa-btn-primary');
+            if (label) label.textContent = 'วาดเส้นทาง';
+            if (finishBtn) finishBtn.classList.add('hidden');
+            setMapInteractionCursor();
+            saveMapState();
+        };
+
         window.removeCustomPinById = function (id) {
             const pin = customPins.find(p => p.id === id);
             if (!pin) return;
@@ -4113,17 +4548,31 @@
 
         window.toggleMapMode = function () {
             mapAddPinMode = !mapAddPinMode;
+            if (mapAddPinMode && mapRouteDrawMode) {
+                mapRouteDrawMode = false;
+                if (activeRoutePreview) {
+                    activeRoutePreview.setMap(null);
+                    activeRoutePreview = null;
+                }
+                activeRoutePoints = [];
+                const routeBtn = document.getElementById('btn-map-route');
+                const routeLabel = document.getElementById('map-route-label');
+                const finishBtn = document.getElementById('btn-map-route-finish');
+                if (routeBtn) routeBtn.classList.remove('nasa-btn-primary');
+                if (routeLabel) routeLabel.textContent = 'วาดเส้นทาง';
+                if (finishBtn) finishBtn.classList.add('hidden');
+            }
             const btn = document.getElementById('btn-map-mode');
             const label = document.getElementById('map-mode-label');
             if (mapAddPinMode) {
                 btn.classList.add('nasa-btn-primary');
                 label.textContent = 'กำลังเพิ่มหมุด...';
-                if (incidentMap) incidentMap.setOptions({ draggableCursor: 'crosshair' });
             } else {
                 btn.classList.remove('nasa-btn-primary');
                 label.textContent = 'เพิ่มหมุด';
-                if (incidentMap) incidentMap.setOptions({ draggableCursor: '' });
             }
+            setMapInteractionCursor();
+            lucide.createIcons();
         };
 
         window.updateCircle = function (color, value) {
@@ -4377,6 +4826,8 @@ SpO2: ${document.getElementById('sec-spo2').value}%
                     document.getElementById('main-layout').classList.remove('hidden');
                     navigate('dashboard');
                     refreshUIs();
+                    upsertCurrentUserOnlineSnapshot();
+                    startPresenceHeartbeat();
                     // Sync สถานะ badge ตาม source ปัจจุบัน
                     updateSyncStatus();
                 } else {
@@ -4391,7 +4842,10 @@ SpO2: ${document.getElementById('sec-spo2').value}%
         }
 
         window.logout = function () {
+            updatePresenceStatus(false);
+            stopPresenceHeartbeat();
             window.state.currentUser = null;
+            window.state.onlineUsers = [];
             localStorage.removeItem('mci_current_user');
             document.getElementById('main-layout').classList.add('hidden');
             document.getElementById('view-login').classList.add('active');
@@ -4429,6 +4883,8 @@ SpO2: ${document.getElementById('sec-spo2').value}%
                 document.getElementById('global-loading')?.classList.add('hidden');
                 navigate('dashboard');
                 refreshUIs();
+                upsertCurrentUserOnlineSnapshot();
+                startPresenceHeartbeat();
                 updateSyncStatus();
                 return true;
             } catch (err) {
@@ -4609,6 +5065,7 @@ SpO2: ${document.getElementById('sec-spo2').value}%
             document.getElementById('dash-veh-enroute').textContent = window.state.vehicles.filter(v => v.status === 'En route').length;
             document.getElementById('dash-veh-athospital').textContent = window.state.vehicles.filter(v => v.status === 'At Hospital').length;
             document.getElementById('dash-veh-returning').textContent = window.state.vehicles.filter(v => v.status === 'Returning').length;
+            window.state.hospitals = dedupeHospitals(window.state.hospitals || []);
 
             // \u2500\u2500 Vehicle detail list \u2500\u2500
             const vehList = document.getElementById('dash-veh-list');
