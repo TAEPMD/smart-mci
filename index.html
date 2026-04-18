@@ -89,7 +89,6 @@
             color: var(--apple-text);
         }
 
-        /* Keep .mono for JS output that may use it */
         .mono {
             font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
             font-size: 0.875em;
@@ -101,7 +100,6 @@
             letter-spacing: -0.3px;
         }
 
-        /* ── Scrollbar ── */
         ::-webkit-scrollbar {
             width: 5px;
             height: 5px;
@@ -120,7 +118,6 @@
             background: rgba(0, 0, 0, 0.28);
         }
 
-        /* ── Panels ── */
         .nasa-panel {
             background: var(--apple-surface);
             border: 1px solid var(--apple-border);
@@ -133,25 +130,22 @@
             display: none;
         }
 
-        /* remove cyan top-bar */
-
         .nasa-panel-bright {
             background: var(--apple-surface-2);
             border: 1px solid var(--apple-border);
             border-radius: 12px;
         }
 
-        /* ── Animations ── */
         @keyframes blink {
 
             0%,
             50% {
-                opacity: 1
+                opacity: 1;
             }
 
             51%,
             100% {
-                opacity: 0.35
+                opacity: 0.35;
             }
         }
 
@@ -163,11 +157,11 @@
 
             0%,
             100% {
-                opacity: 1
+                opacity: 1;
             }
 
             50% {
-                opacity: 0.6
+                opacity: 0.6;
             }
         }
 
@@ -181,7 +175,6 @@
             }
         }
 
-        /* ── Status dots ── */
         .status-dot {
             width: 8px;
             height: 8px;
@@ -215,7 +208,6 @@
             background: var(--apple-text-tertiary);
         }
 
-        /* ── Mission Clock ── */
         .mission-clock {
             font-family: 'SF Mono', 'Fira Code', monospace;
             font-size: 1.1rem;
@@ -224,7 +216,6 @@
             letter-spacing: 1px;
         }
 
-        /* ── Triage color cards ── */
         .triage-red {
             background: rgba(255, 59, 48, 0.08);
             border: 1.5px solid var(--apple-red);
@@ -284,6 +275,255 @@
             background: rgba(255, 255, 255, .9);
             color: #111;
             box-shadow: 0 1px 8px rgba(0, 0, 0, .2);
+        }
+
+        .nasa-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-height: 38px;
+            padding: 9px 16px;
+            border-radius: 14px;
+            border: 1px solid color-mix(in srgb, var(--apple-border) 88%, transparent);
+            background: linear-gradient(180deg, color-mix(in srgb, var(--apple-surface) 94%, #ffffff 6%), color-mix(in srgb, var(--apple-surface-2) 96%, var(--apple-surface) 4%));
+            color: var(--apple-text);
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+            cursor: pointer;
+            text-decoration: none;
+            transition: transform .16s ease, border-color .2s ease, box-shadow .2s ease, background .2s ease, color .2s ease;
+            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.82);
+        }
+
+        .nasa-btn:hover {
+            transform: translateY(-1px);
+            border-color: color-mix(in srgb, var(--apple-blue) 20%, var(--apple-border));
+            box-shadow: 0 14px 28px rgba(15, 23, 42, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+        }
+
+        .nasa-btn:active {
+            transform: scale(0.98);
+            box-shadow: 0 6px 12px rgba(15, 23, 42, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.62);
+        }
+
+        .nasa-btn-primary {
+            background: linear-gradient(180deg, color-mix(in srgb, var(--apple-blue-hover) 88%, white 12%), var(--apple-blue));
+            border-color: color-mix(in srgb, var(--apple-blue) 70%, #0a3d91);
+            color: #ffffff;
+            box-shadow: 0 14px 28px rgba(0, 113, 227, 0.24), inset 0 1px 0 rgba(255, 255, 255, 0.26);
+        }
+
+        .nasa-btn-primary:hover {
+            border-color: color-mix(in srgb, var(--apple-blue-hover) 78%, #0a3d91);
+            box-shadow: 0 18px 32px rgba(0, 113, 227, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        }
+
+        @keyframes button-tap {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(0.98);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .nasa-btn.reaction-tap {
+            animation: button-tap .28s ease;
+        }
+
+        .nasa-input {
+            width: 100%;
+            min-height: 44px;
+            padding: 11px 14px;
+            border-radius: 14px;
+            border: 1px solid color-mix(in srgb, var(--apple-border) 92%, transparent);
+            background: color-mix(in srgb, var(--apple-surface) 90%, var(--apple-surface-2) 10%);
+            color: var(--apple-text);
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            line-height: 1.4;
+            outline: none;
+            transition: border-color .18s ease, box-shadow .18s ease, background .18s ease;
+            box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.04);
+        }
+
+        .nasa-input::placeholder {
+            color: var(--apple-text-tertiary);
+        }
+
+        .nasa-input:focus {
+            border-color: color-mix(in srgb, var(--apple-blue) 50%, var(--apple-border));
+            background: var(--apple-surface);
+            box-shadow: 0 0 0 4px color-mix(in srgb, var(--apple-blue) 16%, transparent), 0 12px 28px rgba(15, 23, 42, 0.08);
+        }
+
+        textarea.nasa-input {
+            min-height: 110px;
+            resize: vertical;
+        }
+
+        .sidebar-shell {
+            display: flex;
+            flex-direction: column;
+            min-height: 100%;
+            padding: 14px 0 16px;
+            background:
+                radial-gradient(circle at top left, color-mix(in srgb, var(--apple-blue) 10%, transparent) 0, transparent 38%),
+                linear-gradient(180deg, color-mix(in srgb, var(--apple-surface) 88%, transparent), color-mix(in srgb, var(--apple-surface-2) 94%, transparent));
+        }
+
+        .sidebar-brand {
+            margin: 0 14px 14px;
+            padding: 18px 16px;
+            border-radius: 24px;
+            border: 1px solid color-mix(in srgb, var(--apple-border) 88%, transparent);
+            background: linear-gradient(180deg, color-mix(in srgb, var(--apple-surface) 95%, #ffffff 5%), color-mix(in srgb, var(--apple-surface-2) 92%, var(--apple-surface) 8%));
+            box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+        }
+
+        .sidebar-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            padding: 0 10px;
+        }
+
+        .sidebar-group {
+            border-radius: 24px;
+            border: 1px solid color-mix(in srgb, var(--apple-border) 82%, transparent);
+            background: color-mix(in srgb, var(--apple-surface) 74%, transparent);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
+            padding: 10px 0;
+        }
+
+        .sidebar-group-label {
+            padding: 0 16px 8px;
+            color: var(--apple-text-tertiary);
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+        }
+
+        .sidebar-meta-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 14px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: color-mix(in srgb, var(--apple-surface-2) 85%, transparent);
+            border: 1px solid color-mix(in srgb, var(--apple-border) 86%, transparent);
+        }
+
+        .nasa-nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            position: relative;
+            margin: 2px 10px;
+            padding: 10px 12px;
+            border-radius: 18px;
+            border: 1px solid transparent;
+            color: var(--apple-text-secondary);
+            text-decoration: none;
+            overflow: hidden;
+            transition: transform .16s ease, background .2s ease, border-color .2s ease, box-shadow .2s ease, color .2s ease;
+        }
+
+        .nasa-nav-item::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, color-mix(in srgb, var(--apple-blue) 8%, transparent), color-mix(in srgb, var(--apple-surface) 75%, transparent));
+            opacity: 0;
+            transition: opacity .2s ease;
+        }
+
+        .nasa-nav-item>* {
+            position: relative;
+            z-index: 1;
+        }
+
+        .nasa-nav-item:hover {
+            transform: translateX(2px);
+            color: var(--apple-text);
+            border-color: color-mix(in srgb, var(--apple-border) 90%, transparent);
+            box-shadow: 0 12px 24px rgba(15, 23, 42, 0.06);
+        }
+
+        .nasa-nav-item:hover::before,
+        .nasa-nav-item.active::before {
+            opacity: 1;
+        }
+
+        .nasa-nav-item.active {
+            border-color: color-mix(in srgb, var(--apple-blue) 28%, var(--apple-border));
+            background: linear-gradient(135deg, color-mix(in srgb, var(--apple-blue) 10%, var(--apple-surface)), color-mix(in srgb, var(--apple-surface) 92%, var(--apple-surface-2) 8%));
+            color: var(--apple-text-bright);
+            box-shadow: 0 18px 34px rgba(15, 23, 42, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.84);
+        }
+
+        .nasa-nav-item.active::after {
+            content: '';
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            width: 7px;
+            height: 7px;
+            border-radius: 999px;
+            background: var(--apple-blue);
+            box-shadow: 0 0 0 5px color-mix(in srgb, var(--apple-blue) 18%, transparent);
+            transform: translateY(-50%);
+        }
+
+        .nasa-nav-item i {
+            width: 36px;
+            height: 36px;
+            padding: 8px;
+            flex-shrink: 0;
+            border-radius: 12px;
+            border: 1px solid color-mix(in srgb, var(--apple-border) 86%, transparent);
+            background: linear-gradient(180deg, color-mix(in srgb, var(--apple-surface) 94%, #ffffff 6%), color-mix(in srgb, var(--apple-surface-2) 96%, var(--apple-surface) 4%));
+            color: var(--apple-blue);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.78);
+        }
+
+        .nasa-nav-item.active i {
+            border-color: transparent;
+            background: linear-gradient(180deg, color-mix(in srgb, var(--apple-blue-hover) 84%, white 16%), var(--apple-blue));
+            color: #ffffff;
+            box-shadow: 0 10px 22px rgba(0, 113, 227, 0.28);
+        }
+
+        .nasa-nav-item span {
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+        }
+
+        #sidebar .nasa-nav-item.text-red-400,
+        #sidebar .nasa-nav-item.text-red-400 span {
+            color: var(--apple-red) !important;
+        }
+
+        #sidebar .nasa-nav-item.text-red-400 i {
+            color: var(--apple-red);
+            background: color-mix(in srgb, var(--apple-red) 8%, var(--apple-surface));
+            border-color: color-mix(in srgb, var(--apple-red) 22%, var(--apple-border));
+        }
+
+        #sidebar .nasa-nav-item.text-red-400:hover {
+            border-color: color-mix(in srgb, var(--apple-red) 24%, var(--apple-border));
+            background: color-mix(in srgb, var(--apple-red) 6%, var(--apple-surface));
         }
 
         .mode-toggle-btn {
@@ -541,257 +781,6 @@
             }
         }
 
-        /* ── Buttons ── */
-        .nasa-btn {
-            background: var(--apple-surface);
-            border: 1px solid var(--apple-border);
-            color: var(--apple-blue);
-        .print-sheet h1 {
-            font-size: 28px;
-            font-weight: 800;
-            letter-spacing: -.02em;
-            margin-bottom: 8px;
-            color: #0a1428;
-        }
-        
-        .print-sheet > div:first-child {
-            margin-bottom: 24px;
-            padding-bottom: 16px;
-            border-bottom: 3px solid #0071e3;
-        }
-        
-        .print-meta {
-            font-size: 12px;
-            color: #575f6d;
-            margin-top: 4px;
-            font-weight: 500;
-        }
-        
-        .print-sheet h2 {
-            font-size: 16px;
-            font-weight: 700;
-            letter-spacing: .06em;
-            text-transform: uppercase;
-            margin-bottom: 14px;
-            margin-top: 28px;
-            padding-bottom: 8px;
-            border-bottom: 2px solid #e2e8f0;
-            color: #0a1428;
-        }
-        
-        .print-section:first-of-type h2 {
-            margin-top: 0;
-        }
-        
-        .print-sheet h3 {
-            font-size: 13px;
-            font-weight: 700;
-            margin-bottom: 10px;
-            color: #0f172a;
-            text-transform: uppercase;
-            letter-spacing: .04em;
-        }
-        
-        .print-summary-grid {
-            display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-            gap: 14px;
-            margin: 20px 0 28px 0;
-        }
-        
-        .print-stat {
-            border-left: 4px solid #0071e3;
-            border: 1px solid #cbd5e1;
-            border-left: 4px solid #0071e3;
-            border-radius: 8px;
-            padding: 14px;
-            background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-        }
-        
-        .print-stat-label {
-            font-size: 10px;
-            text-transform: uppercase;
-            letter-spacing: .1em;
-            color: #64748b;
-            font-weight: 700;
-        }
-        
-        .print-stat-value {
-            margin-top: 8px;
-            font-size: 28px;
-            font-weight: 800;
-            color: #0071e3;
-        }
-        
-        .print-section {
-            margin-top: 24px;
-            padding-top: 0;
-            border-top: none;
-            page-break-inside: avoid;
-        }
-        
-        .print-section:first-child {
-            margin-top: 0;
-        }
-        
-        .print-grid-two {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 16px;
-        }
-        
-        .print-card {
-            border: 1px solid #dbe3ee;
-            border-radius: 10px;
-            padding: 14px;
-            background: #ffffff;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-            break-inside: avoid;
-            page-break-inside: avoid;
-        }
-        
-        .print-card h3 {
-            border-bottom: 2px solid #e2e8f0;
-            padding-bottom: 8px;
-            margin-bottom: 12px;
-        }
-        
-        .print-kv {
-            display: grid;
-            grid-template-columns: 160px 1fr;
-            gap: 12px;
-            font-size: 12px;
-            row-gap: 10px;
-        }
-        
-        .print-kv dt {
-            color: #475569;
-            font-weight: 700;
-            text-transform: uppercase;
-            font-size: 11px;
-            letter-spacing: .02em;
-        }
-        
-        .print-kv dd {
-            margin: 0;
-            color: #0f172a;
-            font-weight: 600;
-        }
-        
-        .print-badges {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-        
-        .print-badge {
-            padding: 6px 12px;
-            border-radius: 20px;
-            border: 1px solid #cbd5e1;
-            font-size: 11px;
-            font-weight: 700;
-            background: #f1f5f9;
-            color: #0f172a;
-            letter-spacing: .02em;
-        }
-        
-        .print-table-wrap {
-            border: 1px solid #cbd5e1;
-            border-radius: 10px;
-            overflow: hidden;
-            margin-top: 12px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-        }
-        
-        .print-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 11px;
-            line-height: 1.5;
-        }
-        
-        .print-table thead {
-            background: linear-gradient(to right, #f0f4f8, #f8fafc);
-        }
-        
-        .print-table th {
-            background: linear-gradient(to right, #f0f4f8, #f8fafc);
-            color: #334155;
-            text-transform: uppercase;
-            letter-spacing: .06em;
-            font-size: 10px;
-            font-weight: 800;
-            padding: 12px 10px;
-            text-align: left;
-            border-bottom: 2px solid #cbd5e1;
-        }
-        
-        .print-table td {
-            padding: 10px;
-            border-bottom: 1px solid #e2e8f0;
-            text-align: left;
-            vertical-align: middle;
-            color: #0f172a;
-        }
-        
-        .print-table tbody tr:nth-child(odd) td {
-            background: #f8fafc;
-        }
-        
-        .print-table tbody tr:last-child td {
-            border-bottom: none;
-        }
-        
-        .print-table tbody tr {
-            page-break-inside: avoid;
-            break-inside: avoid;
-        }
-        
-        .print-ai-report {
-            white-space: pre-wrap;
-            font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
-            font-size: 11px;
-            line-height: 1.7;
-            background: #f8fafc;
-            border: 1px solid #cbd5e1;
-            border-radius: 10px;
-            padding: 14px;
-            color: #0f172a;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-            page-break-inside: avoid;
-            break-inside: avoid;
-        }
-            padding: 8px 16px;
-
-        .nasa-btn:hover {
-        .nasa-btn:active {
-            }
-                transform: scale(1);
-                box-shadow: 0 0 0 0 rgba(52, 199, 89, 0.45);
-
-        .nasa-btn.reaction-tap {
-        }
-            box-shadow: 0 1px 4px rgba(0, 113, 227, 0.25);
-        }
-        }
-        }
-            color: var(--apple-text);
-            border-color: var(--apple-blue);
-
-        textarea.nasa-input {
-            margin: 1px 8px;
-            cursor: pointer;
-
-            font-weight: 600;
-        }
-
-        .nasa-nav-item i {
-            width: 18px;
-            height: 18px;
-            flex-shrink: 0;
-        }
-
         /* ── Views ── */
         .app-view {
             display: none;
@@ -851,12 +840,21 @@
 
         /* ── Mobile bottom nav ── */
         .nasa-mobile-nav {
-            background: rgba(15, 15, 20, 0.95);
-            backdrop-filter: saturate(180%) blur(24px);
-            -webkit-backdrop-filter: saturate(180%) blur(24px);
-            border-top: 1px solid rgba(255,255,255,0.08);
-            padding: 6px 4px env(safe-area-inset-bottom, 10px);
-            box-shadow: 0 -4px 24px rgba(0,0,0,0.4);
+            padding: 10px 10px calc(env(safe-area-inset-bottom, 0px) + 10px);
+            background: transparent;
+        }
+
+        .nasa-mobile-nav>div {
+            max-width: 560px;
+            margin: 0 auto;
+            padding: 6px;
+            gap: 6px;
+            border-radius: 26px;
+            border: 1px solid color-mix(in srgb, var(--apple-border) 80%, transparent);
+            background: color-mix(in srgb, var(--apple-surface) 88%, transparent);
+            backdrop-filter: saturate(180%) blur(28px);
+            -webkit-backdrop-filter: saturate(180%) blur(28px);
+            box-shadow: 0 -14px 34px rgba(15, 23, 42, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.82);
         }
 
         .nasa-mobile-nav-item {
@@ -864,22 +862,33 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 2px;
-            padding: 6px 4px;
+            gap: 4px;
+            padding: 8px 6px 10px;
             min-width: 0;
             flex: 1;
-            color: rgba(255,255,255,0.45);
-            font-size: 9px;
-            font-weight: 600;
-            letter-spacing: 0.03em;
-            text-transform: uppercase;
-            font-family: 'SF Mono', 'Fira Code', monospace;
-            transition: color 0.15s, transform 0.1s;
-            border-radius: 10px;
+            color: var(--apple-text-tertiary);
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            text-transform: none;
+            font-family: 'Inter', sans-serif;
+            transition: color 0.15s ease, transform 0.1s ease, background .18s ease, box-shadow .18s ease;
+            border-radius: 18px;
             background: none;
             border: none;
             cursor: pointer;
             -webkit-tap-highlight-color: transparent;
+        }
+
+        .nasa-mobile-nav-item i {
+            width: 36px;
+            height: 36px;
+            padding: 8px;
+            border-radius: 12px;
+            border: 1px solid color-mix(in srgb, var(--apple-border) 82%, transparent);
+            background: linear-gradient(180deg, color-mix(in srgb, var(--apple-surface) 94%, #ffffff 6%), color-mix(in srgb, var(--apple-surface-2) 94%, var(--apple-surface) 6%));
+            color: var(--apple-text-secondary);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
         }
 
         .nasa-mobile-nav-item:active {
@@ -887,28 +896,33 @@
         }
 
         .nasa-mobile-nav-item.active {
-            color: #0a84ff;
+            color: var(--apple-blue);
+            background: color-mix(in srgb, var(--apple-blue) 10%, transparent);
+            box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--apple-blue) 18%, transparent);
         }
 
         .nasa-mobile-nav-item.active i {
-            filter: drop-shadow(0 0 6px rgba(10, 132, 255, 0.6));
+            border-color: transparent;
+            background: linear-gradient(180deg, color-mix(in srgb, var(--apple-blue-hover) 84%, white 16%), var(--apple-blue));
+            color: #ffffff;
+            box-shadow: 0 10px 24px rgba(0, 113, 227, 0.28);
         }
 
         .mobile-command-btn-orb {
             position: absolute;
-            top: -14px;
+            top: -18px;
             left: 50%;
             transform: translateX(-50%);
-            width: 54px;
-            height: 54px;
+            width: 60px;
+            height: 60px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(135deg, #0a84ff, #19c0ff);
-            border: 2px solid rgba(255, 255, 255, 0.25);
-            box-shadow: 0 8px 24px rgba(10, 132, 255, 0.55), 0 0 0 6px rgba(10, 132, 255, 0.18);
-            animation: pulse-glow 1.6s ease-in-out infinite;
+            background: radial-gradient(circle at 30% 30%, #55b6ff, var(--apple-blue));
+            border: 4px solid color-mix(in srgb, var(--apple-surface) 86%, transparent);
+            box-shadow: 0 18px 34px rgba(0, 113, 227, 0.38), 0 0 0 10px color-mix(in srgb, var(--apple-blue) 12%, transparent);
+            animation: pulse-glow 1.8s ease-in-out infinite;
         }
 
         #app-credit {
@@ -962,25 +976,66 @@
 
         .mobile-more-item {
             display: flex;
-            align-items: center;
-            gap: 14px;
-            padding: 14px 20px;
-            color: rgba(255,255,255,0.85);
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 12px;
+            min-height: 110px;
+            padding: 16px;
+            color: var(--apple-text);
             font-size: 15px;
-            font-weight: 600;
-            border-radius: 14px;
+            font-weight: 700;
+            border-radius: 18px;
+            border: 1px solid color-mix(in srgb, var(--apple-border) 82%, transparent);
+            background: linear-gradient(180deg, color-mix(in srgb, var(--apple-surface) 96%, #ffffff 4%), color-mix(in srgb, var(--apple-surface-2) 92%, var(--apple-surface) 8%));
+            box-shadow: 0 14px 30px rgba(15, 23, 42, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.82);
             cursor: pointer;
-            transition: background 0.15s;
+            transition: transform .15s ease, background .15s ease, border-color .15s ease;
             -webkit-tap-highlight-color: transparent;
         }
 
+        .mobile-more-item:hover {
+            transform: translateY(-1px);
+            border-color: color-mix(in srgb, var(--apple-blue) 18%, var(--apple-border));
+        }
+
         .mobile-more-item:active {
-            background: rgba(255,255,255,0.08);
+            transform: scale(0.98);
         }
 
         .mobile-more-item i {
-            color: #0a84ff;
+            width: 40px;
+            height: 40px;
+            padding: 10px;
+            border-radius: 14px;
+            background: color-mix(in srgb, var(--apple-blue) 10%, var(--apple-surface));
+            border: 1px solid color-mix(in srgb, var(--apple-blue) 18%, var(--apple-border));
+            color: var(--apple-blue);
             flex-shrink: 0;
+        }
+
+        .mobile-more-sheet {
+            background: color-mix(in srgb, var(--apple-surface) 94%, transparent);
+            backdrop-filter: blur(30px) saturate(180%);
+            -webkit-backdrop-filter: blur(30px) saturate(180%);
+            border-radius: 28px 28px 0 0;
+            border: 1px solid color-mix(in srgb, var(--apple-border) 84%, transparent);
+            border-bottom: none;
+            padding: 14px 14px calc(env(safe-area-inset-bottom, 0px) + 18px);
+            box-shadow: 0 -18px 50px rgba(15, 23, 42, 0.2);
+        }
+
+        .mobile-more-handle {
+            width: 40px;
+            height: 5px;
+            background: color-mix(in srgb, var(--apple-text-tertiary) 30%, transparent);
+            border-radius: 999px;
+            margin: 0 auto 18px;
+        }
+
+        .mobile-more-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
         }
 
         /* ── Map ── */
@@ -1265,22 +1320,18 @@
 
         /* Sidebar */
         #sidebar {
-            background: rgba(245, 245, 247, 0.85) !important;
+            background: color-mix(in srgb, var(--apple-surface) 84%, transparent) !important;
             border-right: 1px solid var(--apple-border) !important;
-            backdrop-filter: blur(16px);
-        }
-
-        #sidebar .p-4.border-b {
-            background: transparent !important;
-            border-bottom: 1px solid var(--apple-border) !important;
+            backdrop-filter: blur(24px) saturate(180%);
+            box-shadow: 12px 0 36px rgba(15, 23, 42, 0.08);
         }
 
         /* Logo area in sidebar */
         #sidebar .w-12.h-12 {
             background: linear-gradient(145deg, #0a84ff, #0055d4) !important;
             border: none !important;
-            border-radius: 12px !important;
-            box-shadow: 0 2px 8px rgba(0, 100, 220, 0.3);
+            border-radius: 16px !important;
+            box-shadow: 0 10px 24px rgba(0, 100, 220, 0.28);
         }
 
         #sidebar .w-12.h-12 i {
@@ -1410,7 +1461,7 @@
         }
 
         body.theme-dark #sidebar {
-            background: rgba(16, 18, 24, 0.86) !important;
+            background: color-mix(in srgb, var(--apple-surface) 86%, transparent) !important;
             border-right: 1px solid var(--apple-border) !important;
         }
 
@@ -1575,73 +1626,77 @@
 
         <!-- Sidebar - Desktop -->
         <aside id="sidebar" class="hidden md:flex flex-col w-64 bg-nasa-panel border-r border-nasa-border">
-            <!-- Logo Area -->
-            <div class="p-4 border-b border-nasa-border bg-nasa-panel-light">
-                <div class="flex items-center gap-3">
-                    <div class="w-12 h-12 border border-cyan-400 flex items-center justify-center">
-                        <i data-lucide="radar" class="w-6 h-6 text-cyan-400"></i>
+            <div class="sidebar-shell">
+                <!-- Logo Area -->
+                <div class="sidebar-brand">
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 border border-cyan-400 flex items-center justify-center">
+                            <i data-lucide="radar" class="w-6 h-6 text-cyan-400"></i>
+                        </div>
+                        <div>
+                            <span class="nasa-font text-xl text-cyan-400 tracking-wider block">MCI</span>
+                            <span class="mono text-xs text-amber-400 uppercase tracking-widest">Command Center</span>
+                        </div>
                     </div>
-                    <div>
-                        <span class="nasa-font text-xl text-cyan-400 tracking-wider block">MCI</span>
-                        <span class="mono text-xs text-amber-400 uppercase tracking-widest">Command Center</span>
+                    <div class="sidebar-meta-pill mono text-xs text-gray-500">
+                        <div class="status-dot status-green blink"></div>
+                        <span>LIVE FEED</span>
                     </div>
                 </div>
-                <div class="flex items-center gap-2 mt-3 mono text-xs text-gray-500">
-                    <div class="status-dot status-green blink"></div>
-                    <span>LIVE FEED</span>
-                </div>
+
+                <!-- Navigation -->
+                <nav class="sidebar-nav flex-1 overflow-y-auto">
+                    <div class="sidebar-group">
+                        <div class="sidebar-group-label mono">Operations</div>
+
+                        <a href="#" onclick="navigate('dashboard')" class="nasa-nav-item" data-target="dashboard">
+                            <i data-lucide="layout-dashboard"></i>
+                            <span>Situation Room</span>
+                        </a>
+                        <a href="#" onclick="navigate('triage')" class="nasa-nav-item" data-target="triage">
+                            <i data-lucide="user-plus"></i>
+                            <span>Triage & HazMat</span>
+                        </a>
+                        <a href="#" onclick="navigate('care')" class="nasa-nav-item" data-target="care">
+                            <i data-lucide="heart-pulse"></i>
+                            <span>Patient Care</span>
+                        </a>
+                        <a href="#" onclick="navigate('transport')" class="nasa-nav-item" data-target="transport">
+                            <i data-lucide="ambulance"></i>
+                            <span>Transport</span>
+                        </a>
+                        <a href="#" onclick="navigate('hospitals')" class="nasa-nav-item" data-target="hospitals">
+                            <i data-lucide="building-2"></i>
+                            <span>Hospital Capacity</span>
+                        </a>
+                        <a href="#" onclick="navigate('tracking')" class="nasa-nav-item" data-target="tracking">
+                            <i data-lucide="map-pin"></i>
+                            <span>Patient Tracking</span>
+                        </a>
+                        <a href="#" onclick="navigate('history')" class="nasa-nav-item" data-target="history">
+                            <i data-lucide="file-check"></i>
+                            <span>History & AAR</span>
+                        </a>
+                    </div>
+
+                    <div class="sidebar-group mt-auto">
+                        <div class="sidebar-group-label mono">System</div>
+                        <a href="#" onclick="navigate('settings')" class="nasa-nav-item admin-only" data-target="settings">
+                            <i data-lucide="settings"></i>
+                            <span>Settings</span>
+                        </a>
+                        <a href="#" onclick="navigate('users')" class="nasa-nav-item admin-only" data-target="users">
+                            <i data-lucide="users-cog"></i>
+                            <span>User & Agency</span>
+                        </a>
+                        <a href="#" onclick="logout()"
+                            class="nasa-nav-item text-red-400 hover:text-red-300 hover:bg-red-900/20">
+                            <i data-lucide="log-out"></i>
+                            <span>Terminate Session</span>
+                        </a>
+                    </div>
+                </nav>
             </div>
-
-            <!-- Navigation -->
-            <nav class="flex-1 overflow-y-auto py-2">
-                <div class="px-4 py-2 mono text-xs text-gray-600 uppercase tracking-widest">Operations</div>
-
-                <a href="#" onclick="navigate('dashboard')" class="nasa-nav-item" data-target="dashboard">
-                    <i data-lucide="layout-dashboard"></i>
-                    <span>Situation Room</span>
-                </a>
-                <a href="#" onclick="navigate('triage')" class="nasa-nav-item" data-target="triage">
-                    <i data-lucide="user-plus"></i>
-                    <span>Triage & HazMat</span>
-                </a>
-                <a href="#" onclick="navigate('care')" class="nasa-nav-item" data-target="care">
-                    <i data-lucide="heart-pulse"></i>
-                    <span>Patient Care</span>
-                </a>
-                <a href="#" onclick="navigate('transport')" class="nasa-nav-item" data-target="transport">
-                    <i data-lucide="ambulance"></i>
-                    <span>Transport</span>
-                </a>
-                <a href="#" onclick="navigate('hospitals')" class="nasa-nav-item" data-target="hospitals">
-                    <i data-lucide="building-2"></i>
-                    <span>Hospital Capacity</span>
-                </a>
-                <a href="#" onclick="navigate('tracking')" class="nasa-nav-item" data-target="tracking">
-                    <i data-lucide="map-pin"></i>
-                    <span>Patient Tracking</span>
-                </a>
-                <a href="#" onclick="navigate('history')" class="nasa-nav-item" data-target="history">
-                    <i data-lucide="file-check"></i>
-                    <span>History & AAR</span>
-                </a>
-
-                <div class="mt-auto pt-4 border-t border-nasa-border">
-                    <div class="px-4 py-2 mono text-xs text-gray-600 uppercase tracking-widest">System</div>
-                    <a href="#" onclick="navigate('settings')" class="nasa-nav-item admin-only" data-target="settings">
-                        <i data-lucide="settings"></i>
-                        <span>Settings</span>
-                    </a>
-                    <a href="#" onclick="navigate('users')" class="nasa-nav-item admin-only" data-target="users">
-                        <i data-lucide="users-cog"></i>
-                        <span>User & Agency</span>
-                    </a>
-                    <a href="#" onclick="logout()"
-                        class="nasa-nav-item text-red-400 hover:text-red-300 hover:bg-red-900/20">
-                        <i data-lucide="log-out"></i>
-                        <span>Terminate Session</span>
-                    </a>
-                </div>
-            </nav>
         </aside>
 
         <div id="mobile-sidebar-backdrop" class="md:hidden" onclick="toggleMobileMenu()"></div>
@@ -3222,10 +3277,9 @@
 
         <!-- More Drawer -->
         <div id="mobile-more-drawer" class="md:hidden">
-            <div style="background:rgba(18,18,24,0.98);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-radius:20px 20px 0 0;border-top:1px solid rgba(255,255,255,0.1);padding:12px 12px env(safe-area-inset-bottom,16px);box-shadow:0 -8px 32px rgba(0,0,0,0.5);">
-                <!-- Handle -->
-                <div style="width:36px;height:4px;background:rgba(255,255,255,0.2);border-radius:2px;margin:0 auto 16px;"></div>
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <div class="mobile-more-sheet">
+                <div class="mobile-more-handle"></div>
+                <div class="mobile-more-grid">
                     <button onclick="mobileNavigate('hospitals')" class="mobile-more-item" data-target="hospitals">
                         <i data-lucide="hospital" class="w-5 h-5"></i>
                         <span>Hospitals</span>
