@@ -840,16 +840,21 @@
 
         /* ── Mobile bottom nav ── */
         .nasa-mobile-nav {
-            padding: 10px 10px calc(env(safe-area-inset-bottom, 0px) + 10px);
+            padding: 0 12px;
             background: transparent;
         }
 
         .nasa-mobile-nav>div {
-            max-width: 560px;
+            position: relative;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            max-width: 520px;
             margin: 0 auto;
-            padding: 6px;
-            gap: 6px;
-            border-radius: 26px;
+            min-height: 88px;
+            padding: 10px 12px 12px;
+            gap: 8px;
+            border-radius: 30px;
             border: 1px solid color-mix(in srgb, var(--apple-border) 80%, transparent);
             background: color-mix(in srgb, var(--apple-surface) 88%, transparent);
             backdrop-filter: saturate(180%) blur(28px);
@@ -861,19 +866,19 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            gap: 4px;
-            padding: 8px 6px 10px;
+            justify-content: flex-end;
+            gap: 6px;
+            padding: 12px 8px 10px;
             min-width: 0;
             flex: 1;
             color: var(--apple-text-tertiary);
             font-size: 10px;
             font-weight: 700;
-            letter-spacing: 0.02em;
+            letter-spacing: 0.04em;
             text-transform: none;
             font-family: 'Inter', sans-serif;
             transition: color 0.15s ease, transform 0.1s ease, background .18s ease, box-shadow .18s ease;
-            border-radius: 18px;
+            border-radius: 22px;
             background: none;
             border: none;
             cursor: pointer;
@@ -901,6 +906,58 @@
             box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--apple-blue) 18%, transparent);
         }
 
+        .nasa-mobile-nav-item .mobile-nav-label {
+            line-height: 1.1;
+            text-align: center;
+        }
+
+        .nasa-mobile-nav-item-left,
+        .nasa-mobile-nav-item-right {
+            flex: 1;
+            max-width: none;
+        }
+
+        .nasa-mobile-nav-item-left {
+            align-items: center;
+            text-align: center;
+            padding-left: 8px;
+        }
+
+        .nasa-mobile-nav-item-left .mobile-nav-label {
+            text-align: center;
+        }
+
+        .nasa-mobile-nav-item-right {
+            align-items: center;
+            text-align: center;
+            padding-right: 8px;
+        }
+
+        .nasa-mobile-nav-item-right .mobile-nav-label {
+            text-align: center;
+        }
+
+        .nasa-mobile-nav-item-center {
+            position: relative;
+            transform: none;
+            width: auto;
+            justify-content: flex-end;
+            padding-top: 0;
+            padding-bottom: 0;
+            background: none !important;
+            box-shadow: none !important;
+            color: var(--apple-text) !important;
+            z-index: 2;
+        }
+
+        .nasa-mobile-nav-item-center .mobile-nav-label {
+            margin-top: 44px;
+            font-size: 11px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--apple-text);
+        }
+
         .nasa-mobile-nav-item.active i {
             border-color: transparent;
             background: linear-gradient(180deg, color-mix(in srgb, var(--apple-blue-hover) 84%, white 16%), var(--apple-blue));
@@ -910,11 +967,11 @@
 
         .mobile-command-btn-orb {
             position: absolute;
-            top: -18px;
+            top: -26px;
             left: 50%;
             transform: translateX(-50%);
-            width: 60px;
-            height: 60px;
+            width: 68px;
+            height: 68px;
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -929,113 +986,16 @@
             position: fixed;
             left: 50%;
             transform: translateX(-50%);
-            bottom: calc(env(safe-area-inset-bottom, 0px) + 66px);
-            z-index: 39;
+            bottom: max(6px, env(safe-area-inset-bottom, 0px));
+            z-index: 41;
             font-size: 10px;
             letter-spacing: .02em;
             color: var(--apple-text-secondary);
-            background: color-mix(in srgb, var(--apple-surface) 78%, transparent);
-            border: 1px solid color-mix(in srgb, var(--apple-border) 85%, transparent);
-            border-radius: 999px;
-            padding: 4px 10px;
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-        }
-
-        /* ── More Drawer ── */
-        #mobile-more-drawer {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            z-index: 50;
-            transform: translateY(100%);
-            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-            pointer-events: none;
-        }
-
-        #mobile-more-drawer.open {
-            transform: translateY(0);
-            pointer-events: all;
-        }
-
-        #mobile-more-backdrop {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.5);
-            z-index: 49;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.25s;
-        }
-
-        #mobile-more-backdrop.open {
-            opacity: 1;
-            pointer-events: all;
-        }
-
-        .mobile-more-item {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 12px;
-            min-height: 110px;
-            padding: 16px;
-            color: var(--apple-text);
-            font-size: 15px;
-            font-weight: 700;
-            border-radius: 18px;
-            border: 1px solid color-mix(in srgb, var(--apple-border) 82%, transparent);
-            background: linear-gradient(180deg, color-mix(in srgb, var(--apple-surface) 96%, #ffffff 4%), color-mix(in srgb, var(--apple-surface-2) 92%, var(--apple-surface) 8%));
-            box-shadow: 0 14px 30px rgba(15, 23, 42, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.82);
-            cursor: pointer;
-            transition: transform .15s ease, background .15s ease, border-color .15s ease;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        .mobile-more-item:hover {
-            transform: translateY(-1px);
-            border-color: color-mix(in srgb, var(--apple-blue) 18%, var(--apple-border));
-        }
-
-        .mobile-more-item:active {
-            transform: scale(0.98);
-        }
-
-        .mobile-more-item i {
-            width: 40px;
-            height: 40px;
-            padding: 10px;
-            border-radius: 14px;
-            background: color-mix(in srgb, var(--apple-blue) 10%, var(--apple-surface));
-            border: 1px solid color-mix(in srgb, var(--apple-blue) 18%, var(--apple-border));
-            color: var(--apple-blue);
-            flex-shrink: 0;
-        }
-
-        .mobile-more-sheet {
-            background: color-mix(in srgb, var(--apple-surface) 94%, transparent);
-            backdrop-filter: blur(30px) saturate(180%);
-            -webkit-backdrop-filter: blur(30px) saturate(180%);
-            border-radius: 28px 28px 0 0;
-            border: 1px solid color-mix(in srgb, var(--apple-border) 84%, transparent);
-            border-bottom: none;
-            padding: 14px 14px calc(env(safe-area-inset-bottom, 0px) + 18px);
-            box-shadow: 0 -18px 50px rgba(15, 23, 42, 0.2);
-        }
-
-        .mobile-more-handle {
-            width: 40px;
-            height: 5px;
-            background: color-mix(in srgb, var(--apple-text-tertiary) 30%, transparent);
-            border-radius: 999px;
-            margin: 0 auto 18px;
-        }
-
-        .mobile-more-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
+            background: transparent;
+            border: none;
+            padding: 0;
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
         }
 
         /* ── Map ── */
@@ -1136,6 +1096,10 @@
                 display: none !important;
             }
 
+            body {
+                padding-bottom: 118px;
+            }
+
             #sidebar {
                 position: fixed;
                 top: 0;
@@ -1167,6 +1131,21 @@
             #mobile-sidebar-backdrop.open {
                 opacity: 1;
                 pointer-events: all;
+            }
+
+            #sidebar .mobile-primary-nav {
+                display: none;
+            }
+
+            .nasa-mobile-nav {
+                bottom: calc(env(safe-area-inset-bottom, 0px) + 18px);
+                left: 0;
+                right: 0;
+            }
+
+            #app-credit {
+                bottom: max(6px, env(safe-area-inset-bottom, 0px));
+                font-size: 9px;
             }
         }
 
@@ -1649,19 +1628,19 @@
                     <div class="sidebar-group">
                         <div class="sidebar-group-label mono">Operations</div>
 
-                        <a href="#" onclick="navigate('dashboard')" class="nasa-nav-item" data-target="dashboard">
+                        <a href="#" onclick="navigate('dashboard')" class="nasa-nav-item mobile-primary-nav" data-target="dashboard">
                             <i data-lucide="layout-dashboard"></i>
                             <span>Situation Room</span>
                         </a>
-                        <a href="#" onclick="navigate('triage')" class="nasa-nav-item" data-target="triage">
+                        <a href="#" onclick="navigate('triage')" class="nasa-nav-item mobile-primary-nav" data-target="triage">
                             <i data-lucide="user-plus"></i>
                             <span>Triage & HazMat</span>
                         </a>
-                        <a href="#" onclick="navigate('care')" class="nasa-nav-item" data-target="care">
+                        <a href="#" onclick="navigate('care')" class="nasa-nav-item mobile-primary-nav" data-target="care">
                             <i data-lucide="heart-pulse"></i>
                             <span>Patient Care</span>
                         </a>
-                        <a href="#" onclick="navigate('transport')" class="nasa-nav-item" data-target="transport">
+                        <a href="#" onclick="navigate('transport')" class="nasa-nav-item mobile-primary-nav" data-target="transport">
                             <i data-lucide="ambulance"></i>
                             <span>Transport</span>
                         </a>
@@ -1669,7 +1648,7 @@
                             <i data-lucide="building-2"></i>
                             <span>Hospital Capacity</span>
                         </a>
-                        <a href="#" onclick="navigate('tracking')" class="nasa-nav-item" data-target="tracking">
+                        <a href="#" onclick="navigate('tracking')" class="nasa-nav-item mobile-primary-nav" data-target="tracking">
                             <i data-lucide="map-pin"></i>
                             <span>Patient Tracking</span>
                         </a>
@@ -3272,56 +3251,30 @@
             </div>
         </main>
 
-        <!-- More Drawer Backdrop -->
-        <div id="mobile-more-backdrop" onclick="closeMoreMenu()"></div>
-
-        <!-- More Drawer -->
-        <div id="mobile-more-drawer" class="md:hidden">
-            <div class="mobile-more-sheet">
-                <div class="mobile-more-handle"></div>
-                <div class="mobile-more-grid">
-                    <button onclick="mobileNavigate('hospitals')" class="mobile-more-item" data-target="hospitals">
-                        <i data-lucide="hospital" class="w-5 h-5"></i>
-                        <span>Hospitals</span>
-                    </button>
-                    <button onclick="mobileNavigate('history')" class="mobile-more-item" data-target="history">
-                        <i data-lucide="file-text" class="w-5 h-5"></i>
-                        <span>AAR Report</span>
-                    </button>
-                    <button onclick="mobileNavigate('settings')" class="mobile-more-item" data-target="settings">
-                        <i data-lucide="settings" class="w-5 h-5"></i>
-                        <span>Settings</span>
-                    </button>
-                    <button onclick="mobileNavigate('users')" class="mobile-more-item" data-target="users">
-                        <i data-lucide="users-cog" class="w-5 h-5"></i>
-                        <span>Users</span>
-                    </button>
-                </div>
-            </div>
-        </div>
-
         <!-- Mobile Bottom Nav -->
         <div class="nasa-mobile-nav md:hidden fixed bottom-0 left-0 right-0 z-40">
             <div class="flex justify-around items-center">
-                <button onclick="navigate('triage')" class="nasa-mobile-nav-item" data-target="triage">
+                <button onclick="navigate('triage')" class="nasa-mobile-nav-item nasa-mobile-nav-item-left" data-target="triage">
                     <i data-lucide="user-plus" class="w-5 h-5"></i>
-                    <span>Triage</span>
+                    <span class="mobile-nav-label">Triage</span>
                 </button>
-                <button onclick="navigate('care')" class="nasa-mobile-nav-item" data-target="care">
+                <button onclick="navigate('care')" class="nasa-mobile-nav-item nasa-mobile-nav-item-right" data-target="care">
                     <i data-lucide="heart-pulse" class="w-5 h-5"></i>
-                    <span>Care</span>
+                    <span class="mobile-nav-label">Patient Care</span>
                 </button>
-                <button onclick="navigate('dashboard')" class="nasa-mobile-nav-item active" data-target="dashboard" style="position:relative;">
-                    <div class="mobile-command-btn-orb"><i data-lucide="radar" class="w-5 h-5" style="color:#fff;"></i></div>
-                    <span style="margin-top:18px;">Command</span>
+                <button onclick="navigate('dashboard')" class="nasa-mobile-nav-item nasa-mobile-nav-item-center active" data-target="dashboard">
+                    <div class="mobile-command-btn-orb">
+                        <i data-lucide="radar" class="w-5 h-5" style="color:#fff;"></i>
+                    </div>
+                    <span class="mobile-nav-label">Command</span>
+                </button>
+                <button onclick="navigate('transport')" class="nasa-mobile-nav-item" data-target="transport">
+                    <i data-lucide="ambulance" class="w-5 h-5"></i>
+                    <span class="mobile-nav-label">Transport</span>
                 </button>
                 <button onclick="navigate('tracking')" class="nasa-mobile-nav-item" data-target="tracking">
                     <i data-lucide="map-pin" class="w-5 h-5"></i>
-                    <span>Track</span>
-                </button>
-                <button onclick="toggleMoreMenu()" class="nasa-mobile-nav-item" id="btn-more-menu" data-target="__more__">
-                    <i data-lucide="grid-3x3" class="w-5 h-5"></i>
-                    <span>More</span>
+                    <span class="mobile-nav-label">Tracking</span>
                 </button>
             </div>
         </div>
@@ -5995,22 +5948,9 @@ SpO2: ${document.getElementById('sec-spo2').value}%
 
             document.querySelectorAll('.nasa-mobile-nav-item[data-target]').forEach(el => {
                 const target = el.dataset.target;
-                if (target === '__more__') return;
                 const canAccess = allowed.includes(target);
                 el.classList.toggle('hidden', !canAccess);
             });
-
-            document.querySelectorAll('.mobile-more-item[data-target]').forEach(el => {
-                const target = el.dataset.target;
-                const canAccess = allowed.includes(target);
-                el.classList.toggle('hidden', !canAccess);
-            });
-
-            const moreButton = document.getElementById('btn-more-menu');
-            if (moreButton) {
-                const hasMoreItem = ['hospitals', 'history', 'settings', 'users'].some(v => allowed.includes(v));
-                moreButton.classList.toggle('hidden', !hasMoreItem);
-            }
         }
 
         window.navigate = function (targetId) {
@@ -6020,14 +5960,8 @@ SpO2: ${document.getElementById('sec-spo2').value}%
             }
 
             document.querySelectorAll('.nasa-nav-item').forEach(el => el.classList.toggle('active', el.dataset.target === targetId));
-            // Mobile nav: ถ้า targetId เป็นเมนู "More" ให้ active ปุ่ม More แทน
-            const moreTargets = ['hospitals', 'history', 'settings', 'users'];
             document.querySelectorAll('.nasa-mobile-nav-item').forEach(el => {
-                if (el.dataset.target === '__more__') {
-                    el.classList.toggle('active', moreTargets.includes(targetId));
-                } else {
-                    el.classList.toggle('active', el.dataset.target === targetId);
-                }
+                el.classList.toggle('active', el.dataset.target === targetId);
             });
             document.querySelectorAll('.app-view').forEach(view => view.classList.remove('active'));
             document.getElementById(`view-${targetId}`).classList.add('active');
@@ -6081,34 +6015,6 @@ SpO2: ${document.getElementById('sec-spo2').value}%
             const isOpen = aside.classList.toggle('mobile-open');
             if (backdrop) backdrop.classList.toggle('open', isOpen);
             document.body.style.overflow = isOpen ? 'hidden' : '';
-        }
-
-        // More drawer (bottom sheet)
-        window.toggleMoreMenu = function () {
-            const drawer = document.getElementById('mobile-more-drawer');
-            const backdrop = document.getElementById('mobile-more-backdrop');
-            if (!drawer) return;
-            const isOpen = drawer.classList.contains('open');
-            if (isOpen) {
-                closeMoreMenu();
-            } else {
-                drawer.classList.add('open');
-                backdrop.classList.add('open');
-                requestAnimationFrame(() => lucide.createIcons());
-            }
-        }
-
-        window.closeMoreMenu = function () {
-            const drawer = document.getElementById('mobile-more-drawer');
-            const backdrop = document.getElementById('mobile-more-backdrop');
-            if (drawer) drawer.classList.remove('open');
-            if (backdrop) backdrop.classList.remove('open');
-        }
-
-        // Navigate from More drawer
-        window.mobileNavigate = function (targetId) {
-            closeMoreMenu();
-            navigate(targetId);
         }
 
         function updateDashboardStats() {
