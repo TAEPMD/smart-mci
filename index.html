@@ -1211,10 +1211,6 @@
                     <i data-lucide="heart-pulse"></i>
                     <span>Patient Care</span>
                 </a>
-                <a href="#" onclick="navigate('tracking')" class="nasa-nav-item" data-target="tracking">
-                    <i data-lucide="map-pin"></i>
-                    <span>Patient Tracking</span>
-                </a>
                 <a href="#" onclick="navigate('transport')" class="nasa-nav-item" data-target="transport">
                     <i data-lucide="ambulance"></i>
                     <span>Transport</span>
@@ -1222,6 +1218,10 @@
                 <a href="#" onclick="navigate('hospitals')" class="nasa-nav-item" data-target="hospitals">
                     <i data-lucide="building-2"></i>
                     <span>Hospital Capacity</span>
+                </a>
+                <a href="#" onclick="navigate('tracking')" class="nasa-nav-item" data-target="tracking">
+                    <i data-lucide="map-pin"></i>
+                    <span>Patient Tracking</span>
                 </a>
                 <a href="#" onclick="navigate('history')" class="nasa-nav-item" data-target="history">
                     <i data-lucide="file-check"></i>
@@ -1876,6 +1876,17 @@
                                 <p id="sec-tool-desc" class="mono text-xs text-gray-500"></p>
                             </div>
 
+                            <div class="nasa-panel-bright p-4 mb-6">
+                                <div class="flex justify-between items-center mb-3">
+                                    <h4 class="nasa-font text-amber-400 text-sm flex items-center gap-2">
+                                        <i data-lucide="list-clock" class="w-4 h-4"></i>
+                                        WAITING FOR SECONDARY TRIAGE
+                                    </h4>
+                                    <span id="sec-waiting-count" class="mono text-xs text-gray-500">0 WAITING</span>
+                                </div>
+                                <div id="sec-waiting-list" class="space-y-2 max-h-44 overflow-y-auto"></div>
+                            </div>
+
                             <form id="secondary-triage-form" onsubmit="handleSaveSecondary(event)" class="space-y-6">
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
@@ -2011,6 +2022,14 @@
                                         class="hidden mono text-sm text-purple-400 mt-2 p-3 nasa-panel-bright"></p>
                                 </div>
 
+                                <label class="flex items-center gap-3 p-3 nasa-panel-bright border border-amber-500/40 cursor-pointer">
+                                    <input type="checkbox" id="sec-passthrough" class="w-5 h-5 accent-amber-400">
+                                    <div>
+                                        <span class="mono text-sm text-amber-400 uppercase">Passthrough Mode</span>
+                                        <p class="mono text-xs text-gray-500 mt-1">เปิดแล้วผู้ป่วยรายนี้จะเข้าสู่ Patient Care ได้ทันทีหลังบันทึก Secondary</p>
+                                    </div>
+                                </label>
+
                                 <div>
                                     <label
                                         class="block mono text-cyan-400 text-xs mb-2 flex items-center gap-2 uppercase">
@@ -2066,6 +2085,17 @@
                                         class="nasa-input w-full mt-2">
                                         <option value="">SELECT EXISTING PATIENT ID</option>
                                     </select>
+                                </div>
+
+                                <div class="nasa-panel-bright p-4">
+                                    <div class="flex justify-between items-center mb-3">
+                                        <h4 class="nasa-font text-cyan-400 text-sm flex items-center gap-2">
+                                            <i data-lucide="timer" class="w-4 h-4"></i>
+                                            WAITING FOR TREATMENT
+                                        </h4>
+                                        <span id="care-waiting-count" class="mono text-xs text-gray-500">0 WAITING</span>
+                                    </div>
+                                    <div id="care-waiting-list" class="space-y-2 max-h-48 overflow-y-auto"></div>
                                 </div>
 
                                 <div id="care-patient-info" class="hidden space-y-3">
@@ -2258,6 +2288,17 @@
                             </div>
                             <div class="p-6 space-y-6">
                                 <div class="nasa-panel-bright p-4">
+                                    <div class="flex justify-between items-center mb-3">
+                                        <h4 class="nasa-font text-amber-400 text-sm flex items-center gap-2">
+                                            <i data-lucide="clock-3" class="w-4 h-4"></i>
+                                            WAITING FOR TRANSPORT
+                                        </h4>
+                                        <span id="transport-waiting-count" class="mono text-xs text-gray-500">0 WAITING</span>
+                                    </div>
+                                    <div id="transport-waiting-list" class="space-y-2 max-h-48 overflow-y-auto"></div>
+                                </div>
+
+                                <div class="nasa-panel-bright p-4">
                                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                                         <div>
                                             <label class="block mono text-xs text-cyan-400 mb-2 uppercase">1. Select
@@ -2366,6 +2407,8 @@
                                                 <th class="text-center text-red-400">Red</th>
                                                 <th class="text-center text-amber-400">Yellow</th>
                                                 <th class="text-center text-green-400">Green</th>
+                                                <th>Latest Status</th>
+                                                <th>Current Patients</th>
                                                 <th class="text-center">Actions</th>
                                             </tr>
                                         </thead>
@@ -3840,16 +3883,78 @@
             return fallback;
         }
 
+        function getTriageTextClass(cat) {
+            if (cat === 'Red') return 'text-red-400';
+            if (cat === 'Yellow') return 'text-amber-400';
+            if (cat === 'Green') return 'text-green-400';
+            return 'text-gray-400';
+        }
+
+        function formatWaitDuration(startMs) {
+            const ts = Number(startMs) || 0;
+            if (!ts) return '-';
+            const elapsedSec = Math.max(0, Math.floor((Date.now() - ts) / 1000));
+            const hours = Math.floor(elapsedSec / 3600);
+            const mins = Math.floor((elapsedSec % 3600) / 60);
+            const secs = elapsedSec % 60;
+            if (hours > 0) return `${hours}h ${mins}m`;
+            return `${mins}m ${secs}s`;
+        }
+
+        function getLatestCareRecordTimestamp(patientId) {
+            const records = (window.state.careRecords || []).filter(r => r.pId === patientId);
+            if (records.length === 0) return 0;
+            return records.reduce((maxTs, record) => {
+                const ts = Number(record?.createdAtMs) || 0;
+                return ts > maxTs ? ts : maxTs;
+            }, 0);
+        }
+
+        function getPatientQueueStartTimestamp(patient, queueType) {
+            if (!patient) return 0;
+            if (queueType === 'secondary') {
+                return Number(patient.primaryQueuedAtMs)
+                    || Number(patient.primaryAtMs)
+                    || Number(patient.createdAtMs)
+                    || 0;
+            }
+            if (queueType === 'care') {
+                return Number(patient.careReadyAtMs)
+                    || Number(patient.secondaryCompletedAtMs)
+                    || Number(patient.updatedAtMs)
+                    || Number(patient.createdAtMs)
+                    || 0;
+            }
+            if (queueType === 'transport') {
+                return Number(patient.dispatchReadyAtMs)
+                    || getLatestCareRecordTimestamp(patient.id)
+                    || Number(patient.careReadyAtMs)
+                    || Number(patient.secondaryCompletedAtMs)
+                    || Number(patient.updatedAtMs)
+                    || Number(patient.createdAtMs)
+                    || 0;
+            }
+            return Number(patient.updatedAtMs) || Number(patient.createdAtMs) || 0;
+        }
+
         function isPatientTreatmentEligible(patient) {
             if (!patient || isBlackTriage(patient)) return false;
             const currentState = getPatientCurrentState(patient);
-            return currentState.phase !== 'transport' && currentState.phase !== 'hospital';
+            const stage = String(patient.stage || '').trim();
+            const isPassthrough = Boolean(patient.secondaryPassthrough);
+            const hasSecondaryFlow = stage === 'Secondary' || isPassthrough;
+            return hasSecondaryFlow && currentState.phase !== 'transport' && currentState.phase !== 'hospital';
         }
 
         function isPatientDispatchEligible(patient) {
             if (!patient || isBlackTriage(patient)) return false;
             const currentState = getPatientCurrentState(patient);
-            return currentState.phase !== 'transport' && currentState.phase !== 'hospital';
+            const stage = String(patient.stage || '').trim();
+            const isPassthrough = Boolean(patient.secondaryPassthrough);
+            if (!(stage === 'Secondary' || isPassthrough)) return false;
+            if (currentState.phase === 'transport' || currentState.phase === 'hospital') return false;
+            if (String(patient.status || '').toLowerCase().includes('awaiting transport')) return true;
+            return (window.state.careRecords || []).some(r => r.pId === patient.id);
         }
 
         function isPatientPrimaryTriageEligible(patient) {
@@ -3863,7 +3968,7 @@
             if (!patient || isBlackTriage(patient)) return false;
             const stage = String(patient.stage || '').trim();
             // Show only patients waiting for secondary triage.
-            return stage === 'Primary';
+            return stage === 'Primary' && !Boolean(patient.secondaryPassthrough);
         }
 
         function normalizeHospitalKey(name) {
@@ -5452,6 +5557,10 @@ SpO2: ${document.getElementById('sec-spo2').value}%
             if (patient && patient.gender) {
                 document.getElementById('sec-triage-gender').value = patient.gender;
             }
+            const passthroughToggle = document.getElementById('sec-passthrough');
+            if (passthroughToggle) {
+                passthroughToggle.checked = Boolean(patient?.secondaryPassthrough);
+            }
         }
 
         window.selectPrimaryTriagePatient = function (pid) {
@@ -5488,12 +5597,22 @@ SpO2: ${document.getElementById('sec-spo2').value}%
             const decon = document.getElementById('pri-decon').value;
             const extrication = document.getElementById('pri-extrication').value;
             const photoB64 = document.getElementById('pri-photo-preview').dataset.b64 || '';
+            const nowMs = Date.now();
             setButtonLoading('btn-submit-pri', true, btnHtml);
             try {
+                const existingPatient = window.state.patients.find(p => p.id === pid);
                 const ptData = {
                     id: pid, cat: cat, injury: '', gender: '', status: cat === 'Black' ? 'Deceased' : 'Awaiting re-triage', stage: 'Primary', vitals: {},
                     hazmat: { decon, extricationTime: extrication }, photoUrl: photoB64,
-                    timestamp: new Date().toLocaleTimeString('th-TH')
+                    timestamp: new Date().toLocaleTimeString('th-TH'),
+                    createdAtMs: Number(existingPatient?.createdAtMs) || nowMs,
+                    updatedAtMs: nowMs,
+                    primaryAtMs: nowMs,
+                    primaryQueuedAtMs: nowMs,
+                    secondaryCompletedAtMs: null,
+                    secondaryPassthrough: false,
+                    careReadyAtMs: null,
+                    dispatchReadyAtMs: null
                 };
                 let pIndex = window.state.patients.findIndex(p => p.id === pid);
                 if (pIndex > -1) { Object.assign(window.state.patients[pIndex], ptData); }
@@ -5525,14 +5644,19 @@ SpO2: ${document.getElementById('sec-spo2').value}%
             const catEl = document.querySelector('input[name="sec-triage-cat"]:checked');
             if (!catEl) return alert('Select priority level');
             const cat = catEl.value;
+            const passthroughEnabled = document.getElementById('sec-passthrough')?.checked;
             const photoB64 = document.getElementById('sec-photo-preview').dataset.b64 || '';
+            const nowMs = Date.now();
             setButtonLoading('btn-submit-sec', true, btnHtml);
             try {
                 const pIndex = window.state.patients.findIndex(p => p.id === pid);
                 const existingPatient = pIndex > -1 ? window.state.patients[pIndex] : null;
+                const nextStage = passthroughEnabled ? (existingPatient?.stage || 'Primary') : 'Secondary';
                 const ptData = {
                     id: pid, cat: cat, gender: document.getElementById('sec-triage-gender').value,
-                    injury: document.getElementById('sec-triage-injury').value, status: cat === 'Black' ? 'Deceased' : 'Awaiting treatment', stage: 'Secondary',
+                    injury: document.getElementById('sec-triage-injury').value,
+                    status: cat === 'Black' ? 'Deceased' : (passthroughEnabled ? 'Passthrough to care' : 'Awaiting treatment'),
+                    stage: nextStage,
                     vitals: {
                         avpu: document.getElementById('sec-avpu').value,
                         gcs: document.getElementById('sec-gcs').value,
@@ -5543,7 +5667,15 @@ SpO2: ${document.getElementById('sec-spo2').value}%
                     },
                     hazmat: existingPatient ? existingPatient.hazmat : {},
                     photoUrl: photoB64 || (existingPatient ? existingPatient.photoUrl : ''),
-                    timestamp: new Date().toLocaleTimeString('th-TH')
+                    timestamp: new Date().toLocaleTimeString('th-TH'),
+                    createdAtMs: Number(existingPatient?.createdAtMs) || nowMs,
+                    updatedAtMs: nowMs,
+                    primaryAtMs: Number(existingPatient?.primaryAtMs) || nowMs,
+                    primaryQueuedAtMs: Number(existingPatient?.primaryQueuedAtMs) || Number(existingPatient?.primaryAtMs) || nowMs,
+                    secondaryCompletedAtMs: passthroughEnabled ? Number(existingPatient?.secondaryCompletedAtMs) || null : nowMs,
+                    secondaryPassthrough: Boolean(passthroughEnabled),
+                    careReadyAtMs: cat === 'Black' ? null : (Number(existingPatient?.careReadyAtMs) || nowMs),
+                    dispatchReadyAtMs: cat === 'Black' ? null : (Number(existingPatient?.dispatchReadyAtMs) || null)
                 };
                 if (pIndex > -1) { Object.assign(window.state.patients[pIndex], ptData); }
                 else { window.state.patients.push(ptData); }
@@ -5627,6 +5759,69 @@ SpO2: ${document.getElementById('sec-spo2').value}%
             if (secTriageSelect && secPidInput && secPidInput.value) {
                 secTriageSelect.value = secPidInput.value;
             }
+
+            renderSecondaryWaitingList();
+            renderCareWaitingList();
+            renderTransportWaitingList();
+        }
+
+        function renderSecondaryWaitingList() {
+            const listEl = document.getElementById('sec-waiting-list');
+            const countEl = document.getElementById('sec-waiting-count');
+            if (!listEl || !countEl) return;
+            const waiting = (window.state.patients || [])
+                .filter(isPatientSecondaryTriageEligible)
+                .sort((a, b) => getPatientQueueStartTimestamp(a, 'secondary') - getPatientQueueStartTimestamp(b, 'secondary'));
+            countEl.textContent = `${waiting.length} WAITING`;
+            if (waiting.length === 0) {
+                listEl.innerHTML = '<div class="mono text-xs text-gray-500 text-center py-2">ไม่มีผู้ป่วยรอ Secondary Triage</div>';
+                return;
+            }
+            listEl.innerHTML = waiting.map(patient => {
+                const wait = formatWaitDuration(getPatientQueueStartTimestamp(patient, 'secondary'));
+                const triageClass = getTriageTextClass(patient.cat);
+                const safePid = escapeHtml(patient.id).replace(/'/g, "\\'");
+                return `<button type="button" onclick="selectSecondaryTriagePatient('${safePid}')" class="w-full text-left nasa-panel p-2 border border-nasa-border hover:border-amber-400 transition"><div class="flex items-center justify-between gap-2"><span class="mono text-xs font-bold text-cyan-400">${escapeHtml(patient.id)}</span><span class="mono text-[11px] text-gray-500">WAIT ${escapeHtml(wait)}</span></div><div class="mono text-xs ${triageClass} mt-1">${escapeHtml(patient.cat || '-')} · ${escapeHtml(patient.injury || 'No injury detail')}</div></button>`;
+            }).join('');
+        }
+
+        function renderCareWaitingList() {
+            const listEl = document.getElementById('care-waiting-list');
+            const countEl = document.getElementById('care-waiting-count');
+            if (!listEl || !countEl) return;
+            const waiting = (window.state.patients || [])
+                .filter(isPatientTreatmentEligible)
+                .sort((a, b) => getPatientQueueStartTimestamp(a, 'care') - getPatientQueueStartTimestamp(b, 'care'));
+            countEl.textContent = `${waiting.length} WAITING`;
+            if (waiting.length === 0) {
+                listEl.innerHTML = '<div class="mono text-xs text-gray-500 text-center py-2">ไม่มีผู้ป่วยรอการรักษา</div>';
+                return;
+            }
+            listEl.innerHTML = waiting.map(patient => {
+                const wait = formatWaitDuration(getPatientQueueStartTimestamp(patient, 'care'));
+                const triageClass = getTriageTextClass(patient.cat);
+                const safePid = escapeHtml(patient.id).replace(/'/g, "\\'");
+                return `<button type="button" onclick="selectCarePatient('${safePid}')" class="w-full text-left nasa-panel p-2 border border-nasa-border hover:border-cyan-400 transition"><div class="flex items-center justify-between gap-2"><span class="mono text-xs font-bold text-cyan-400">${escapeHtml(patient.id)}</span><span class="mono text-[11px] text-gray-500">WAIT ${escapeHtml(wait)}</span></div><div class="mono text-xs ${triageClass} mt-1">${escapeHtml(patient.cat || '-')} · ${escapeHtml(patient.injury || 'No injury detail')}</div></button>`;
+            }).join('');
+        }
+
+        function renderTransportWaitingList() {
+            const listEl = document.getElementById('transport-waiting-list');
+            const countEl = document.getElementById('transport-waiting-count');
+            if (!listEl || !countEl) return;
+            const waiting = (window.state.patients || [])
+                .filter(isPatientDispatchEligible)
+                .sort((a, b) => getPatientQueueStartTimestamp(a, 'transport') - getPatientQueueStartTimestamp(b, 'transport'));
+            countEl.textContent = `${waiting.length} WAITING`;
+            if (waiting.length === 0) {
+                listEl.innerHTML = '<div class="mono text-xs text-gray-500 text-center py-2">ไม่มีผู้ป่วยรอนำส่ง</div>';
+                return;
+            }
+            listEl.innerHTML = waiting.map(patient => {
+                const wait = formatWaitDuration(getPatientQueueStartTimestamp(patient, 'transport'));
+                const triageClass = getTriageTextClass(patient.cat);
+                return `<div class="nasa-panel p-2 border border-nasa-border"><div class="flex items-center justify-between gap-2"><span class="mono text-xs font-bold text-cyan-400">${escapeHtml(patient.id)}</span><span class="mono text-[11px] text-gray-500">WAIT ${escapeHtml(wait)}</span></div><div class="mono text-xs ${triageClass} mt-1">${escapeHtml(patient.cat || '-')} · ${escapeHtml(patient.injury || 'No injury detail')}</div></div>`;
+            }).join('');
         }
 
         window.addQuickIntervention = function (text) {
@@ -5745,21 +5940,35 @@ SpO2: ${document.getElementById('sec-spo2').value}%
             const btnHtml = document.getElementById('btn-save-care').innerHTML;
             setButtonLoading('btn-save-care', true, btnHtml);
 
+            let shouldSavePatient = false;
+
             if (injury) {
                 if (patient) {
                     patient.injury = injury;
-                    await saveToCloud('patients', pId, patient);
+                    patient.updatedAtMs = Date.now();
+                    shouldSavePatient = true;
                 }
             }
 
             if (action) {
                 const careId = Date.now().toString() + '-' + Math.random().toString(36).substr(2, 9);
-                const record = { id: careId, pId: pId, time: new Date().toLocaleTimeString('th-TH', { hour12: false }), action: action };
+                const nowMs = Date.now();
+                const record = { id: careId, pId: pId, time: new Date().toLocaleTimeString('th-TH', { hour12: false }), action: action, createdAtMs: nowMs };
                 window.state.careRecords.push(record);
                 await saveToCloud('careRecords', careId, record);
                 await addEventLog(`Care record: ${pId} -> ${action}`, 'CARE');
+                if (patient) {
+                    patient.status = 'Awaiting transport';
+                    if (!patient.dispatchReadyAtMs) patient.dispatchReadyAtMs = nowMs;
+                    patient.updatedAtMs = nowMs;
+                    shouldSavePatient = true;
+                }
             }
             if (injury) await addEventLog(`Injury update: ${pId} -> ${injury}`, 'CARE');
+
+            if (shouldSavePatient && patient) {
+                await saveToCloud('patients', pId, patient);
+            }
 
             document.getElementById('care-intervention').value = '';
             document.getElementById('care-injury').value = '';
@@ -5787,7 +5996,22 @@ SpO2: ${document.getElementById('sec-spo2').value}%
                 const capRed = parseInt(h.capRed) || 0;
                 const capYellow = parseInt(h.capYellow) || 0;
                 const capGreen = parseInt(h.capGreen) || 0;
-                tbody.innerHTML += `<tr><td class="font-bold text-cyan-400">${escapeHtml(h.name)}</td><td class="text-center mono text-red-400">${capRed}</td><td class="text-center mono text-amber-400">${capYellow}</td><td class="text-center mono text-green-400">${capGreen}</td><td class="text-center"><button onclick="handleRemoveHospital('${escapeHtml(h.id || h.name).replace(/'/g, "\\'")}')" class="text-red-400 hover:text-red-300"><i data-lucide="trash-2" class="w-4 h-4"></i></button></td></tr>`;
+                const relatedDispatches = (window.state.dispatches || [])
+                    .filter(d => normalizeHospitalKey(d.dest) === normalizeHospitalKey(h.name))
+                    .sort((a, b) => (Number(b.id) || 0) - (Number(a.id) || 0));
+                const latestDispatch = relatedDispatches[0] || null;
+                const statusMeta = latestDispatch ? getDispatchStatusMeta(latestDispatch) : null;
+                const latestStatus = latestDispatch
+                    ? `<span class="inline-flex items-center gap-1 mono text-[10px] px-2 py-0.5 rounded-full" style="background:color-mix(in srgb, ${statusMeta.color} 15%, transparent);color:${statusMeta.color};"><span class="status-dot ${statusMeta.dotClass}"></span>${escapeHtml(statusMeta.label)}</span><div class="mono text-[10px] text-gray-500 mt-1">${escapeHtml(latestDispatch.time || '-')}</div>`
+                    : '<span class="mono text-xs text-gray-500">No dispatch yet</span>';
+                const patientsAtHospital = (window.state.patients || []).filter(patient => {
+                    const currentState = getPatientCurrentState(patient);
+                    return currentState.phase === 'hospital' && normalizeHospitalKey(currentState.locationLabel) === normalizeHospitalKey(h.name);
+                });
+                const patientListHtml = patientsAtHospital.length > 0
+                    ? patientsAtHospital.map(patient => `<div class="mono text-xs ${getTriageTextClass(patient.cat)}">${escapeHtml(patient.id)} (${escapeHtml(patient.cat)})</div>`).join('')
+                    : '<span class="mono text-xs text-gray-500">No admitted patient</span>';
+                tbody.innerHTML += `<tr><td class="font-bold text-cyan-400">${escapeHtml(h.name)}</td><td class="text-center mono text-red-400">${capRed}</td><td class="text-center mono text-amber-400">${capYellow}</td><td class="text-center mono text-green-400">${capGreen}</td><td>${latestStatus}</td><td>${patientListHtml}</td><td class="text-center"><button onclick="handleRemoveHospital('${escapeHtml(h.id || h.name).replace(/'/g, "\\'")}')" class="text-red-400 hover:text-red-300"><i data-lucide="trash-2" class="w-4 h-4"></i></button></td></tr>`;
             });
             lucide.createIcons();
             populateDispatchDropdowns();
@@ -6055,7 +6279,12 @@ SpO2: ${document.getElementById('sec-spo2').value}%
             const pt = window.state.patients.find(p => p.id === pId);
             const veh = window.state.vehicles.find(v => v.id === vId);
             if (pt && isBlackTriage(pt)) return alert('ผู้ป่วย BLACK ถูกตัดออกจาก transport flow');
-            if (pt) { pt.status = `Loading for transport to ${dest}`; await saveToCloud('patients', pt.id, pt); }
+            if (pt) {
+                pt.status = `Loading for transport to ${dest}`;
+                pt.dispatchReadyAtMs = null;
+                pt.updatedAtMs = Date.now();
+                await saveToCloud('patients', pt.id, pt);
+            }
             if (veh) {
                 veh.status = 'Loading';
                 const patientIds = getVehiclePatientList(veh);
