@@ -1153,7 +1153,7 @@
                 <div>
                     <label class="block mono text-cyan-400 text-xs mb-2 tracking-wider">OPERATOR ID</label>
                     <input type="text" id="login-username" class="nasa-input w-full" placeholder="ENTER USERNAME"
-                        required value="admin">
+                        required value="commander">
                 </div>
                 <div>
                     <label class="block mono text-cyan-400 text-xs mb-2 tracking-wider">ACCESS CODE</label>
@@ -2619,6 +2619,7 @@
                                     <input type="text" id="new-agency" class="nasa-input" placeholder="Agency">
                                     <input type="password" id="new-pin" class="nasa-input" placeholder="PIN (6 digits)">
                                     <select id="new-role" class="nasa-input">
+                                        <option value="admin">Admin</option>
                                         <option value="commander">Commander</option>
                                         <option value="medical">Medical</option>
                                         <option value="loading">Loading</option>
@@ -2717,11 +2718,49 @@
         import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // ===== STATE MANAGEMENT =====
-        // SHA-256 ของ "123456" = pre-seeded default admin password
-        const DEFAULT_ADMIN_HASH = '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92';
+        // SHA-256 ของ "123456" = pre-seeded default commander PIN
+        const DEFAULT_COMMANDER_HASH = '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92';
+        // SHA-256 ของ "140433" = pre-seeded system admin PIN
+        const DEFAULT_SYSTEM_ADMIN_HASH = '6b5b5ebf8358ece5942f4f8a9b3fc65823b6b8ce93efaef74acee7d8f0ca013e';
         const defaultUsers = [
-            { username: 'admin', agency: 'MCI Command', pinHash: DEFAULT_ADMIN_HASH, role: 'commander' }
+            { username: 'admin', agency: 'MCI Command', pinHash: DEFAULT_SYSTEM_ADMIN_HASH, role: 'admin' },
+            { username: 'commander', agency: 'MCI Command', pinHash: DEFAULT_COMMANDER_HASH, role: 'commander' }
         ];
+
+        function cloneDefaultUsers() {
+            return defaultUsers.map(user => ({ ...user }));
+        }
+
+        function isLegacyCommanderSeed(user) {
+            return String(user?.username || '').trim().toLowerCase() === 'admin'
+                && normalizeUserRole(user?.role) === 'commander'
+                && user?.pinHash === DEFAULT_COMMANDER_HASH;
+        }
+
+        function reconcileUsers(users) {
+            const normalizedUsers = Array.isArray(users)
+                ? users.map(user => ({ ...user, role: normalizeUserRole(user?.role) }))
+                : [];
+            const hasCommander = normalizedUsers.some(user => String(user?.username || '').trim().toLowerCase() === 'commander');
+            const legacyCommanderIndex = normalizedUsers.findIndex(isLegacyCommanderSeed);
+
+            if (!hasCommander && legacyCommanderIndex > -1) {
+                normalizedUsers[legacyCommanderIndex] = {
+                    ...normalizedUsers[legacyCommanderIndex],
+                    username: 'commander',
+                    role: 'commander'
+                };
+            }
+
+            if (!normalizedUsers.some(user => String(user?.username || '').trim().toLowerCase() === 'admin')) {
+                normalizedUsers.unshift({ ...defaultUsers[0] });
+            }
+            if (!normalizedUsers.some(user => String(user?.username || '').trim().toLowerCase() === 'commander')) {
+                normalizedUsers.push({ ...defaultUsers[1] });
+            }
+
+            return normalizedUsers;
+        }
         // ข้าม setup wizard เพราะมี defaultUsers ฝังไว้แล้ว
 
         window.state = {
@@ -2842,7 +2881,7 @@
                     window.state.methane = data.methane || window.state.methane;
                     window.state.cscattt = data.cscattt || window.state.cscattt;
                     window.state.settings = Object.keys(data.settings || {}).length > 0 ? data.settings : window.state.settings;
-                    window.state.users = (data.users && data.users.length > 0) ? data.users : window.state.users;
+                    window.state.users = (data.users && data.users.length > 0) ? reconcileUsers(data.users) : window.state.users;
                     scheduleRealtimeRefresh();
                 }
             });
@@ -3127,6 +3166,13 @@
                 window.state.settings = { ...window.state.settings, ...polled.settings };
                 changed = true;
             }
+            if (polled.users) {
+                const nextUsers = reconcileUsers(polled.users);
+                if (JSON.stringify(nextUsers) !== JSON.stringify(window.state.users)) {
+                    window.state.users = nextUsers;
+                    changed = true;
+                }
+            }
 
             if (changed) {
                 scheduleRealtimeRefresh();
@@ -3295,7 +3341,7 @@
                 try {
                     const parsed = JSON.parse(saved);
                     window.state.settings = parsed.settings || window.state.settings;
-                    window.state.users = parsed.users && parsed.users.length > 0 ? parsed.users : defaultUsers;
+                    window.state.users = parsed.users && parsed.users.length > 0 ? reconcileUsers(parsed.users) : cloneDefaultUsers();
                     window.state.incidentStartTime = parsed.incidentStartTime || window.state.incidentStartTime;
                     window.state.patients = parsed.patients || [];
                     window.state.careRecords = parsed.careRecords || [];
@@ -4239,7 +4285,7 @@ SpO2: ${document.getElementById('sec-spo2').value}%
             const confirmPw = prompt('ยืนยันรหัสผ่านใหม่:');
             if (newPw !== confirmPw) { alert('รหัสผ่านไม่ตรงกัน'); return; }
             const hash = await sha256(newPw);
-            const admin = window.state.users.find(u => normalizeUserRole(u.role) === 'commander');
+            const admin = window.state.users.find(u => normalizeUserRole(u.role) === 'admin');
             if (admin) {
                 admin.pinHash = hash;
                 saveLocalState();
@@ -4273,8 +4319,8 @@ SpO2: ${document.getElementById('sec-spo2').value}%
             setButtonLoading('btn-setup', true, btnHtml);
             try {
                 const pinHash = await sha256(password);
-                const adminUser = { username, agency, pinHash, role: 'commander' };
-                window.state.users = [adminUser];
+                const adminUser = { username, agency, pinHash, role: 'admin' };
+                window.state.users = reconcileUsers([adminUser]);
                 saveLocalState();
                 localStorage.setItem('mci_setup_done', '1');
                 // ซ่อน wizard และแสดง login
@@ -4306,9 +4352,12 @@ SpO2: ${document.getElementById('sec-spo2').value}%
                 // ค้นหาจากฐานข้อมูลปัจจุบัน
                 let validUser = window.state.users.find(u => u.username.toLowerCase() === user.toLowerCase() && u.pinHash === hashedPin);
 
-                // Fallback: ถ้าหาไม่เจอ แต่เป็น admin/123456 ให้ผ่านเสมอ (เผื่อข้อมูล state มีปัญหา)
-                if (!validUser && user.toLowerCase() === 'admin' && hashedPin === '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92') {
-                    validUser = { username: 'admin', agency: 'MCI Command', pinHash: hashedPin, role: 'commander' };
+                // Fallback: ถ้าหาไม่เจอ ให้รองรับ seed users มาตรฐาน (เผื่อข้อมูล state มีปัญหา)
+                if (!validUser && user.toLowerCase() === 'admin' && hashedPin === DEFAULT_SYSTEM_ADMIN_HASH) {
+                    validUser = { username: 'admin', agency: 'MCI Command', pinHash: hashedPin, role: 'admin' };
+                }
+                if (!validUser && user.toLowerCase() === 'commander' && hashedPin === DEFAULT_COMMANDER_HASH) {
+                    validUser = { username: 'commander', agency: 'MCI Command', pinHash: hashedPin, role: 'commander' };
                 }
 
                 if (validUser) {
@@ -4359,7 +4408,10 @@ SpO2: ${document.getElementById('sec-spo2').value}%
 
                 let foundUser = (window.state.users || []).find(u => String(u.username || '').toLowerCase() === username.toLowerCase());
                 if (!foundUser && username.toLowerCase() === 'admin') {
-                    foundUser = { username: 'admin', agency: 'MCI Command', pinHash: DEFAULT_ADMIN_HASH, role: 'commander' };
+                    foundUser = { username: 'admin', agency: 'MCI Command', pinHash: DEFAULT_SYSTEM_ADMIN_HASH, role: 'admin' };
+                }
+                if (!foundUser && username.toLowerCase() === 'commander') {
+                    foundUser = { username: 'commander', agency: 'MCI Command', pinHash: DEFAULT_COMMANDER_HASH, role: 'commander' };
                 }
                 if (!foundUser) return false;
 
@@ -4387,14 +4439,14 @@ SpO2: ${document.getElementById('sec-spo2').value}%
 
         function normalizeUserRole(role) {
             const raw = String(role || '').trim().toLowerCase();
-            if (raw === 'admin') return 'commander';
             if (raw === 'user') return 'medical';
-            if (['commander', 'medical', 'loading', 'liaison', 'guest'].includes(raw)) return raw;
+            if (['admin', 'commander', 'medical', 'loading', 'liaison', 'guest'].includes(raw)) return raw;
             return 'guest';
         }
 
         function getRoleLabel(role) {
             const normalized = normalizeUserRole(role);
+            if (normalized === 'admin') return 'Admin';
             if (normalized === 'commander') return 'Commander';
             if (normalized === 'medical') return 'Medical';
             if (normalized === 'loading') return 'Loading';
@@ -4405,7 +4457,8 @@ SpO2: ${document.getElementById('sec-spo2').value}%
         function getAllowedViewsForRole(role) {
             const normalized = normalizeUserRole(role);
             const base = ['dashboard'];
-            if (normalized === 'commander') return [...base, 'triage', 'care', 'tracking', 'transport', 'hospitals', 'history', 'settings', 'users'];
+            if (normalized === 'admin') return [...base, 'triage', 'care', 'tracking', 'transport', 'hospitals', 'history', 'settings', 'users'];
+            if (normalized === 'commander') return [...base, 'triage', 'care', 'tracking', 'transport', 'hospitals', 'history'];
             if (normalized === 'medical') return [...base, 'triage', 'care', 'tracking'];
             if (normalized === 'loading') return [...base, 'transport', 'tracking'];
             if (normalized === 'liaison') return [...base, 'hospitals', 'tracking'];
@@ -5892,7 +5945,7 @@ SpO2: ${document.getElementById('sec-spo2').value}%
             tbody.innerHTML = '';
             window.state.users.forEach(u => {
                 const normalizedRole = normalizeUserRole(u.role);
-                const roleColor = normalizedRole === 'commander' ? 'text-cyan-400' : 'text-gray-400';
+                const roleColor = normalizedRole === 'admin' ? 'text-red-400' : normalizedRole === 'commander' ? 'text-cyan-400' : 'text-gray-400';
                 tbody.innerHTML += `<tr><td class="font-bold">${escapeHtml(u.username)}</td><td>${escapeHtml(u.agency || '-')}</td><td class="${roleColor} mono text-sm uppercase">${escapeHtml(getRoleLabel(normalizedRole))}</td><td><button onclick="handleResetPin('${escapeHtml(u.username).replace(/'/g, "\\'")}')" class="text-amber-400 hover:text-amber-300 mr-2"><i data-lucide="key" class="w-4 h-4 inline"></i></button><button onclick="handleDeleteUser('${escapeHtml(u.username).replace(/'/g, "\\'")}')" class="text-red-400 hover:text-red-300"><i data-lucide="trash-2" class="w-4 h-4"></i></button></td></tr>`;
             });
             lucide.createIcons();
@@ -6017,7 +6070,10 @@ SpO2: ${document.getElementById('sec-spo2').value}%
             updateMissionClock();
             updateRegionalClocks();
             if (window.state.users.length === 0) {
-                window.state.users = [...defaultUsers];
+                window.state.users = cloneDefaultUsers();
+                saveLocalState();
+            } else {
+                window.state.users = reconcileUsers(window.state.users);
                 saveLocalState();
             }
             const sessionRestored = restoreSessionAfterRefresh();
