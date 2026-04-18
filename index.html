@@ -286,6 +286,261 @@
             box-shadow: 0 1px 8px rgba(0, 0, 0, .2);
         }
 
+        .mode-toggle-btn {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 12px 14px;
+            border: 1px solid color-mix(in srgb, var(--apple-orange) 35%, var(--apple-border));
+            border-radius: 14px;
+            background: color-mix(in srgb, var(--apple-orange) 6%, var(--apple-surface-2));
+            color: var(--apple-text);
+            cursor: pointer;
+            transition: border-color .18s ease, background .18s ease, transform .15s ease;
+        }
+
+        .mode-toggle-btn:hover {
+            border-color: color-mix(in srgb, var(--apple-orange) 55%, var(--apple-border));
+        }
+
+        .mode-toggle-btn.is-on {
+            background: color-mix(in srgb, var(--apple-orange) 16%, var(--apple-surface-2));
+            border-color: color-mix(in srgb, var(--apple-orange) 75%, var(--apple-border));
+        }
+
+        .mode-toggle-btn:active {
+            transform: scale(0.995);
+        }
+
+        .mode-toggle-track {
+            width: 46px;
+            height: 26px;
+            border-radius: 999px;
+            background: color-mix(in srgb, var(--apple-text-tertiary) 35%, transparent);
+            position: relative;
+            flex-shrink: 0;
+            transition: background .18s ease;
+        }
+
+        .mode-toggle-track::after {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: white;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
+            transition: transform .18s ease;
+        }
+
+        .mode-toggle-btn.is-on .mode-toggle-track {
+            background: var(--apple-orange);
+        }
+
+        .mode-toggle-btn.is-on .mode-toggle-track::after {
+            transform: translateX(20px);
+        }
+
+        .batch-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 10px;
+            border-radius: 999px;
+            border: 1px solid color-mix(in srgb, var(--apple-blue) 30%, var(--apple-border));
+            background: color-mix(in srgb, var(--apple-blue) 10%, var(--apple-surface-2));
+            color: var(--apple-text);
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .batch-chip button {
+            border: none;
+            background: transparent;
+            color: var(--apple-blue);
+            cursor: pointer;
+            padding: 0;
+            line-height: 1;
+            font-size: 14px;
+        }
+
+        #print-incident-root {
+            display: none;
+        }
+
+        .print-sheet {
+            background: white;
+            color: #111827;
+            padding: 20px;
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+        }
+
+        .print-sheet h1,
+        .print-sheet h2,
+        .print-sheet h3 {
+            margin: 0;
+            color: #0f172a;
+        }
+
+        .print-sheet h1 {
+            font-size: 22px;
+            letter-spacing: .04em;
+        }
+
+        .print-sheet h2 {
+            font-size: 15px;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            margin-bottom: 10px;
+        }
+
+        .print-sheet h3 {
+            font-size: 13px;
+            margin-bottom: 6px;
+        }
+
+        .print-meta,
+        .print-note {
+            color: #475569;
+            font-size: 12px;
+        }
+
+        .print-summary-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
+            margin: 18px 0;
+        }
+
+        .print-stat {
+            border: 1px solid #cbd5e1;
+            border-radius: 12px;
+            padding: 12px;
+            background: #f8fafc;
+        }
+
+        .print-stat-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            color: #64748b;
+        }
+
+        .print-stat-value {
+            margin-top: 6px;
+            font-size: 24px;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .print-section {
+            margin-top: 20px;
+            padding-top: 14px;
+            border-top: 1px solid #e2e8f0;
+            break-inside: avoid-page;
+        }
+
+        .print-grid-two {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        .print-card {
+            border: 1px solid #dbe3ee;
+            border-radius: 12px;
+            padding: 12px;
+            background: #ffffff;
+        }
+
+        .print-kv {
+            display: grid;
+            grid-template-columns: 170px minmax(0, 1fr);
+            gap: 8px 12px;
+            font-size: 12px;
+        }
+
+        .print-kv dt {
+            color: #64748b;
+            font-weight: 600;
+        }
+
+        .print-kv dd {
+            margin: 0;
+            color: #0f172a;
+        }
+
+        .print-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .print-badge {
+            padding: 4px 8px;
+            border-radius: 999px;
+            border: 1px solid #cbd5e1;
+            font-size: 11px;
+            font-weight: 600;
+            background: #f8fafc;
+            color: #0f172a;
+        }
+
+        .print-table-wrap {
+            border: 1px solid #dbe3ee;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .print-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 11px;
+        }
+
+        .print-table th,
+        .print-table td {
+            padding: 8px 10px;
+            border-bottom: 1px solid #e2e8f0;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        .print-table th {
+            background: #f8fafc;
+            color: #475569;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            font-size: 10px;
+        }
+
+        .print-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .print-ai-report {
+            white-space: pre-wrap;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 11px;
+            line-height: 1.6;
+            background: #f8fafc;
+            border: 1px solid #dbe3ee;
+            border-radius: 12px;
+            padding: 12px;
+        }
+
+        @media (max-width: 767px) {
+            .print-summary-grid,
+            .print-grid-two {
+                grid-template-columns: 1fr;
+            }
+        }
+
         /* ── Buttons ── */
         .nasa-btn {
             background: var(--apple-surface);
@@ -668,12 +923,12 @@
                 visibility: hidden;
             }
 
-            #view-history,
-            #view-history * {
+            #print-incident-root,
+            #print-incident-root * {
                 visibility: visible;
             }
 
-            #view-history {
+            #print-incident-root {
                 position: static !important;
                 left: auto;
                 top: auto;
@@ -681,36 +936,27 @@
                 display: block !important;
             }
 
-            #main-layout,
-            #main-layout > main,
-            #main-layout > main > .flex-1,
-            #view-history,
-            #view-history .nasa-panel,
-            #view-history .nasa-panel > .p-6,
-            #view-history #report-container,
-            #view-history #report-content,
-            #view-history .overflow-x-auto {
+            #print-incident-root,
+            #print-incident-root .print-sheet,
+            #print-incident-root .print-section,
+            #print-incident-root .print-table-wrap {
                 height: auto !important;
                 min-height: 0 !important;
                 max-height: none !important;
                 overflow: visible !important;
             }
 
-            #view-history #report-container {
-                display: block !important;
-                flex: none !important;
-            }
-
-            #view-history table {
+            #print-incident-root table {
                 page-break-inside: auto;
             }
 
-            #view-history thead {
+            #print-incident-root thead {
                 display: table-header-group;
             }
 
-            #view-history tr,
-            #view-history pre {
+            #print-incident-root tr,
+            #print-incident-root .print-card,
+            #print-incident-root .print-ai-report {
                 break-inside: avoid;
                 page-break-inside: avoid;
             }
@@ -1400,23 +1646,23 @@
                             <p class="nasa-font text-4xl text-white" id="stat-total">0</p>
                         </div>
                         <div class="nasa-panel-bright p-4 text-center border-red-500/50">
-                            <p class="mono text-xs text-red-400 mb-1 uppercase tracking-wider">Priority 1 - RED</p>
+                            <p class="mono text-xs text-red-400 mb-1 uppercase tracking-wider">Triage 1 - RED (Immediate)</p>
                             <p class="nasa-font text-4xl text-red-400" id="stat-red">0</p>
                         </div>
                         <div class="nasa-panel-bright p-4 text-center" style="border-color:color-mix(in srgb, var(--apple-indigo) 55%, transparent);">
-                            <p class="mono text-xs mb-1 uppercase tracking-wider" style="color:var(--apple-indigo);">Priority 1.5 - EXPECTANT</p>
+                            <p class="mono text-xs mb-1 uppercase tracking-wider" style="color:var(--apple-indigo);">Triage 2 - BLUE (Expectant)</p>
                             <p class="nasa-font text-4xl" style="color:var(--apple-indigo);" id="stat-expectant">0</p>
                         </div>
                         <div class="nasa-panel-bright p-4 text-center border-amber-500/50">
-                            <p class="mono text-xs text-amber-400 mb-1 uppercase tracking-wider">Priority 2 - YELLOW</p>
+                            <p class="mono text-xs text-amber-400 mb-1 uppercase tracking-wider">Triage 3 - YELLOW (Urgent)</p>
                             <p class="nasa-font text-4xl text-amber-400" id="stat-yellow">0</p>
                         </div>
                         <div class="nasa-panel-bright p-4 text-center border-green-500/50">
-                            <p class="mono text-xs text-green-400 mb-1 uppercase tracking-wider">Priority 3 - GREEN</p>
+                            <p class="mono text-xs text-green-400 mb-1 uppercase tracking-wider">Triage 4 - GREEN (Delayed)</p>
                             <p class="nasa-font text-4xl text-green-400" id="stat-green">0</p>
                         </div>
                         <div class="nasa-panel-bright p-4 text-center border-gray-500/50">
-                            <p class="mono text-xs text-gray-400 mb-1 uppercase tracking-wider">Deceased - BLACK</p>
+                            <p class="mono text-xs text-gray-400 mb-1 uppercase tracking-wider">BLACK (Dead)</p>
                             <p class="nasa-font text-4xl text-gray-500" id="stat-black">0</p>
                         </div>
                     </div>
@@ -1845,7 +2091,7 @@
                                             <div
                                                 class="triage-option triage-red p-4 text-center peer-checked:scale-105 peer-checked:ring-4 peer-checked:ring-red-500/40 peer-checked:shadow-lg transition cursor-pointer">
                                                 <span class="selected-mark hidden peer-checked:inline-block">SELECTED</span>
-                                                <span class="nasa-font text-xl block">RED</span>
+                                                <span class="nasa-font text-xl block">1 RED</span>
                                                 <span class="mono text-xs opacity-80">IMMEDIATE</span>
                                             </div>
                                         </label>
@@ -1856,7 +2102,7 @@
                                                 class="triage-option triage-blue p-4 text-center peer-checked:scale-105 peer-checked:ring-4 transition cursor-pointer"
                                                 style="--tw-ring-color:color-mix(in srgb, var(--apple-indigo) 45%, transparent)">
                                                 <span class="selected-mark hidden peer-checked:inline-block">SELECTED</span>
-                                                <span class="nasa-font text-xl block">BLUE</span>
+                                                <span class="nasa-font text-xl block">2 BLUE</span>
                                                 <span class="mono text-xs opacity-80">EXPECTANT</span>
                                             </div>
                                         </label>
@@ -1866,8 +2112,8 @@
                                             <div
                                                 class="triage-option triage-amber p-4 text-center peer-checked:scale-105 peer-checked:ring-4 peer-checked:ring-amber-500/40 peer-checked:shadow-lg transition cursor-pointer">
                                                 <span class="selected-mark hidden peer-checked:inline-block">SELECTED</span>
-                                                <span class="nasa-font text-xl block">YELLOW</span>
-                                                <span class="mono text-xs opacity-80">DELAYED</span>
+                                                <span class="nasa-font text-xl block">3 YELLOW</span>
+                                                <span class="mono text-xs opacity-80">URGENT</span>
                                             </div>
                                         </label>
                                         <label class="cursor-pointer">
@@ -1876,8 +2122,8 @@
                                             <div
                                                 class="triage-option triage-green p-4 text-center peer-checked:scale-105 peer-checked:ring-4 peer-checked:ring-green-500/40 peer-checked:shadow-lg transition cursor-pointer">
                                                 <span class="selected-mark hidden peer-checked:inline-block">SELECTED</span>
-                                                <span class="nasa-font text-xl block">GREEN</span>
-                                                <span class="mono text-xs opacity-80">MINOR</span>
+                                                <span class="nasa-font text-xl block">4 GREEN</span>
+                                                <span class="mono text-xs opacity-80">DELAYED</span>
                                             </div>
                                         </label>
                                         <label class="cursor-pointer">
@@ -1887,7 +2133,7 @@
                                                 class="triage-option triage-black p-4 text-center peer-checked:scale-105 peer-checked:ring-4 peer-checked:ring-gray-500/40 peer-checked:shadow-lg transition cursor-pointer">
                                                 <span class="selected-mark hidden peer-checked:inline-block">SELECTED</span>
                                                 <span class="nasa-font text-xl block">BLACK</span>
-                                                <span class="mono text-xs opacity-80">DECEASED</span>
+                                                <span class="mono text-xs opacity-80">DEAD</span>
                                             </div>
                                         </label>
                                     </div>
@@ -2047,7 +2293,8 @@
                                             <div
                                                 class="triage-option triage-red p-4 text-center peer-checked:scale-105 peer-checked:ring-4 peer-checked:ring-red-500/40 peer-checked:shadow-lg transition cursor-pointer">
                                                 <span class="selected-mark hidden peer-checked:inline-block">SELECTED</span>
-                                                <span class="nasa-font text-xl block">RED</span>
+                                                <span class="nasa-font text-xl block">1 RED</span>
+                                                <span class="mono text-xs opacity-80">IMMEDIATE</span>
                                             </div>
                                         </label>
                                         <label class="cursor-pointer">
@@ -2057,7 +2304,7 @@
                                                 class="triage-option triage-blue p-4 text-center peer-checked:scale-105 peer-checked:ring-4 transition cursor-pointer"
                                                 style="--tw-ring-color:color-mix(in srgb, var(--apple-indigo) 45%, transparent)">
                                                 <span class="selected-mark hidden peer-checked:inline-block">SELECTED</span>
-                                                <span class="nasa-font text-xl block">BLUE</span>
+                                                <span class="nasa-font text-xl block">2 BLUE</span>
                                                 <span class="mono text-xs opacity-80">EXPECTANT</span>
                                             </div>
                                         </label>
@@ -2067,7 +2314,8 @@
                                             <div
                                                 class="triage-option triage-amber p-4 text-center peer-checked:scale-105 peer-checked:ring-4 peer-checked:ring-amber-500/40 peer-checked:shadow-lg transition cursor-pointer">
                                                 <span class="selected-mark hidden peer-checked:inline-block">SELECTED</span>
-                                                <span class="nasa-font text-xl block">YELLOW</span>
+                                                <span class="nasa-font text-xl block">3 YELLOW</span>
+                                                <span class="mono text-xs opacity-80">URGENT</span>
                                             </div>
                                         </label>
                                         <label class="cursor-pointer">
@@ -2076,7 +2324,8 @@
                                             <div
                                                 class="triage-option triage-green p-4 text-center peer-checked:scale-105 peer-checked:ring-4 peer-checked:ring-green-500/40 peer-checked:shadow-lg transition cursor-pointer">
                                                 <span class="selected-mark hidden peer-checked:inline-block">SELECTED</span>
-                                                <span class="nasa-font text-xl block">GREEN</span>
+                                                <span class="nasa-font text-xl block">4 GREEN</span>
+                                                <span class="mono text-xs opacity-80">DELAYED</span>
                                             </div>
                                         </label>
                                         <label class="cursor-pointer">
@@ -2086,6 +2335,7 @@
                                                 class="triage-option triage-black p-4 text-center peer-checked:scale-105 peer-checked:ring-4 peer-checked:ring-gray-500/40 peer-checked:shadow-lg transition cursor-pointer">
                                                 <span class="selected-mark hidden peer-checked:inline-block">SELECTED</span>
                                                 <span class="nasa-font text-xl block">BLACK</span>
+                                                <span class="mono text-xs opacity-80">DEAD</span>
                                             </div>
                                         </label>
                                     </div>
@@ -2109,28 +2359,50 @@
                                         class="hidden mono text-sm text-purple-400 mt-2 p-3 nasa-panel-bright"></p>
                                 </div>
 
-                                <label class="flex items-center gap-3 p-3 nasa-panel-bright border border-amber-500/40 cursor-pointer">
-                                    <input type="checkbox" id="sec-passthrough" class="w-5 h-5 accent-amber-400">
-                                    <div>
-                                        <span class="mono text-sm text-amber-400 uppercase">Passthrough Mode</span>
-                                        <p class="mono text-xs text-gray-500 mt-1">เปิดแล้วผู้ป่วยรายนี้จะเข้าสู่ Patient Care ได้ทันทีหลังบันทึก Secondary</p>
-                                    </div>
-                                </label>
+                                <input type="checkbox" id="sec-passthrough" class="hidden">
+                                <button type="button" id="btn-sec-passthrough-toggle" class="mode-toggle-btn" onclick="toggleSecondaryPassthroughMode()">
+                                    <span>
+                                        <span class="mono text-sm text-amber-400 uppercase block">Passthrough Mode</span>
+                                        <span id="sec-passthrough-desc" class="mono text-xs text-gray-500 mt-1 block">OFF · ผู้ป่วยจะคงอยู่ใน Secondary flow ตามปกติ</span>
+                                    </span>
+                                    <span class="mode-toggle-track" aria-hidden="true"></span>
+                                </button>
 
                                 <div class="nasa-panel-bright p-4 border border-amber-500/30">
+                                    <button type="button" id="btn-batch-passthrough-toggle" class="mode-toggle-btn" onclick="toggleBatchPassthroughPanel()">
+                                        <span>
+                                            <span class="mono text-sm text-amber-400 uppercase block">Batch Passthrough Mode</span>
+                                            <span id="sec-batch-panel-desc" class="mono text-xs text-gray-500 mt-1 block">กดเพื่อเปิดส่วนเลือกผู้ป่วยแบบกลุ่ม</span>
+                                        </span>
+                                        <span class="mode-toggle-track" aria-hidden="true"></span>
+                                    </button>
+
+                                    <div id="sec-batch-panel" class="hidden mt-4">
                                     <div class="flex items-center gap-2 mb-3">
                                         <i data-lucide="users-round" class="w-4 h-4 text-amber-400"></i>
                                         <h4 class="nasa-font text-amber-400 text-sm">BATCH PASSTHROUGH</h4>
                                     </div>
                                     <p class="mono text-xs text-gray-500 mb-3">ใช้กับผู้ป่วยกลุ่มที่ไม่ต้องทำ Secondary ทีละราย เช่น กลุ่มสีเขียว</p>
+                                    <div class="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-3 mb-3">
+                                        <div>
+                                            <label class="block mono text-xs text-cyan-400 mb-1 uppercase">Select Waiting Patient</label>
+                                            <select id="sec-batch-patient-picker" class="nasa-input w-full">
+                                                <option value="">SELECT PATIENT TO ADD</option>
+                                            </select>
+                                        </div>
+                                        <div class="flex items-end">
+                                            <button type="button" onclick="addBatchPassthroughPatient()" class="nasa-btn w-full md:w-auto">ADD PATIENT</button>
+                                        </div>
+                                    </div>
+                                    <div id="sec-batch-selected-list" class="flex flex-wrap gap-2 mb-3"></div>
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
                                         <div>
                                             <label class="block mono text-xs text-cyan-400 mb-1 uppercase">Default Triage</label>
                                             <select id="sec-batch-cat" class="nasa-input w-full">
-                                                <option value="Green" selected>GREEN</option>
-                                                <option value="Expectant">BLUE (EXPECTANT)</option>
-                                                <option value="Yellow">YELLOW</option>
-                                                <option value="Red">RED</option>
+                                                <option value="Green" selected>4 GREEN (DELAYED)</option>
+                                                <option value="Expectant">2 BLUE (EXPECTANT)</option>
+                                                <option value="Yellow">3 YELLOW (URGENT)</option>
+                                                <option value="Red">1 RED (IMMEDIATE)</option>
                                             </select>
                                         </div>
                                         <div>
@@ -2150,7 +2422,7 @@
                                     </div>
                                     <div class="mb-3">
                                         <label class="block mono text-xs text-cyan-400 mb-1 uppercase">Patient IDs (Batch)</label>
-                                        <textarea id="sec-batch-pids" rows="4" class="nasa-input w-full" placeholder="เช่น\nG001\nG002\nG003 หรือคั่นด้วย comma"></textarea>
+                                        <textarea id="sec-batch-pids" rows="4" class="nasa-input w-full" placeholder="เช่น\nG001\nG002\nG003 หรือคั่นด้วย comma" oninput="syncBatchPassthroughFromTextarea()"></textarea>
                                     </div>
                                     <div class="mb-3">
                                         <label class="block mono text-xs text-cyan-400 mb-1 uppercase">Shared Injury / Note (Optional)</label>
@@ -2161,6 +2433,7 @@
                                             <i data-lucide="forward" class="w-4 h-4"></i>
                                             APPLY BATCH PASSTHROUGH
                                         </button>
+                                    </div>
                                     </div>
                                 </div>
 
@@ -2179,7 +2452,7 @@
 
                                 <div class="flex justify-end gap-3 pt-4 border-t border-nasa-border">
                                     <button type="button"
-                                        onclick="document.getElementById('secondary-triage-form').reset()"
+                                        onclick="resetSecondaryTriageForm()"
                                         class="nasa-btn hidden md:block">CLEAR</button>
                                     <button type="submit" id="btn-submit-sec"
                                         class="nasa-btn nasa-btn-primary px-8 py-3 flex items-center gap-2">
@@ -2618,7 +2891,7 @@
                                         <i data-lucide="copy" class="w-4 h-4"></i>
                                         COPY
                                     </button>
-                                    <button onclick="window.print()"
+                                    <button onclick="printIncidentReport()"
                                         class="nasa-btn nasa-btn-primary flex items-center gap-2">
                                         <i data-lucide="printer" class="w-4 h-4"></i>
                                         PRINT / PDF
@@ -2924,6 +3197,8 @@
 
         <div id="app-credit" class="mono">Develop by Supanan V. (PMD) | Power by Ai</div>
     </div>
+
+    <div id="print-incident-root" aria-hidden="true"></div>
 
     <!-- Firebase SDK -->
     <script type="module">
@@ -4053,6 +4328,20 @@
             return 'gray';
         }
 
+        function getTriageDisplayMeta(cat) {
+            if (cat === 'Red') return { code: '1 RED', label: 'Immediate', compact: 'RED (Immediate)', full: 'Triage 1 - RED (Immediate)' };
+            if (cat === 'Expectant') return { code: '2 BLUE', label: 'Expectant', compact: 'BLUE (Expectant)', full: 'Triage 2 - BLUE (Expectant)' };
+            if (cat === 'Yellow') return { code: '3 YELLOW', label: 'Urgent', compact: 'YELLOW (Urgent)', full: 'Triage 3 - YELLOW (Urgent)' };
+            if (cat === 'Green') return { code: '4 GREEN', label: 'Delayed', compact: 'GREEN (Delayed)', full: 'Triage 4 - GREEN (Delayed)' };
+            if (cat === 'Black') return { code: 'BLACK', label: 'Dead', compact: 'BLACK (Dead)', full: 'BLACK (Dead)' };
+            return { code: cat || '-', label: '', compact: cat || '-', full: cat || '-' };
+        }
+
+        function formatTriageDisplay(cat, mode = 'compact') {
+            const meta = getTriageDisplayMeta(cat);
+            return meta[mode] || meta.compact;
+        }
+
         function formatWaitDuration(startMs) {
             const ts = Number(startMs) || 0;
             if (!ts) return '-';
@@ -4238,17 +4527,330 @@
             }).join('');
         }
 
+        function getPrintableRows(items, columns, emptyMessage) {
+            if (!Array.isArray(items) || items.length === 0) {
+                return `<tr><td colspan="${columns.length}" class="print-note">${escapeHtml(emptyMessage)}</td></tr>`;
+            }
+            return items.map(item => `<tr>${columns.map(column => `<td>${column.render(item)}</td>`).join('')}</tr>`).join('');
+        }
+
+        function buildIncidentPrintSnapshot() {
+            const printRoot = document.getElementById('print-incident-root');
+            if (!printRoot) return;
+
+            const totalPatients = window.state.patients.length;
+            const redCount = window.state.patients.filter(p => p.cat === 'Red').length;
+            const blueCount = window.state.patients.filter(p => p.cat === 'Expectant').length;
+            const yellowCount = window.state.patients.filter(p => p.cat === 'Yellow').length;
+            const greenCount = window.state.patients.filter(p => p.cat === 'Green').length;
+            const blackCount = window.state.patients.filter(p => p.cat === 'Black').length;
+            const generatedAt = new Date().toLocaleString('th-TH', { hour12: false });
+            const missionTime = document.getElementById('mission-clock')?.innerText || '00:00:00';
+            const reportText = (document.getElementById('report-content')?.innerText || '').trim();
+            const methane = window.state.methane || {};
+            const cscattt = window.state.cscattt || {};
+            const patientsSorted = [...(window.state.patients || [])].sort((a, b) => String(a.id || '').localeCompare(String(b.id || '')));
+            const careSorted = [...(window.state.careRecords || [])].sort((a, b) => (Number(a.createdAtMs) || 0) - (Number(b.createdAtMs) || 0));
+            const dispatchSorted = [...(window.state.dispatches || [])].sort((a, b) => (Number(a.id) || 0) - (Number(b.id) || 0));
+            const vehiclesSorted = [...(window.state.vehicles || [])].sort((a, b) => String(a.id || '').localeCompare(String(b.id || '')));
+            const hospitalsSorted = [...(window.state.hospitals || [])].sort((a, b) => String(a.name || '').localeCompare(String(b.name || '')));
+            const eventLogsSorted = [...(window.state.eventLogs || [])].sort((a, b) => (Number(String(a.id || '').split('-')[0]) || 0) - (Number(String(b.id || '').split('-')[0]) || 0));
+            const cscatttEntries = [
+                ['Command', cscattt.c1],
+                ['Safety', cscattt.s],
+                ['Communication', cscattt.c2],
+                ['Assessment', cscattt.a],
+                ['Triage', cscattt.t1],
+                ['Treatment', cscattt.t2],
+                ['Transport', cscattt.t3]
+            ];
+
+            printRoot.innerHTML = `
+                <div class="print-sheet">
+                    <div>
+                        <h1>MCI INCIDENT ARCHIVE</h1>
+                        <div class="print-meta">Generated ${escapeHtml(generatedAt)} · Mission Time ${escapeHtml(missionTime)}</div>
+                    </div>
+
+                    <div class="print-summary-grid">
+                        <div class="print-stat"><div class="print-stat-label">Total Patients</div><div class="print-stat-value">${totalPatients}</div></div>
+                        <div class="print-stat"><div class="print-stat-label">Care Records</div><div class="print-stat-value">${window.state.careRecords.length}</div></div>
+                        <div class="print-stat"><div class="print-stat-label">Dispatches</div><div class="print-stat-value">${window.state.dispatches.length}</div></div>
+                        <div class="print-stat"><div class="print-stat-label">Triage 1 - RED</div><div class="print-stat-value">${redCount}</div></div>
+                        <div class="print-stat"><div class="print-stat-label">Triage 2 - BLUE</div><div class="print-stat-value">${blueCount}</div></div>
+                        <div class="print-stat"><div class="print-stat-label">Triage 3 - YELLOW</div><div class="print-stat-value">${yellowCount}</div></div>
+                        <div class="print-stat"><div class="print-stat-label">Triage 4 - GREEN</div><div class="print-stat-value">${greenCount}</div></div>
+                        <div class="print-stat"><div class="print-stat-label">BLACK</div><div class="print-stat-value">${blackCount}</div></div>
+                        <div class="print-stat"><div class="print-stat-label">Hospitals / Vehicles</div><div class="print-stat-value">${window.state.hospitals.length} / ${window.state.vehicles.length}</div></div>
+                    </div>
+
+                    <section class="print-section">
+                        <h2>Operational Snapshot</h2>
+                        <div class="print-grid-two">
+                            <div class="print-card">
+                                <h3>METHANE</h3>
+                                <dl class="print-kv">
+                                    <dt>M</dt><dd>${escapeHtml(methane.m || '-')}</dd>
+                                    <dt>E</dt><dd>${escapeHtml(methane.e || '-')}</dd>
+                                    <dt>T</dt><dd>${escapeHtml(methane.t || '-')}</dd>
+                                    <dt>H</dt><dd>${escapeHtml(methane.h || '-')}</dd>
+                                    <dt>A</dt><dd>${escapeHtml(methane.a || '-')}</dd>
+                                    <dt>N</dt><dd>${escapeHtml(String(methane.n || '-'))}</dd>
+                                    <dt>E2</dt><dd>${escapeHtml(methane.e2 || '-')}</dd>
+                                </dl>
+                            </div>
+                            <div class="print-card">
+                                <h3>CSCATTT</h3>
+                                <div class="print-badges">
+                                    ${cscatttEntries.map(([label, checked]) => `<span class="print-badge">${escapeHtml(label)}: ${checked ? 'READY' : 'PENDING'}</span>`).join('')}
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="print-section">
+                        <h2>Patient Registry</h2>
+                        <div class="print-table-wrap">
+                            <table class="print-table">
+                                <thead>
+                                    <tr>
+                                        <th>Patient ID</th>
+                                        <th>Triage</th>
+                                        <th>Stage</th>
+                                        <th>Status</th>
+                                        <th>Location</th>
+                                        <th>Injury / Note</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${getPrintableRows(patientsSorted, [
+                                        { render: patient => escapeHtml(patient.id || '-') },
+                                        { render: patient => escapeHtml(formatTriageDisplay(patient.cat)) },
+                                        { render: patient => escapeHtml(patient.stage || '-') },
+                                        { render: patient => escapeHtml(getPatientCurrentState(patient).statusLabel) },
+                                        { render: patient => escapeHtml(getPatientCurrentState(patient).locationLabel) },
+                                        { render: patient => escapeHtml(patient.injury || '-') }
+                                    ], 'No patient data')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+
+                    <section class="print-section">
+                        <h2>Care And Transport</h2>
+                        <div class="print-grid-two">
+                            <div class="print-card">
+                                <h3>Care Records</h3>
+                                <div class="print-table-wrap">
+                                    <table class="print-table">
+                                        <thead>
+                                            <tr><th>Time</th><th>Patient</th><th>Action</th></tr>
+                                        </thead>
+                                        <tbody>
+                                            ${getPrintableRows(careSorted, [
+                                                { render: record => escapeHtml(record.time || '-') },
+                                                { render: record => escapeHtml(record.pId || '-') },
+                                                { render: record => escapeHtml(record.action || '-') }
+                                            ], 'No care records')}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="print-card">
+                                <h3>Dispatches</h3>
+                                <div class="print-table-wrap">
+                                    <table class="print-table">
+                                        <thead>
+                                            <tr><th>Time</th><th>Patient</th><th>Vehicle</th><th>Destination</th><th>Status</th></tr>
+                                        </thead>
+                                        <tbody>
+                                            ${getPrintableRows(dispatchSorted, [
+                                                { render: dispatch => escapeHtml(dispatch.time || '-') },
+                                                { render: dispatch => escapeHtml(dispatch.pId || '-') },
+                                                { render: dispatch => escapeHtml(dispatch.vId || '-') },
+                                                { render: dispatch => escapeHtml(dispatch.dest || '-') },
+                                                { render: dispatch => escapeHtml(getDispatchStatusLabel(dispatch)) }
+                                            ], 'No dispatch data')}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="print-section">
+                        <h2>Vehicles And Hospitals</h2>
+                        <div class="print-grid-two">
+                            <div class="print-card">
+                                <h3>Vehicles</h3>
+                                <div class="print-table-wrap">
+                                    <table class="print-table">
+                                        <thead>
+                                            <tr><th>Vehicle</th><th>Type</th><th>Status</th><th>Patients</th></tr>
+                                        </thead>
+                                        <tbody>
+                                            ${getPrintableRows(vehiclesSorted, [
+                                                { render: vehicle => escapeHtml(vehicle.id || '-') },
+                                                { render: vehicle => escapeHtml(vehicle.type || '-') },
+                                                { render: vehicle => escapeHtml(formatVehicleStatus(vehicle.status || '-')) },
+                                                { render: vehicle => escapeHtml(getDerivedVehiclePatientList(vehicle).join(', ') || '-') }
+                                            ], 'No vehicle data')}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="print-card">
+                                <h3>Hospitals</h3>
+                                <div class="print-table-wrap">
+                                    <table class="print-table">
+                                        <thead>
+                                            <tr><th>Hospital</th><th>RED</th><th>YELLOW</th><th>GREEN</th></tr>
+                                        </thead>
+                                        <tbody>
+                                            ${getPrintableRows(hospitalsSorted, [
+                                                { render: hospital => escapeHtml(hospital.name || '-') },
+                                                { render: hospital => escapeHtml(String(hospital.capRed ?? '-')) },
+                                                { render: hospital => escapeHtml(String(hospital.capYellow ?? '-')) },
+                                                { render: hospital => escapeHtml(String(hospital.capGreen ?? '-')) }
+                                            ], 'No hospital data')}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="print-section">
+                        <h2>Event Log</h2>
+                        <div class="print-table-wrap">
+                            <table class="print-table">
+                                <thead>
+                                    <tr><th>Time</th><th>Type</th><th>Message</th><th>User</th></tr>
+                                </thead>
+                                <tbody>
+                                    ${getPrintableRows(eventLogsSorted, [
+                                        { render: log => escapeHtml(log.time || '-') },
+                                        { render: log => escapeHtml(log.type || '-') },
+                                        { render: log => escapeHtml(log.message || '-') },
+                                        { render: log => escapeHtml(log.user || '-') }
+                                    ], 'No event logs')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+
+                    <section class="print-section">
+                        <h2>AI After Action Report</h2>
+                        <div class="print-ai-report">${escapeHtml(reportText || 'No AI report generated')}</div>
+                    </section>
+                </div>`;
+        }
+
+        function toggleSecondaryPassthroughMode(forceValue = null) {
+            const toggleInput = document.getElementById('sec-passthrough');
+            const button = document.getElementById('btn-sec-passthrough-toggle');
+            const desc = document.getElementById('sec-passthrough-desc');
+            if (!toggleInput || !button || !desc) return false;
+            const nextValue = forceValue === null ? !toggleInput.checked : Boolean(forceValue);
+            toggleInput.checked = nextValue;
+            button.classList.toggle('is-on', nextValue);
+            desc.textContent = nextValue
+                ? 'ON · บันทึกแล้วผู้ป่วยจะถูกส่งเข้าสู่ Patient Care ทันที'
+                : 'OFF · ผู้ป่วยจะคงอยู่ใน Secondary flow ตามปกติ';
+            return nextValue;
+        }
+        window.toggleSecondaryPassthroughMode = toggleSecondaryPassthroughMode;
+
+        function resetSecondaryTriageForm() {
+            const form = document.getElementById('secondary-triage-form');
+            if (form && typeof form.reset === 'function') {
+                form.reset();
+            }
+            toggleSecondaryPassthroughMode(false);
+            clearPhoto('sec-photo', 'sec-photo-preview');
+        }
+        window.resetSecondaryTriageForm = resetSecondaryTriageForm;
+
+        function getBatchPassthroughSelectedIds() {
+            return [...new Set((document.getElementById('sec-batch-pids')?.value || '')
+                .split(/[\s,;]+/)
+                .map(id => id.trim().toUpperCase())
+                .filter(Boolean))];
+        }
+
+        function renderBatchPassthroughSelections() {
+            const wrap = document.getElementById('sec-batch-selected-list');
+            if (!wrap) return;
+            const ids = getBatchPassthroughSelectedIds();
+            if (ids.length === 0) {
+                wrap.innerHTML = '<span class="mono text-xs text-gray-500">ยังไม่มีผู้ป่วยที่เลือกไว้</span>';
+                return;
+            }
+            wrap.innerHTML = ids.map(pid => `<span class="batch-chip mono">${escapeHtml(pid)}<button type="button" onclick="removeBatchPassthroughPatient('${escapeHtml(pid).replace(/'/g, "\\'")}')">×</button></span>`).join('');
+        }
+
+        function setBatchPassthroughSelectedIds(ids) {
+            const textarea = document.getElementById('sec-batch-pids');
+            if (!textarea) return;
+            textarea.value = [...new Set((ids || []).map(id => String(id || '').trim().toUpperCase()).filter(Boolean))].join('\n');
+            renderBatchPassthroughSelections();
+        }
+
+        function syncBatchPassthroughFromTextarea() {
+            renderBatchPassthroughSelections();
+        }
+        window.syncBatchPassthroughFromTextarea = syncBatchPassthroughFromTextarea;
+
+        function addBatchPassthroughPatient(pid = null) {
+            const picker = document.getElementById('sec-batch-patient-picker');
+            const selectedPid = String(pid || picker?.value || '').trim().toUpperCase();
+            if (!selectedPid) return;
+            const ids = getBatchPassthroughSelectedIds();
+            ids.push(selectedPid);
+            setBatchPassthroughSelectedIds(ids);
+            if (picker) picker.value = '';
+        }
+        window.addBatchPassthroughPatient = addBatchPassthroughPatient;
+
+        function removeBatchPassthroughPatient(pid) {
+            const nextIds = getBatchPassthroughSelectedIds().filter(item => item !== String(pid || '').trim().toUpperCase());
+            setBatchPassthroughSelectedIds(nextIds);
+        }
+        window.removeBatchPassthroughPatient = removeBatchPassthroughPatient;
+
+        function toggleBatchPassthroughPanel(forceValue = null) {
+            const panel = document.getElementById('sec-batch-panel');
+            const button = document.getElementById('btn-batch-passthrough-toggle');
+            const desc = document.getElementById('sec-batch-panel-desc');
+            if (!panel || !button || !desc) return false;
+            const nextValue = forceValue === null ? panel.classList.contains('hidden') : Boolean(forceValue);
+            panel.classList.toggle('hidden', !nextValue);
+            button.classList.toggle('is-on', nextValue);
+            if (nextValue) renderBatchPassthroughSelections();
+            desc.textContent = nextValue
+                ? 'เปิดแล้ว · เลือกผู้ป่วยจากรายการหรือพิมพ์หลายรหัสได้'
+                : 'กดเพื่อเปิดส่วนเลือกผู้ป่วยแบบกลุ่ม';
+            return nextValue;
+        }
+        window.toggleBatchPassthroughPanel = toggleBatchPassthroughPanel;
+
         async function waitForPrintLayout() {
             await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
             await delay(80);
         }
 
+        async function printIncidentReport() {
+            prepareIncidentReportForPrint();
+            buildIncidentPrintSnapshot();
+            await waitForPrintLayout();
+            window.print();
+        }
+        window.printIncidentReport = printIncidentReport;
+
         window.resetIncident = async function () {
             if (!confirm('ยืนยันปิดสถานการณ์? ระบบจะเปิดหน้าต่าง Save to PDF อัตโนมัติก่อนปิดสถานการณ์')) return;
 
-            prepareIncidentReportForPrint();
-            await waitForPrintLayout();
-            window.print();
+            await printIncidentReport();
 
             if (!confirm('บันทึก PDF เรียบร้อยแล้วใช่หรือไม่?\nกด "ตกลง" เพื่อปิดสถานการณ์')) return;
 
@@ -4988,7 +5590,7 @@ GCS: ${document.getElementById('sec-gcs').value}
 SpO2: ${document.getElementById('sec-spo2').value}%
 
 รูปแบบคำตอบ:
-1) ระดับคัดแยกที่แนะนำ (Red/Expectant/Yellow/Green/Black)
+1) ระดับคัดแยกที่แนะนำ (Triage 1 RED / Triage 2 BLUE / Triage 3 YELLOW / Triage 4 GREEN / BLACK)
 2) เหตุผลประกอบสั้น ๆ
 3) การดูแลเร่งด่วนที่ควรทำทันที
 4) ข้อควรระวังในการส่งต่อ`;
@@ -5544,7 +6146,7 @@ SpO2: ${document.getElementById('sec-spo2').value}%
                 const currentState = getPatientCurrentState(p);
                 return `<tr>
                     <td class="mono text-cyan-400 font-bold cursor-pointer hover:underline" onclick="navigate('tracking'); setTimeout(() => showPatientTrackingFlow('${safeId}'), 120)">${escapeHtml(p.id || '-')}</td>
-                    <td class="mono ${triageColor} font-bold">${escapeHtml(p.cat || '-')}</td>
+                    <td class="mono ${triageColor} font-bold">${escapeHtml(formatTriageDisplay(p.cat))}</td>
                     <td class="mono text-gray-400">${escapeHtml(p.stage || '-')}</td>
                     <td class="mono ${currentState.badgeClass}">${escapeHtml(currentState.statusLabel)}</td>
                     <td class="mono text-gray-400">${escapeHtml(currentState.locationLabel)}</td>
@@ -5747,7 +6349,7 @@ SpO2: ${document.getElementById('sec-spo2').value}%
             }
             const passthroughToggle = document.getElementById('sec-passthrough');
             if (passthroughToggle) {
-                passthroughToggle.checked = Boolean(patient?.secondaryPassthrough);
+                toggleSecondaryPassthroughMode(Boolean(patient?.secondaryPassthrough));
             }
         }
 
@@ -5868,8 +6470,9 @@ SpO2: ${document.getElementById('sec-spo2').value}%
 
                 await addEventLog(`Batch passthrough summary: total=${parsedIds.length}, created=${createdCount}, updated=${updatedCount}, discharged=${dischargedCount}, skipped=${skippedCount}`, 'TRIAGE');
                 showToast(`Batch passthrough complete (${createdCount + updatedCount} patients)`, 'success');
-                const pidsInput = document.getElementById('sec-batch-pids');
-                if (pidsInput) pidsInput.value = '';
+                setBatchPassthroughSelectedIds([]);
+                const injuryInput = document.getElementById('sec-batch-injury');
+                if (injuryInput) injuryInput.value = '';
                 refreshUIs();
             } catch (error) {
                 showToast('Batch passthrough ล้มเหลว: ' + (error?.message || 'Unknown error'), 'error');
@@ -6005,6 +6608,7 @@ SpO2: ${document.getElementById('sec-spo2').value}%
                 if (e.currentTarget && typeof e.currentTarget.reset === 'function') {
                     e.currentTarget.reset();
                 }
+                toggleSecondaryPassthroughMode(false);
                 clearPhoto('sec-photo', 'sec-photo-preview');
                 refreshUIs();
             } catch (error) {
@@ -6027,38 +6631,43 @@ SpO2: ${document.getElementById('sec-spo2').value}%
             if (secTriageList) secTriageList.innerHTML = '';
             if (priTriageSelect) priTriageSelect.innerHTML = '<option value="">SELECT EXISTING PATIENT ID</option>';
             if (secTriageSelect) secTriageSelect.innerHTML = '<option value="">SELECT EXISTING PATIENT ID</option>';
+            const batchPicker = document.getElementById('sec-batch-patient-picker');
+            if (batchPicker) batchPicker.innerHTML = '<option value="">SELECT PATIENT TO ADD</option>';
 
             const treatmentEligiblePatients = window.state.patients.filter(isPatientTreatmentEligible);
             const primaryEligiblePatients = window.state.patients.filter(isPatientPrimaryTriageEligible);
             const secondaryEligiblePatients = window.state.patients.filter(isPatientSecondaryTriageEligible);
 
             treatmentEligiblePatients.forEach(p => {
-                const option = `<option value="${escapeHtml(p.id)}">${escapeHtml(p.cat)} - ${escapeHtml(p.injury || 'No data')}</option>`;
+                const option = `<option value="${escapeHtml(p.id)}">${escapeHtml(formatTriageDisplay(p.cat))} - ${escapeHtml(p.injury || 'No data')}</option>`;
                 if (careList) careList.innerHTML += option;
                 if (careSelect) {
-                    careSelect.innerHTML += `<option value="${escapeHtml(p.id)}">${escapeHtml(p.id)} | ${escapeHtml(p.cat)} | ${escapeHtml(p.injury || 'No data')}</option>`;
+                    careSelect.innerHTML += `<option value="${escapeHtml(p.id)}">${escapeHtml(p.id)} | ${escapeHtml(formatTriageDisplay(p.cat))} | ${escapeHtml(p.injury || 'No data')}</option>`;
                 }
             });
 
             primaryEligiblePatients.forEach(p => {
-                const option = `<option value="${escapeHtml(p.id)}">${escapeHtml(p.cat)} - ${escapeHtml(p.injury || 'No data')}</option>`;
+                const option = `<option value="${escapeHtml(p.id)}">${escapeHtml(formatTriageDisplay(p.cat))} - ${escapeHtml(p.injury || 'No data')}</option>`;
                 if (priTriageList) priTriageList.innerHTML += option;
             });
 
             secondaryEligiblePatients.forEach(p => {
-                const option = `<option value="${escapeHtml(p.id)}">${escapeHtml(p.cat)} - ${escapeHtml(p.injury || 'No data')}</option>`;
+                const option = `<option value="${escapeHtml(p.id)}">${escapeHtml(formatTriageDisplay(p.cat))} - ${escapeHtml(p.injury || 'No data')}</option>`;
                 if (secTriageList) secTriageList.innerHTML += option;
+                if (batchPicker) {
+                    batchPicker.innerHTML += `<option value="${escapeHtml(p.id)}">${escapeHtml(p.id)} | ${escapeHtml(formatTriageDisplay(p.cat))} | ${escapeHtml(p.injury || 'No data')}</option>`;
+                }
             });
 
             primaryEligiblePatients.forEach(p => {
                 if (priTriageSelect) {
-                    priTriageSelect.innerHTML += `<option value="${escapeHtml(p.id)}">${escapeHtml(p.id)} | ${escapeHtml(p.cat)} | ${escapeHtml(p.injury || 'No data')}</option>`;
+                    priTriageSelect.innerHTML += `<option value="${escapeHtml(p.id)}">${escapeHtml(p.id)} | ${escapeHtml(formatTriageDisplay(p.cat))} | ${escapeHtml(p.injury || 'No data')}</option>`;
                 }
             });
 
             secondaryEligiblePatients.forEach(p => {
                 if (secTriageSelect) {
-                    secTriageSelect.innerHTML += `<option value="${escapeHtml(p.id)}">${escapeHtml(p.id)} | ${escapeHtml(p.cat)} | ${escapeHtml(p.injury || 'No data')}</option>`;
+                    secTriageSelect.innerHTML += `<option value="${escapeHtml(p.id)}">${escapeHtml(p.id)} | ${escapeHtml(formatTriageDisplay(p.cat))} | ${escapeHtml(p.injury || 'No data')}</option>`;
                 }
             });
 
@@ -6077,6 +6686,7 @@ SpO2: ${document.getElementById('sec-spo2').value}%
 
             renderBatchPassthroughHospitalOptions();
             onBatchPassthroughTargetChange();
+            renderBatchPassthroughSelections();
 
             renderSecondaryWaitingList();
             renderCareWaitingList();
@@ -6100,7 +6710,7 @@ SpO2: ${document.getElementById('sec-spo2').value}%
                 const wait = formatWaitDuration(getPatientQueueStartTimestamp(patient, 'secondary'));
                 const triageClass = getTriageTextClass(patient.cat);
                 const safePid = escapeHtml(patient.id).replace(/'/g, "\\'");
-                return `<button type="button" onclick="selectSecondaryTriagePatient('${safePid}')" class="w-full text-left nasa-panel p-2 border border-nasa-border hover:border-amber-400 transition"><div class="flex items-center justify-between gap-2"><span class="mono text-xs font-bold text-cyan-400">${escapeHtml(patient.id)}</span><span class="mono text-[11px] text-gray-500">WAIT ${escapeHtml(wait)}</span></div><div class="mono text-xs ${triageClass} mt-1">${escapeHtml(patient.cat || '-')} · ${escapeHtml(patient.injury || 'No injury detail')}</div></button>`;
+                return `<button type="button" onclick="selectSecondaryTriagePatient('${safePid}')" class="w-full text-left nasa-panel p-2 border border-nasa-border hover:border-amber-400 transition"><div class="flex items-center justify-between gap-2"><span class="mono text-xs font-bold text-cyan-400">${escapeHtml(patient.id)}</span><span class="mono text-[11px] text-gray-500">WAIT ${escapeHtml(wait)}</span></div><div class="mono text-xs ${triageClass} mt-1">${escapeHtml(formatTriageDisplay(patient.cat))} · ${escapeHtml(patient.injury || 'No injury detail')}</div></button>`;
             }).join('');
         }
 
@@ -6120,7 +6730,7 @@ SpO2: ${document.getElementById('sec-spo2').value}%
                 const wait = formatWaitDuration(getPatientQueueStartTimestamp(patient, 'care'));
                 const triageClass = getTriageTextClass(patient.cat);
                 const safePid = escapeHtml(patient.id).replace(/'/g, "\\'");
-                return `<button type="button" onclick="selectCarePatient('${safePid}')" class="w-full text-left nasa-panel p-2 border border-nasa-border hover:border-cyan-400 transition"><div class="flex items-center justify-between gap-2"><span class="mono text-xs font-bold text-cyan-400">${escapeHtml(patient.id)}</span><span class="mono text-[11px] text-gray-500">WAIT ${escapeHtml(wait)}</span></div><div class="mono text-xs ${triageClass} mt-1">${escapeHtml(patient.cat || '-')} · ${escapeHtml(patient.injury || 'No injury detail')}</div></button>`;
+                return `<button type="button" onclick="selectCarePatient('${safePid}')" class="w-full text-left nasa-panel p-2 border border-nasa-border hover:border-cyan-400 transition"><div class="flex items-center justify-between gap-2"><span class="mono text-xs font-bold text-cyan-400">${escapeHtml(patient.id)}</span><span class="mono text-[11px] text-gray-500">WAIT ${escapeHtml(wait)}</span></div><div class="mono text-xs ${triageClass} mt-1">${escapeHtml(formatTriageDisplay(patient.cat))} · ${escapeHtml(patient.injury || 'No injury detail')}</div></button>`;
             }).join('');
         }
 
@@ -6140,7 +6750,7 @@ SpO2: ${document.getElementById('sec-spo2').value}%
                 const triageClass = getTriageTextClass(patient.cat);
                 const safePid = escapeHtml(patient.id).replace(/'/g, "\\'");
                 const recCount = (window.state.careRecords || []).filter(record => record.pId === patient.id).length;
-                return `<button type="button" onclick="selectCarePatient('${safePid}')" class="w-full text-left nasa-panel p-2 border border-nasa-border hover:border-purple-400 transition"><div class="flex items-center justify-between gap-2"><span class="mono text-xs font-bold text-cyan-400">${escapeHtml(patient.id)}</span><span class="mono text-[11px] text-purple-300">${recCount} RECORDS</span></div><div class="mono text-xs ${triageClass} mt-1">${escapeHtml(patient.cat || '-')} · ${escapeHtml(patient.injury || 'No injury detail')}</div></button>`;
+                return `<button type="button" onclick="selectCarePatient('${safePid}')" class="w-full text-left nasa-panel p-2 border border-nasa-border hover:border-purple-400 transition"><div class="flex items-center justify-between gap-2"><span class="mono text-xs font-bold text-cyan-400">${escapeHtml(patient.id)}</span><span class="mono text-[11px] text-purple-300">${recCount} RECORDS</span></div><div class="mono text-xs ${triageClass} mt-1">${escapeHtml(formatTriageDisplay(patient.cat))} · ${escapeHtml(patient.injury || 'No injury detail')}</div></button>`;
             }).join('');
         }
 
@@ -6159,7 +6769,7 @@ SpO2: ${document.getElementById('sec-spo2').value}%
             listEl.innerHTML = waiting.map(patient => {
                 const wait = formatWaitDuration(getPatientQueueStartTimestamp(patient, 'transport'));
                 const triageClass = getTriageTextClass(patient.cat);
-                return `<div class="nasa-panel p-2 border border-nasa-border"><div class="flex items-center justify-between gap-2"><span class="mono text-xs font-bold text-cyan-400">${escapeHtml(patient.id)}</span><span class="mono text-[11px] text-gray-500">WAIT ${escapeHtml(wait)}</span></div><div class="mono text-xs ${triageClass} mt-1">${escapeHtml(patient.cat || '-')} · ${escapeHtml(patient.injury || 'No injury detail')}</div></div>`;
+                return `<div class="nasa-panel p-2 border border-nasa-border"><div class="flex items-center justify-between gap-2"><span class="mono text-xs font-bold text-cyan-400">${escapeHtml(patient.id)}</span><span class="mono text-[11px] text-gray-500">WAIT ${escapeHtml(wait)}</span></div><div class="mono text-xs ${triageClass} mt-1">${escapeHtml(formatTriageDisplay(patient.cat))} · ${escapeHtml(patient.injury || 'No injury detail')}</div></div>`;
             }).join('');
         }
 
@@ -6246,7 +6856,7 @@ SpO2: ${document.getElementById('sec-spo2').value}%
             document.getElementById('care-active-pid').value = patient.id;
             document.getElementById('care-info-id').textContent = patient.id;
             const catBadge = document.getElementById('care-info-cat');
-            catBadge.textContent = patient.cat;
+            catBadge.textContent = formatTriageDisplay(patient.cat);
             const triageBadgeColor = getTriageBadgeColorKey(patient.cat);
             catBadge.className = `nasa-badge border-${triageBadgeColor}-400 text-${triageBadgeColor}-400`;
             document.getElementById('care-info-injury').textContent = patient.injury || 'Not specified';
@@ -6424,7 +7034,7 @@ SpO2: ${document.getElementById('sec-spo2').value}%
                 summaryEl.innerHTML = `<span class="mono ${currentState.badgeClass}">${escapeHtml(currentState.statusLabel)}</span><span class="mono text-gray-500">·</span><span class="mono text-gray-400">${escapeHtml(currentState.locationLabel)}</span>`;
             }
             const steps = [
-                { title: 'TRIAGE', status: 'done', note: `${patient.stage} / ${patient.cat}` },
+                { title: 'TRIAGE', status: 'done', note: `${patient.stage} / ${formatTriageDisplay(patient.cat)}` },
                 {
                     title: 'TREATMENT',
                     status: isBlackTriage(patient) ? 'skipped' : careCount > 0 ? 'done' : currentState.phase === 'treatment' ? 'current' : 'pending',
@@ -6453,7 +7063,7 @@ SpO2: ${document.getElementById('sec-spo2').value}%
             window.state.patients.filter(p => p.id.toLowerCase().includes(search)).forEach(p => {
                 const bColor = getTriageTextClass(p.cat);
                 const currentState = getPatientCurrentState(p);
-                tbody.innerHTML += `<tr><td class="mono font-bold text-cyan-400 cursor-pointer hover:underline" onclick="showPatientTrackingFlow('${escapeHtml(p.id).replace(/'/g, "\\'")}')">${escapeHtml(p.id)}</td><td class="${bColor} font-bold">${escapeHtml(p.cat)}</td><td class="text-gray-400 mono text-sm truncate max-w-[150px]">${escapeHtml(p.injury || '-')}</td><td class="${currentState.badgeClass} mono text-sm">${escapeHtml(currentState.statusLabel)}</td><td class="text-gray-400 mono text-sm">${escapeHtml(currentState.locationLabel)}</td><td><button onclick="deletePatient('${escapeHtml(p.id).replace(/'/g, "\\'")}')" class="text-red-400 hover:text-red-300"><i data-lucide="trash-2" class="w-4 h-4"></i></button></td></tr>`;
+                tbody.innerHTML += `<tr><td class="mono font-bold text-cyan-400 cursor-pointer hover:underline" onclick="showPatientTrackingFlow('${escapeHtml(p.id).replace(/'/g, "\\'")}')">${escapeHtml(p.id)}</td><td class="${bColor} font-bold">${escapeHtml(formatTriageDisplay(p.cat))}</td><td class="text-gray-400 mono text-sm truncate max-w-[150px]">${escapeHtml(p.injury || '-')}</td><td class="${currentState.badgeClass} mono text-sm">${escapeHtml(currentState.statusLabel)}</td><td class="text-gray-400 mono text-sm">${escapeHtml(currentState.locationLabel)}</td><td><button onclick="deletePatient('${escapeHtml(p.id).replace(/'/g, "\\'")}')" class="text-red-400 hover:text-red-300"><i data-lucide="trash-2" class="w-4 h-4"></i></button></td></tr>`;
             });
             lucide.createIcons();
         }
@@ -6607,7 +7217,7 @@ SpO2: ${document.getElementById('sec-spo2').value}%
         window.populateDispatchDropdowns = function () {
             const pSel = document.getElementById('dispatch-patient');
             pSel.innerHTML = '<option value="">-- SELECT PATIENT --</option>';
-            window.state.patients.filter(isPatientDispatchEligible).forEach(p => pSel.innerHTML += `<option value="${escapeHtml(p.id)}">${escapeHtml(p.id)} (${escapeHtml(p.cat)})</option>`);
+            window.state.patients.filter(isPatientDispatchEligible).forEach(p => pSel.innerHTML += `<option value="${escapeHtml(p.id)}">${escapeHtml(p.id)} (${escapeHtml(formatTriageDisplay(p.cat))})</option>`);
             const vSel = document.getElementById('dispatch-vehicle');
             vSel.innerHTML = '<option value="">-- SELECT VEHICLE --</option>';
             window.state.vehicles
@@ -6713,7 +7323,7 @@ SpO2: ${document.getElementById('sec-spo2').value}%
                     desc: `Sort, Assess, Lifesaving interventions, Treatment/Transport (SALT)
 • ขั้นที่ 1 Sort: เดินได้ - คลาน / เดินได้พยุงขอความช่วย / นิ่งนิ่ง
 • ขั้นที่ 2 Assess: LSI และประเมินผู้ป่วย
-• ตัดสินใจ: Immediate(RED) / Expectant(BLUE) / Delayed(YELLOW) / Minimal(GREEN)
+• ตัดสินใจ: Triage 1 RED(Immediate) / Triage 2 BLUE(Expectant) / Triage 3 YELLOW(Urgent) / Triage 4 GREEN(Delayed)
 • แนะนำโดย CDC / CHEMM ของสหรัฐอเมริกา
 • สามารถใช้กับผู้ป่วยทุกวัย
 • Ref: Lerner EB et al.Prehosp Emerg Care 2011`
@@ -6721,10 +7331,10 @@ SpO2: ${document.getElementById('sec-spo2').value}%
                 'SIEVE': {
                     name: 'SIEVE',
                     desc: `SIEVE Triage (NHS/UK Standard)
-• เดินได้ → GREEN(Delayed)
+• เดินได้ → Triage 4 GREEN(Delayed)
 • ไม่หายใจ → เปิดทางเดินหายใจ: ไม่ยังหายใจ → BLACK
-• RR: 12 - 24 bpm → YELLOW, < 12 หรือ > 24 → RED
-• CRT: < 2s → YELLOW, > 2s → RED
+• RR: 12 - 24 bpm → Triage 3 YELLOW, < 12 หรือ > 24 → Triage 1 RED
+• CRT: < 2s → Triage 3 YELLOW, > 2s → Triage 1 RED
 • มาตรฐาน NHS England Major Incident Medical Management
 • Ref: Advanced Life Support Group(ALSG), Major Incident Medical Management & Support`
                 },
@@ -6772,7 +7382,7 @@ SpO2: ${document.getElementById('sec-spo2').value}%
                     name: 'SAVE',
                     desc: `Secondary Assessment of Victim Endpoint (SAVE)
 • ออกแบบมาเพื่อประเมินโอกาสรอดชีวิต(Survivability)
-• ประเมินผู้ที่คาดว่ารักษาไม่ได้หรือชะลอการรักษา → Expectant(BLUE)
+• ประเมินผู้ที่คาดว่ารักษาไม่ได้หรือชะลอการรักษา → Triage 2 BLUE(Expectant)
 • ใช้ในสภาวะ Mass Casualty ที่ทรัพยากรสอดคล้องมาก
 • ประเมิน Injury Severity + พยาธิสภาพ
 • Ref: Frykberg ER.Crit Care Med. 2002`
@@ -6782,7 +7392,7 @@ SpO2: ${document.getElementById('sec-spo2').value}%
                     desc: `Major Incident Triage Tool (MITT) — NHS England
 • ใช้เป็น Secondary Triage อย่างเป็นทางการใน NHS
 • ประเมิน: RR, Pulse, GCS, การบาดเจ็บ
-• ให้คะแนนสาย T1 - T4(T4 = Expectant/BLUE)
+• ให้คะแนนสาย T1 - T4(T2 = BLUE/Expectant, T4 = GREEN/Delayed ตาม workflow นี้)
 • ออกแบบให้ใช้ง่ายและประเมินชัดเจน
 • Ref: NHS England Major Incident Response Plan, 2022`
                 },
@@ -7028,10 +7638,11 @@ SpO2: ${document.getElementById('sec-spo2').value}%
 
 ข้อมูลสถิติ:
 - ผู้ป่วยทั้งหมด: ${window.state.patients.length}
-- Red: ${window.state.patients.filter(x => x.cat === 'Red').length}
-- Yellow: ${window.state.patients.filter(x => x.cat === 'Yellow').length}
-- Green: ${window.state.patients.filter(x => x.cat === 'Green').length}
-- Black: ${window.state.patients.filter(x => x.cat === 'Black').length}
+- Triage 1 RED (Immediate): ${window.state.patients.filter(x => x.cat === 'Red').length}
+- Triage 2 BLUE (Expectant): ${window.state.patients.filter(x => x.cat === 'Expectant').length}
+- Triage 3 YELLOW (Urgent): ${window.state.patients.filter(x => x.cat === 'Yellow').length}
+- Triage 4 GREEN (Delayed): ${window.state.patients.filter(x => x.cat === 'Green').length}
+- BLACK (Dead): ${window.state.patients.filter(x => x.cat === 'Black').length}
 - จำนวน Care Records: ${window.state.careRecords.length}
 - จำนวน Dispatches: ${window.state.dispatches.length}
 - จำนวน Vehicles: ${window.state.vehicles.length}
@@ -7065,6 +7676,7 @@ SpO2: ${document.getElementById('sec-spo2').value}%
             const hasReport = (reportContent.innerText || '').trim().length > 0;
             if (!hasReport) {
                 const red = window.state.patients.filter(x => x.cat === 'Red').length;
+                const blue = window.state.patients.filter(x => x.cat === 'Expectant').length;
                 const yellow = window.state.patients.filter(x => x.cat === 'Yellow').length;
                 const green = window.state.patients.filter(x => x.cat === 'Green').length;
                 const black = window.state.patients.filter(x => x.cat === 'Black').length;
@@ -7074,10 +7686,11 @@ SpO2: ${document.getElementById('sec-spo2').value}%
                     `Generated: ${now}`,
                     '',
                     `Total Patients: ${window.state.patients.length}`,
-                    `Red: ${red}`,
-                    `Yellow: ${yellow}`,
-                    `Green: ${green}`,
-                    `Black: ${black}`,
+                    `Triage 1 RED (Immediate): ${red}`,
+                    `Triage 2 BLUE (Expectant): ${blue}`,
+                    `Triage 3 YELLOW (Urgent): ${yellow}`,
+                    `Triage 4 GREEN (Delayed): ${green}`,
+                    `BLACK (Dead): ${black}`,
                     '',
                     `Care Records: ${window.state.careRecords.length}`,
                     `Dispatches: ${window.state.dispatches.length}`,
