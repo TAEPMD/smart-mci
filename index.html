@@ -46,6 +46,7 @@
             --apple-green: #34c759;
             --apple-orange: #ff9500;
             --apple-purple: #af52de;
+            --apple-indigo: #1e3a8a;
         }
 
         body.theme-dark {
@@ -71,6 +72,7 @@
             --apple-green: #4ade80;
             --apple-orange: #ffb020;
             --apple-purple: #b68bff;
+            --apple-indigo: #60a5fa;
         }
 
         * {
@@ -242,6 +244,14 @@
             background: rgba(52, 199, 89, 0.08);
             border: 1.5px solid var(--apple-green);
             color: var(--apple-green);
+            border-radius: 12px;
+        }
+
+        .triage-blue,
+        .triage-expectant {
+            background: color-mix(in srgb, var(--apple-indigo) 12%, transparent);
+            border: 1.5px solid var(--apple-indigo);
+            color: var(--apple-indigo);
             border-radius: 12px;
         }
 
@@ -1333,7 +1343,7 @@
                     </div>
 
                     <!-- Stats Row -->
-                    <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+                    <div class="grid grid-cols-2 md:grid-cols-6 gap-4">
                         <div class="nasa-panel p-4 text-center">
                             <p class="mono text-xs text-gray-500 mb-1 uppercase tracking-wider">Total Casualties</p>
                             <p class="nasa-font text-4xl text-white" id="stat-total">0</p>
@@ -1341,6 +1351,10 @@
                         <div class="nasa-panel-bright p-4 text-center border-red-500/50">
                             <p class="mono text-xs text-red-400 mb-1 uppercase tracking-wider">Priority 1 - RED</p>
                             <p class="nasa-font text-4xl text-red-400" id="stat-red">0</p>
+                        </div>
+                        <div class="nasa-panel-bright p-4 text-center" style="border-color:color-mix(in srgb, var(--apple-indigo) 55%, transparent);">
+                            <p class="mono text-xs mb-1 uppercase tracking-wider" style="color:var(--apple-indigo);">Priority 1.5 - EXPECTANT</p>
+                            <p class="nasa-font text-4xl" style="color:var(--apple-indigo);" id="stat-expectant">0</p>
                         </div>
                         <div class="nasa-panel-bright p-4 text-center border-amber-500/50">
                             <p class="mono text-xs text-amber-400 mb-1 uppercase tracking-wider">Priority 2 - YELLOW</p>
@@ -1773,7 +1787,7 @@
                                     <label
                                         class="block mono text-cyan-400 text-xs mb-3 uppercase tracking-wider">Priority
                                         Level</label>
-                                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                    <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
                                         <label class="cursor-pointer">
                                             <input type="radio" name="pri-triage-cat" value="Red" class="peer sr-only"
                                                 required>
@@ -1782,6 +1796,17 @@
                                                 <span class="selected-mark hidden peer-checked:inline-block">SELECTED</span>
                                                 <span class="nasa-font text-xl block">RED</span>
                                                 <span class="mono text-xs opacity-80">IMMEDIATE</span>
+                                            </div>
+                                        </label>
+                                        <label class="cursor-pointer">
+                                            <input type="radio" name="pri-triage-cat" value="Expectant"
+                                                class="peer sr-only">
+                                            <div
+                                                class="triage-option triage-blue p-4 text-center peer-checked:scale-105 peer-checked:ring-4 transition cursor-pointer"
+                                                style="--tw-ring-color:color-mix(in srgb, var(--apple-indigo) 45%, transparent)">
+                                                <span class="selected-mark hidden peer-checked:inline-block">SELECTED</span>
+                                                <span class="nasa-font text-xl block">BLUE</span>
+                                                <span class="mono text-xs opacity-80">EXPECTANT</span>
                                             </div>
                                         </label>
                                         <label class="cursor-pointer">
@@ -1964,7 +1989,7 @@
                                 <div>
                                     <label class="block mono text-cyan-400 text-xs mb-3 uppercase">Re-Triage
                                         Priority</label>
-                                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                    <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
                                         <label class="cursor-pointer">
                                             <input type="radio" name="sec-triage-cat" value="Red" class="peer sr-only"
                                                 required>
@@ -1972,6 +1997,17 @@
                                                 class="triage-option triage-red p-4 text-center peer-checked:scale-105 peer-checked:ring-4 peer-checked:ring-red-500/40 peer-checked:shadow-lg transition cursor-pointer">
                                                 <span class="selected-mark hidden peer-checked:inline-block">SELECTED</span>
                                                 <span class="nasa-font text-xl block">RED</span>
+                                            </div>
+                                        </label>
+                                        <label class="cursor-pointer">
+                                            <input type="radio" name="sec-triage-cat" value="Expectant"
+                                                class="peer sr-only">
+                                            <div
+                                                class="triage-option triage-blue p-4 text-center peer-checked:scale-105 peer-checked:ring-4 transition cursor-pointer"
+                                                style="--tw-ring-color:color-mix(in srgb, var(--apple-indigo) 45%, transparent)">
+                                                <span class="selected-mark hidden peer-checked:inline-block">SELECTED</span>
+                                                <span class="nasa-font text-xl block">BLUE</span>
+                                                <span class="mono text-xs opacity-80">EXPECTANT</span>
                                             </div>
                                         </label>
                                         <label class="cursor-pointer">
@@ -2029,6 +2065,53 @@
                                         <p class="mono text-xs text-gray-500 mt-1">เปิดแล้วผู้ป่วยรายนี้จะเข้าสู่ Patient Care ได้ทันทีหลังบันทึก Secondary</p>
                                     </div>
                                 </label>
+
+                                <div class="nasa-panel-bright p-4 border border-amber-500/30">
+                                    <div class="flex items-center gap-2 mb-3">
+                                        <i data-lucide="users-round" class="w-4 h-4 text-amber-400"></i>
+                                        <h4 class="nasa-font text-amber-400 text-sm">BATCH PASSTHROUGH</h4>
+                                    </div>
+                                    <p class="mono text-xs text-gray-500 mb-3">ใช้กับผู้ป่วยกลุ่มที่ไม่ต้องทำ Secondary ทีละราย เช่น กลุ่มสีเขียว</p>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+                                        <div>
+                                            <label class="block mono text-xs text-cyan-400 mb-1 uppercase">Default Triage</label>
+                                            <select id="sec-batch-cat" class="nasa-input w-full">
+                                                <option value="Green" selected>GREEN</option>
+                                                <option value="Expectant">BLUE (EXPECTANT)</option>
+                                                <option value="Yellow">YELLOW</option>
+                                                <option value="Red">RED</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="block mono text-xs text-cyan-400 mb-1 uppercase">Send To</label>
+                                            <select id="sec-batch-target" class="nasa-input w-full" onchange="onBatchPassthroughTargetChange()">
+                                                <option value="treatment" selected>Treatment</option>
+                                                <option value="transport">Transport</option>
+                                                <option value="discharge">Discharge Home</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div id="sec-batch-hospital-wrap" class="hidden mb-3">
+                                        <label class="block mono text-xs text-cyan-400 mb-1 uppercase">Target Hospital</label>
+                                        <select id="sec-batch-hospital" class="nasa-input w-full">
+                                            <option value="">SELECT HOSPITAL</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="block mono text-xs text-cyan-400 mb-1 uppercase">Patient IDs (Batch)</label>
+                                        <textarea id="sec-batch-pids" rows="4" class="nasa-input w-full" placeholder="เช่น\nG001\nG002\nG003 หรือคั่นด้วย comma"></textarea>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="block mono text-xs text-cyan-400 mb-1 uppercase">Shared Injury / Note (Optional)</label>
+                                        <input type="text" id="sec-batch-injury" class="nasa-input w-full" placeholder="Minor abrasion, walking wounded...">
+                                    </div>
+                                    <div class="flex justify-end">
+                                        <button type="button" id="btn-sec-batch-pass" onclick="handleBatchPassthrough()" class="nasa-btn nasa-btn-primary flex items-center gap-2">
+                                            <i data-lucide="forward" class="w-4 h-4"></i>
+                                            APPLY BATCH PASSTHROUGH
+                                        </button>
+                                    </div>
+                                </div>
 
                                 <div>
                                     <label
@@ -2096,6 +2179,17 @@
                                         <span id="care-waiting-count" class="mono text-xs text-gray-500">0 WAITING</span>
                                     </div>
                                     <div id="care-waiting-list" class="space-y-2 max-h-48 overflow-y-auto"></div>
+                                </div>
+
+                                <div class="nasa-panel-bright p-4">
+                                    <div class="flex justify-between items-center mb-3">
+                                        <h4 class="nasa-font text-purple-400 text-sm flex items-center gap-2">
+                                            <i data-lucide="activity" class="w-4 h-4"></i>
+                                            MONITORING
+                                        </h4>
+                                        <span id="care-monitoring-count" class="mono text-xs text-gray-500">0 MONITORING</span>
+                                    </div>
+                                    <div id="care-monitoring-list" class="space-y-2 max-h-44 overflow-y-auto"></div>
                                 </div>
 
                                 <div id="care-patient-info" class="hidden space-y-3">
@@ -2408,7 +2502,7 @@
                                                 <th class="text-center text-amber-400">Yellow</th>
                                                 <th class="text-center text-green-400">Green</th>
                                                 <th>Latest Status</th>
-                                                <th>Current Patients</th>
+                                                <th>Inbound Vehicles</th>
                                                 <th class="text-center">Actions</th>
                                             </tr>
                                         </thead>
@@ -3797,10 +3891,19 @@
 
             if (isBlackTriage(patient)) {
                 return {
-                    statusLabel: 'Deceased',
-                    locationLabel: 'Flow closed',
+                    statusLabel: 'Dead',
+                    locationLabel: 'Body Holding Area',
                     phase: 'deceased',
                     badgeClass: 'text-gray-400'
+                };
+            }
+
+            if (isPatientDischarged(patient)) {
+                return {
+                    statusLabel: 'Discharge',
+                    locationLabel: 'Discharge',
+                    phase: 'closed',
+                    badgeClass: 'text-green-400'
                 };
             }
 
@@ -3885,9 +3988,18 @@
 
         function getTriageTextClass(cat) {
             if (cat === 'Red') return 'text-red-400';
+            if (cat === 'Expectant') return 'text-blue-400';
             if (cat === 'Yellow') return 'text-amber-400';
             if (cat === 'Green') return 'text-green-400';
             return 'text-gray-400';
+        }
+
+        function getTriageBadgeColorKey(cat) {
+            if (cat === 'Red') return 'red';
+            if (cat === 'Expectant') return 'blue';
+            if (cat === 'Yellow') return 'amber';
+            if (cat === 'Green') return 'green';
+            return 'gray';
         }
 
         function formatWaitDuration(startMs) {
@@ -3937,8 +4049,16 @@
             return Number(patient.updatedAtMs) || Number(patient.createdAtMs) || 0;
         }
 
+        function isPatientDischarged(patient) {
+            if (!patient) return false;
+            const stage = String(patient.stage || '').trim().toLowerCase();
+            const status = String(patient.status || '').trim().toLowerCase();
+            return stage === 'discharged' || status.includes('discharge');
+        }
+
         function isPatientTreatmentEligible(patient) {
             if (!patient || isBlackTriage(patient)) return false;
+            if (isPatientDischarged(patient)) return false;
             const currentState = getPatientCurrentState(patient);
             const stage = String(patient.stage || '').trim();
             const isPassthrough = Boolean(patient.secondaryPassthrough);
@@ -3948,6 +4068,7 @@
 
         function isPatientDispatchEligible(patient) {
             if (!patient || isBlackTriage(patient)) return false;
+            if (isPatientDischarged(patient)) return false;
             const currentState = getPatientCurrentState(patient);
             const stage = String(patient.stage || '').trim();
             const isPassthrough = Boolean(patient.secondaryPassthrough);
@@ -3959,6 +4080,7 @@
 
         function isPatientPrimaryTriageEligible(patient) {
             if (!patient || isBlackTriage(patient)) return false;
+            if (isPatientDischarged(patient)) return false;
             const stage = String(patient.stage || '').trim();
             // Hide patients that already moved past primary triage.
             return stage !== 'Secondary';
@@ -3966,9 +4088,16 @@
 
         function isPatientSecondaryTriageEligible(patient) {
             if (!patient || isBlackTriage(patient)) return false;
+            if (isPatientDischarged(patient)) return false;
             const stage = String(patient.stage || '').trim();
             // Show only patients waiting for secondary triage.
             return stage === 'Primary' && !Boolean(patient.secondaryPassthrough);
+        }
+
+        function isPatientMonitoringEligible(patient) {
+            if (!patient || !isPatientTreatmentEligible(patient)) return false;
+            if (String(patient.status || '').toLowerCase().includes('awaiting transport')) return false;
+            return (window.state.careRecords || []).some(record => record.pId === patient.id);
         }
 
         function normalizeHospitalKey(name) {
@@ -4802,7 +4931,7 @@ GCS: ${document.getElementById('sec-gcs').value}
 SpO2: ${document.getElementById('sec-spo2').value}%
 
 รูปแบบคำตอบ:
-1) ระดับคัดแยกที่แนะนำ (Red/Yellow/Green/Black)
+1) ระดับคัดแยกที่แนะนำ (Red/Expectant/Yellow/Green/Black)
 2) เหตุผลประกอบสั้น ๆ
 3) การดูแลเร่งด่วนที่ควรทำทันที
 4) ข้อควรระวังในการส่งต่อ`;
@@ -5161,6 +5290,8 @@ SpO2: ${document.getElementById('sec-spo2').value}%
         function updateDashboardStats() {
             document.getElementById('stat-total').textContent = window.state.patients.length;
             document.getElementById('stat-red').textContent = window.state.patients.filter(p => p.cat === 'Red').length;
+            const expectantCount = window.state.patients.filter(p => p.cat === 'Expectant').length;
+            if (document.getElementById('stat-expectant')) document.getElementById('stat-expectant').textContent = expectantCount;
             document.getElementById('stat-yellow').textContent = window.state.patients.filter(p => p.cat === 'Yellow').length;
             document.getElementById('stat-green').textContent = window.state.patients.filter(p => p.cat === 'Green').length;
             document.getElementById('stat-black').textContent = window.state.patients.filter(p => p.cat === 'Black').length;
@@ -5351,7 +5482,7 @@ SpO2: ${document.getElementById('sec-spo2').value}%
             }
 
             tbody.innerHTML = patients.map((p) => {
-                const triageColor = p.cat === 'Red' ? 'text-red-400' : p.cat === 'Yellow' ? 'text-amber-400' : p.cat === 'Green' ? 'text-green-400' : 'text-gray-400';
+                const triageColor = getTriageTextClass(p.cat);
                 const safeId = escapeHtml(p.id || '').replace(/'/g, "\\'");
                 const currentState = getPatientCurrentState(p);
                 return `<tr>
@@ -5563,6 +5694,133 @@ SpO2: ${document.getElementById('sec-spo2').value}%
             }
         }
 
+        function getBatchTargetLabel(target) {
+            if (target === 'transport') return 'Transport';
+            if (target === 'discharge') return 'Discharge Home';
+            return 'Treatment';
+        }
+
+        function renderBatchPassthroughHospitalOptions() {
+            const selectEl = document.getElementById('sec-batch-hospital');
+            if (!selectEl) return;
+            const currentValue = selectEl.value;
+            selectEl.innerHTML = '<option value="">SELECT HOSPITAL</option>';
+            (window.state.hospitals || []).forEach(hospital => {
+                const name = String(hospital?.name || '').trim();
+                if (!name) return;
+                selectEl.innerHTML += `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`;
+            });
+            if (currentValue && Array.from(selectEl.options).some(opt => opt.value === currentValue)) {
+                selectEl.value = currentValue;
+            }
+        }
+
+        function onBatchPassthroughTargetChange() {
+            const target = document.getElementById('sec-batch-target')?.value || 'treatment';
+            const hospitalWrap = document.getElementById('sec-batch-hospital-wrap');
+            if (hospitalWrap) {
+                if (target === 'transport') hospitalWrap.classList.remove('hidden');
+                else hospitalWrap.classList.add('hidden');
+            }
+        }
+        window.onBatchPassthroughTargetChange = onBatchPassthroughTargetChange;
+
+        window.handleBatchPassthrough = async function () {
+            const btn = document.getElementById('btn-sec-batch-pass');
+            const btnHtml = btn ? btn.innerHTML : '';
+            const rawPids = document.getElementById('sec-batch-pids')?.value || '';
+            const target = document.getElementById('sec-batch-target')?.value || 'treatment';
+            const selectedCat = document.getElementById('sec-batch-cat')?.value || 'Green';
+            const sharedInjury = (document.getElementById('sec-batch-injury')?.value || '').trim();
+            const selectedHospital = (document.getElementById('sec-batch-hospital')?.value || '').trim();
+
+            const parsedIds = [...new Set(rawPids.split(/[\s,;]+/).map(id => id.trim().toUpperCase()).filter(Boolean))];
+            if (parsedIds.length === 0) return showToast('กรุณาระบุ Patient IDs อย่างน้อย 1 ราย', 'info');
+            if (target === 'transport' && !selectedHospital) return showToast('กรุณาเลือกโรงพยาบาลปลายทาง', 'info');
+
+            if (btn) setButtonLoading('btn-sec-batch-pass', true, btnHtml);
+            try {
+                let createdCount = 0;
+                let updatedCount = 0;
+                let dischargedCount = 0;
+                let skippedCount = 0;
+
+                for (const pid of parsedIds) {
+                    const nowMs = Date.now();
+                    const existingIndex = (window.state.patients || []).findIndex(p => String(p?.id || '').toLowerCase() === pid.toLowerCase());
+                    const existingPatient = existingIndex > -1 ? window.state.patients[existingIndex] : null;
+                    const preservedCat = existingPatient?.cat;
+                    const nextCat = preservedCat === 'Black' ? 'Black' : (selectedCat || preservedCat || 'Green');
+
+                    if (nextCat === 'Black') {
+                        skippedCount += 1;
+                        continue;
+                    }
+
+                    const nextStage = target === 'discharge' ? 'Discharged' : (existingPatient?.stage === 'Secondary' ? 'Secondary' : 'Primary');
+                    const nextStatus = target === 'transport'
+                        ? `Awaiting transport to ${selectedHospital}`
+                        : target === 'discharge'
+                            ? 'Discharged home'
+                            : 'Awaiting treatment (Batch passthrough)';
+
+                    const nextPatient = {
+                        id: pid,
+                        cat: nextCat,
+                        gender: existingPatient?.gender || '',
+                        injury: sharedInjury || existingPatient?.injury || '',
+                        status: nextStatus,
+                        stage: nextStage,
+                        vitals: existingPatient?.vitals || {},
+                        hazmat: existingPatient?.hazmat || {},
+                        photoUrl: existingPatient?.photoUrl || '',
+                        timestamp: new Date().toLocaleTimeString('th-TH'),
+                        createdAtMs: Number(existingPatient?.createdAtMs) || nowMs,
+                        updatedAtMs: nowMs,
+                        primaryAtMs: Number(existingPatient?.primaryAtMs) || nowMs,
+                        primaryQueuedAtMs: Number(existingPatient?.primaryQueuedAtMs) || Number(existingPatient?.primaryAtMs) || nowMs,
+                        secondaryCompletedAtMs: Number(existingPatient?.secondaryCompletedAtMs) || null,
+                        secondaryPassthrough: target !== 'discharge',
+                        careReadyAtMs: target === 'discharge' ? null : (Number(existingPatient?.careReadyAtMs) || nowMs),
+                        dispatchReadyAtMs: target === 'transport' ? (Number(existingPatient?.dispatchReadyAtMs) || nowMs) : null,
+                        passthroughTarget: target,
+                        passthroughDestinationHospital: target === 'transport' ? selectedHospital : ''
+                    };
+
+                    if (target === 'discharge') {
+                        const touchedVehicles = removePatientFromVehicleAssignments(pid);
+                        for (const vehicle of touchedVehicles) {
+                            await saveToCloud('vehicles', vehicle.id, vehicle);
+                        }
+                        dischargedCount += 1;
+                    }
+
+                    if (existingIndex > -1) {
+                        Object.assign(window.state.patients[existingIndex], nextPatient);
+                        updatedCount += 1;
+                    } else {
+                        window.state.patients.push(nextPatient);
+                        createdCount += 1;
+                    }
+
+                    await saveToCloud('patients', pid, nextPatient);
+                    const targetLabel = getBatchTargetLabel(target);
+                    const hospitalText = target === 'transport' ? ` @ ${selectedHospital}` : '';
+                    await addEventLog(`Batch passthrough: ${pid} -> ${targetLabel}${hospitalText}`, 'TRIAGE');
+                }
+
+                await addEventLog(`Batch passthrough summary: total=${parsedIds.length}, created=${createdCount}, updated=${updatedCount}, discharged=${dischargedCount}, skipped=${skippedCount}`, 'TRIAGE');
+                showToast(`Batch passthrough complete (${createdCount + updatedCount} patients)`, 'success');
+                const pidsInput = document.getElementById('sec-batch-pids');
+                if (pidsInput) pidsInput.value = '';
+                refreshUIs();
+            } catch (error) {
+                showToast('Batch passthrough ล้มเหลว: ' + (error?.message || 'Unknown error'), 'error');
+            } finally {
+                if (btn) setButtonLoading('btn-sec-batch-pass', false, btnHtml);
+            }
+        }
+
         window.selectPrimaryTriagePatient = function (pid) {
             const cleanPid = (pid || '').trim();
             const pidInput = document.getElementById('pri-triage-pid');
@@ -5760,8 +6018,12 @@ SpO2: ${document.getElementById('sec-spo2').value}%
                 secTriageSelect.value = secPidInput.value;
             }
 
+            renderBatchPassthroughHospitalOptions();
+            onBatchPassthroughTargetChange();
+
             renderSecondaryWaitingList();
             renderCareWaitingList();
+            renderCareMonitoringList();
             renderTransportWaitingList();
         }
 
@@ -5790,7 +6052,7 @@ SpO2: ${document.getElementById('sec-spo2').value}%
             const countEl = document.getElementById('care-waiting-count');
             if (!listEl || !countEl) return;
             const waiting = (window.state.patients || [])
-                .filter(isPatientTreatmentEligible)
+                .filter(patient => isPatientTreatmentEligible(patient) && !isPatientMonitoringEligible(patient))
                 .sort((a, b) => getPatientQueueStartTimestamp(a, 'care') - getPatientQueueStartTimestamp(b, 'care'));
             countEl.textContent = `${waiting.length} WAITING`;
             if (waiting.length === 0) {
@@ -5802,6 +6064,26 @@ SpO2: ${document.getElementById('sec-spo2').value}%
                 const triageClass = getTriageTextClass(patient.cat);
                 const safePid = escapeHtml(patient.id).replace(/'/g, "\\'");
                 return `<button type="button" onclick="selectCarePatient('${safePid}')" class="w-full text-left nasa-panel p-2 border border-nasa-border hover:border-cyan-400 transition"><div class="flex items-center justify-between gap-2"><span class="mono text-xs font-bold text-cyan-400">${escapeHtml(patient.id)}</span><span class="mono text-[11px] text-gray-500">WAIT ${escapeHtml(wait)}</span></div><div class="mono text-xs ${triageClass} mt-1">${escapeHtml(patient.cat || '-')} · ${escapeHtml(patient.injury || 'No injury detail')}</div></button>`;
+            }).join('');
+        }
+
+        function renderCareMonitoringList() {
+            const listEl = document.getElementById('care-monitoring-list');
+            const countEl = document.getElementById('care-monitoring-count');
+            if (!listEl || !countEl) return;
+            const monitoring = (window.state.patients || [])
+                .filter(isPatientMonitoringEligible)
+                .sort((a, b) => getPatientQueueStartTimestamp(a, 'care') - getPatientQueueStartTimestamp(b, 'care'));
+            countEl.textContent = `${monitoring.length} MONITORING`;
+            if (monitoring.length === 0) {
+                listEl.innerHTML = '<div class="mono text-xs text-gray-500 text-center py-2">ไม่มีผู้ป่วยใน Monitoring</div>';
+                return;
+            }
+            listEl.innerHTML = monitoring.map(patient => {
+                const triageClass = getTriageTextClass(patient.cat);
+                const safePid = escapeHtml(patient.id).replace(/'/g, "\\'");
+                const recCount = (window.state.careRecords || []).filter(record => record.pId === patient.id).length;
+                return `<button type="button" onclick="selectCarePatient('${safePid}')" class="w-full text-left nasa-panel p-2 border border-nasa-border hover:border-purple-400 transition"><div class="flex items-center justify-between gap-2"><span class="mono text-xs font-bold text-cyan-400">${escapeHtml(patient.id)}</span><span class="mono text-[11px] text-purple-300">${recCount} RECORDS</span></div><div class="mono text-xs ${triageClass} mt-1">${escapeHtml(patient.cat || '-')} · ${escapeHtml(patient.injury || 'No injury detail')}</div></button>`;
             }).join('');
         }
 
@@ -5908,7 +6190,8 @@ SpO2: ${document.getElementById('sec-spo2').value}%
             document.getElementById('care-info-id').textContent = patient.id;
             const catBadge = document.getElementById('care-info-cat');
             catBadge.textContent = patient.cat;
-            catBadge.className = `nasa-badge border-${patient.cat === 'Red' ? 'red' : patient.cat === 'Yellow' ? 'amber' : patient.cat === 'Green' ? 'green' : 'gray'}-400 text-${patient.cat === 'Red' ? 'red' : patient.cat === 'Yellow' ? 'amber' : patient.cat === 'Green' ? 'green' : 'gray'}-400`;
+            const triageBadgeColor = getTriageBadgeColorKey(patient.cat);
+            catBadge.className = `nasa-badge border-${triageBadgeColor}-400 text-${triageBadgeColor}-400`;
             document.getElementById('care-info-injury').textContent = patient.injury || 'Not specified';
             const hazmatDiv = document.getElementById('care-info-hazmat');
             if (patient.hazmat && (patient.hazmat.decon === 'Required' || patient.hazmat.extricationTime)) {
@@ -5958,7 +6241,7 @@ SpO2: ${document.getElementById('sec-spo2').value}%
                 await saveToCloud('careRecords', careId, record);
                 await addEventLog(`Care record: ${pId} -> ${action}`, 'CARE');
                 if (patient) {
-                    patient.status = 'Awaiting transport';
+                    patient.status = 'Monitoring';
                     if (!patient.dispatchReadyAtMs) patient.dispatchReadyAtMs = nowMs;
                     patient.updatedAtMs = nowMs;
                     shouldSavePatient = true;
@@ -5999,19 +6282,26 @@ SpO2: ${document.getElementById('sec-spo2').value}%
                 const relatedDispatches = (window.state.dispatches || [])
                     .filter(d => normalizeHospitalKey(d.dest) === normalizeHospitalKey(h.name))
                     .sort((a, b) => (Number(b.id) || 0) - (Number(a.id) || 0));
-                const latestDispatch = relatedDispatches[0] || null;
-                const statusMeta = latestDispatch ? getDispatchStatusMeta(latestDispatch) : null;
-                const latestStatus = latestDispatch
-                    ? `<span class="inline-flex items-center gap-1 mono text-[10px] px-2 py-0.5 rounded-full" style="background:color-mix(in srgb, ${statusMeta.color} 15%, transparent);color:${statusMeta.color};"><span class="status-dot ${statusMeta.dotClass}"></span>${escapeHtml(statusMeta.label)}</span><div class="mono text-[10px] text-gray-500 mt-1">${escapeHtml(latestDispatch.time || '-')}</div>`
-                    : '<span class="mono text-xs text-gray-500">No dispatch yet</span>';
                 const patientsAtHospital = (window.state.patients || []).filter(patient => {
                     const currentState = getPatientCurrentState(patient);
                     return currentState.phase === 'hospital' && normalizeHospitalKey(currentState.locationLabel) === normalizeHospitalKey(h.name);
                 });
-                const patientListHtml = patientsAtHospital.length > 0
-                    ? patientsAtHospital.map(patient => `<div class="mono text-xs ${getTriageTextClass(patient.cat)}">${escapeHtml(patient.id)} (${escapeHtml(patient.cat)})</div>`).join('')
-                    : '<span class="mono text-xs text-gray-500">No admitted patient</span>';
-                tbody.innerHTML += `<tr><td class="font-bold text-cyan-400">${escapeHtml(h.name)}</td><td class="text-center mono text-red-400">${capRed}</td><td class="text-center mono text-amber-400">${capYellow}</td><td class="text-center mono text-green-400">${capGreen}</td><td>${latestStatus}</td><td>${patientListHtml}</td><td class="text-center"><button onclick="handleRemoveHospital('${escapeHtml(h.id || h.name).replace(/'/g, "\\'")}')" class="text-red-400 hover:text-red-300"><i data-lucide="trash-2" class="w-4 h-4"></i></button></td></tr>`;
+                const usedRed = patientsAtHospital.filter(patient => patient.cat === 'Red').length;
+                const usedYellow = patientsAtHospital.filter(patient => patient.cat === 'Yellow').length;
+                const usedExpectant = patientsAtHospital.filter(patient => patient.cat === 'Expectant').length;
+                const usedGreen = patientsAtHospital.filter(patient => patient.cat === 'Green').length;
+                const availableRed = Math.max(0, capRed - usedRed);
+                const availableYellow = Math.max(0, capYellow - usedYellow - usedExpectant);
+                const availableGreen = Math.max(0, capGreen - usedGreen);
+                const latestCapacity = `<div class="mono text-xs text-gray-300">Beds Available</div><div class="mono text-[11px] text-red-400">R: ${availableRed}</div><div class="mono text-[11px] text-amber-400">Y: ${availableYellow}</div><div class="mono text-[11px]" style="color:var(--apple-indigo)">B: ${Math.max(0, availableYellow)}</div><div class="mono text-[11px] text-green-400">G: ${availableGreen}</div>`;
+
+                const inboundDispatches = relatedDispatches.filter(dispatch => dispatch.status === 'Loading' || dispatch.status === 'En route');
+                const inboundVehicleIds = [...new Set(inboundDispatches.map(dispatch => String(dispatch.vId || '').trim()).filter(Boolean))];
+                const inboundVehiclesHtml = inboundVehicleIds.length > 0
+                    ? inboundVehicleIds.map(vehicleId => `<div class="mono text-xs text-amber-400">${escapeHtml(vehicleId)}</div>`).join('')
+                    : '<span class="mono text-xs text-gray-500">No inbound vehicle</span>';
+
+                tbody.innerHTML += `<tr><td class="font-bold text-cyan-400">${escapeHtml(h.name)}</td><td class="text-center mono text-red-400">${capRed}</td><td class="text-center mono text-amber-400">${capYellow}</td><td class="text-center mono text-green-400">${capGreen}</td><td>${latestCapacity}</td><td>${inboundVehiclesHtml}</td><td class="text-center"><button onclick="handleRemoveHospital('${escapeHtml(h.id || h.name).replace(/'/g, "\\'")}')" class="text-red-400 hover:text-red-300"><i data-lucide="trash-2" class="w-4 h-4"></i></button></td></tr>`;
             });
             lucide.createIcons();
             populateDispatchDropdowns();
@@ -6104,7 +6394,7 @@ SpO2: ${document.getElementById('sec-spo2').value}%
             const search = document.getElementById('search-patient').value.toLowerCase();
             tbody.innerHTML = '';
             window.state.patients.filter(p => p.id.toLowerCase().includes(search)).forEach(p => {
-                const bColor = p.cat === 'Red' ? 'text-red-400' : p.cat === 'Yellow' ? 'text-amber-400' : p.cat === 'Green' ? 'text-green-400' : 'text-gray-400';
+                const bColor = getTriageTextClass(p.cat);
                 const currentState = getPatientCurrentState(p);
                 tbody.innerHTML += `<tr><td class="mono font-bold text-cyan-400 cursor-pointer hover:underline" onclick="showPatientTrackingFlow('${escapeHtml(p.id).replace(/'/g, "\\'")}')">${escapeHtml(p.id)}</td><td class="${bColor} font-bold">${escapeHtml(p.cat)}</td><td class="text-gray-400 mono text-sm truncate max-w-[150px]">${escapeHtml(p.injury || '-')}</td><td class="${currentState.badgeClass} mono text-sm">${escapeHtml(currentState.statusLabel)}</td><td class="text-gray-400 mono text-sm">${escapeHtml(currentState.locationLabel)}</td><td><button onclick="deletePatient('${escapeHtml(p.id).replace(/'/g, "\\'")}')" class="text-red-400 hover:text-red-300"><i data-lucide="trash-2" class="w-4 h-4"></i></button></td></tr>`;
             });
@@ -6366,7 +6656,7 @@ SpO2: ${document.getElementById('sec-spo2').value}%
                     desc: `Sort, Assess, Lifesaving interventions, Treatment/Transport (SALT)
 • ขั้นที่ 1 Sort: เดินได้ - คลาน / เดินได้พยุงขอความช่วย / นิ่งนิ่ง
 • ขั้นที่ 2 Assess: LSI และประเมินผู้ป่วย
-• ตัดสินใจ: Immediate(RED) / Delayed(YELLOW) / Minimal(GREEN) / Expectant(BLACK)
+• ตัดสินใจ: Immediate(RED) / Expectant(BLUE) / Delayed(YELLOW) / Minimal(GREEN)
 • แนะนำโดย CDC / CHEMM ของสหรัฐอเมริกา
 • สามารถใช้กับผู้ป่วยทุกวัย
 • Ref: Lerner EB et al.Prehosp Emerg Care 2011`
@@ -6425,7 +6715,7 @@ SpO2: ${document.getElementById('sec-spo2').value}%
                     name: 'SAVE',
                     desc: `Secondary Assessment of Victim Endpoint (SAVE)
 • ออกแบบมาเพื่อประเมินโอกาสรอดชีวิต(Survivability)
-• ประเมินผู้ที่คาดว่ารักษาไม่ได้ → Expectant(BLACK)
+• ประเมินผู้ที่คาดว่ารักษาไม่ได้หรือชะลอการรักษา → Expectant(BLUE)
 • ใช้ในสภาวะ Mass Casualty ที่ทรัพยากรสอดคล้องมาก
 • ประเมิน Injury Severity + พยาธิสภาพ
 • Ref: Frykberg ER.Crit Care Med. 2002`
@@ -6435,7 +6725,7 @@ SpO2: ${document.getElementById('sec-spo2').value}%
                     desc: `Major Incident Triage Tool (MITT) — NHS England
 • ใช้เป็น Secondary Triage อย่างเป็นทางการใน NHS
 • ประเมิน: RR, Pulse, GCS, การบาดเจ็บ
-• ให้คะแนนสาย T1 - T4(T4 = Expectant)
+• ให้คะแนนสาย T1 - T4(T4 = Expectant/BLUE)
 • ออกแบบให้ใช้ง่ายและประเมินชัดเจน
 • Ref: NHS England Major Incident Response Plan, 2022`
                 },
