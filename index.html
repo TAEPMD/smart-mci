@@ -1815,6 +1815,132 @@
             border-top: 1px solid var(--apple-border);
         }
 
+        /* ── Patient Tracking Mobile Cards ── */
+        #patient-cards-mobile {
+            display: none;
+        }
+
+        .pt-card {
+            border: 1px solid color-mix(in srgb, var(--apple-border) 90%, transparent);
+            border-radius: 18px;
+            background: color-mix(in srgb, var(--apple-surface) 92%, var(--apple-surface-2) 8%);
+            box-shadow: 0 2px 10px rgba(15, 23, 42, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.7);
+            overflow: hidden;
+            transition: box-shadow .18s ease;
+        }
+
+        .pt-card:active {
+            box-shadow: 0 1px 4px rgba(15, 23, 42, 0.08);
+        }
+
+        .pt-card-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 14px 10px;
+            border-bottom: 1px solid color-mix(in srgb, var(--apple-border) 70%, transparent);
+            background: color-mix(in srgb, var(--apple-surface-2) 50%, transparent);
+        }
+
+        .pt-card-pid {
+            flex: 1;
+            font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--apple-blue);
+            cursor: pointer;
+            min-width: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .pt-card-triage-badge {
+            font-size: 11px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 999px;
+            border: 1px solid currentColor;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .pt-card-delete {
+            border: none;
+            background: transparent;
+            color: var(--apple-red);
+            cursor: pointer;
+            padding: 4px;
+            line-height: 1;
+            flex-shrink: 0;
+            opacity: 0.75;
+            transition: opacity .15s ease;
+        }
+
+        .pt-card-delete:active {
+            opacity: 1;
+        }
+
+        .pt-card-body {
+            padding: 10px 14px 12px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px 12px;
+        }
+
+        .pt-card-field {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            min-width: 0;
+        }
+
+        .pt-card-field.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .pt-card-label {
+            font-family: 'Inter', sans-serif;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--apple-text-tertiary);
+        }
+
+        .pt-card-value {
+            font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--apple-text);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        @media (max-width: 767px) {
+            #patient-table-wrapper {
+                display: none;
+            }
+
+            #patient-cards-mobile {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                padding: 14px;
+            }
+
+            #patient-empty-mobile {
+                padding: 32px 14px;
+                text-align: center;
+                font-family: 'SF Mono', 'Fira Code', monospace;
+                font-size: 12px;
+                color: var(--apple-text-tertiary);
+                text-transform: uppercase;
+                letter-spacing: 0.06em;
+            }
+        }
+
         #scanner-video {
             width: 100%;
             max-height: 56vh;
@@ -3151,7 +3277,8 @@
                             <input type="text" id="search-patient" onkeyup="renderPatientTable()"
                                 placeholder="Search PID..." class="nasa-input w-full md:w-64">
                         </div>
-                        <div class="overflow-x-auto">
+                        <!-- Desktop table -->
+                        <div id="patient-table-wrapper" class="overflow-x-auto">
                             <table class="nasa-table w-full">
                                 <thead>
                                     <tr>
@@ -3166,6 +3293,8 @@
                                 <tbody id="patient-table-body"></tbody>
                             </table>
                         </div>
+                        <!-- Mobile cards -->
+                        <div id="patient-cards-mobile"></div>
                         <div id="tracking-flow-panel" class="hidden border-t border-nasa-border p-4">
                             <div class="flex justify-between items-center mb-4">
                                 <div>
@@ -7714,12 +7843,43 @@ SpO2: ${document.getElementById('sec-spo2').value}%
 
         window.renderPatientTable = function () {
             const tbody = document.getElementById('patient-table-body');
+            const mobileCards = document.getElementById('patient-cards-mobile');
             const search = document.getElementById('search-patient').value.toLowerCase();
             tbody.innerHTML = '';
-            window.state.patients.filter(p => p.id.toLowerCase().includes(search)).forEach(p => {
+            if (mobileCards) mobileCards.innerHTML = '';
+            const filtered = window.state.patients.filter(p => p.id.toLowerCase().includes(search));
+            if (filtered.length === 0) {
+                if (mobileCards) mobileCards.innerHTML = '<div id="patient-empty-mobile">No patient tracking data</div>';
+            }
+            filtered.forEach(p => {
                 const bColor = getTriageTextClass(p.cat);
                 const currentState = getPatientCurrentState(p);
+                // Desktop table row
                 tbody.innerHTML += `<tr><td class="mono font-bold text-cyan-400 cursor-pointer hover:underline" onclick="showPatientTrackingFlow('${escapeHtml(p.id).replace(/'/g, "\\'")}')">${escapeHtml(p.id)}</td><td class="${bColor} font-bold">${escapeHtml(formatTriageDisplay(p.cat))}</td><td class="text-gray-400 mono text-sm truncate max-w-[150px]">${escapeHtml(p.injury || '-')}</td><td class="${currentState.badgeClass} mono text-sm">${escapeHtml(currentState.statusLabel)}</td><td class="text-gray-400 mono text-sm">${escapeHtml(currentState.locationLabel)}</td><td><button onclick="deletePatient('${escapeHtml(p.id).replace(/'/g, "\\'")}')" class="text-red-400 hover:text-red-300"><i data-lucide="trash-2" class="w-4 h-4"></i></button></td></tr>`;
+                // Mobile card
+                if (mobileCards) {
+                    mobileCards.innerHTML += `<div class="pt-card">
+                        <div class="pt-card-header">
+                            <span class="pt-card-pid" onclick="showPatientTrackingFlow('${escapeHtml(p.id).replace(/'/g, "\\'")}')">${escapeHtml(p.id)}</span>
+                            <span class="pt-card-triage-badge ${bColor}">${escapeHtml(formatTriageDisplay(p.cat))}</span>
+                            <button class="pt-card-delete" onclick="deletePatient('${escapeHtml(p.id).replace(/'/g, "\\'")}')" aria-label="Delete patient"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                        </div>
+                        <div class="pt-card-body">
+                            <div class="pt-card-field full-width">
+                                <span class="pt-card-label">Injury</span>
+                                <span class="pt-card-value">${escapeHtml(p.injury || '—')}</span>
+                            </div>
+                            <div class="pt-card-field">
+                                <span class="pt-card-label">Status</span>
+                                <span class="pt-card-value ${currentState.badgeClass}">${escapeHtml(currentState.statusLabel)}</span>
+                            </div>
+                            <div class="pt-card-field">
+                                <span class="pt-card-label">Location</span>
+                                <span class="pt-card-value">${escapeHtml(currentState.locationLabel)}</span>
+                            </div>
+                        </div>
+                    </div>`;
+                }
             });
             lucide.createIcons();
         }
