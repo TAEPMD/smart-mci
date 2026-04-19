@@ -995,10 +995,79 @@
         }
 
         /* ── Map ── */
+        .map-toolbar-shell {
+            padding: 12px;
+            border-bottom: 1px solid var(--apple-border);
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .map-toolbar-scroll {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .map-live-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 10px;
+            border-radius: 999px;
+            border: 1px solid color-mix(in srgb, var(--apple-green) 40%, var(--apple-border));
+            background: color-mix(in srgb, var(--apple-green) 10%, var(--apple-surface));
+            white-space: nowrap;
+        }
+
+        .map-action-btn {
+            min-height: 40px;
+            padding: 8px 13px;
+            border-radius: 12px;
+            white-space: nowrap;
+        }
+
+        .map-zone-controls {
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--apple-border);
+            background: var(--apple-surface-2);
+        }
+
+        .map-zone-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .map-zone-card {
+            border: 1px solid color-mix(in srgb, var(--apple-border) 88%, transparent);
+            border-radius: 12px;
+            padding: 8px 10px;
+            background: color-mix(in srgb, var(--apple-surface) 90%, var(--apple-surface-2) 10%);
+        }
+
+        .map-zone-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+
         #mci-map {
             z-index: 0;
             border: none;
             border-radius: 0 0 16px 16px;
+        }
+
+        .map-hint-bar {
+            padding: 8px 12px;
+            border-top: 1px solid var(--apple-border);
+            color: var(--apple-text-tertiary);
+            font-size: 11px;
         }
 
         /* ── CSCATTT checkboxes ── */
@@ -1137,6 +1206,64 @@
                 bottom: calc(env(safe-area-inset-bottom, 0px) + 18px);
                 left: 0;
                 right: 0;
+            }
+
+            .map-toolbar-shell {
+                align-items: flex-start;
+                gap: 12px;
+            }
+
+            .map-toolbar-shell .nasa-font {
+                font-size: 14px;
+            }
+
+            .map-toolbar-scroll {
+                width: 100%;
+                overflow-x: auto;
+                overflow-y: hidden;
+                flex-wrap: nowrap;
+                padding-bottom: 2px;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: none;
+            }
+
+            .map-toolbar-scroll::-webkit-scrollbar {
+                display: none;
+            }
+
+            .map-action-btn {
+                min-height: 44px;
+                padding: 10px 14px;
+                font-size: 12px;
+                flex-shrink: 0;
+            }
+
+            .map-zone-controls {
+                padding: 10px 12px;
+            }
+
+            .map-zone-grid {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+
+            .map-zone-card {
+                padding: 10px 12px;
+            }
+
+            .map-zone-card label,
+            .map-zone-card span {
+                font-size: 12px !important;
+            }
+
+            #mci-map {
+                height: 290px;
+                border-radius: 0;
+            }
+
+            .map-hint-bar {
+                padding: 10px 12px;
+                font-size: 10px;
             }
 
         }
@@ -1782,39 +1909,38 @@
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         <!-- Map -->
                         <div class="nasa-panel lg:col-span-2">
-                            <div
-                                class="p-3 border-b border-nasa-border flex flex-wrap justify-between items-center gap-2">
+                            <div class="map-toolbar-shell">
                                 <h3 class="nasa-font text-cyan-400 flex items-center gap-2">
                                     <i data-lucide="map" class="w-5 h-5"></i>
                                     LIVE INCIDENT MAP
                                 </h3>
-                                <div class="flex items-center gap-2">
-                                    <div class="flex items-center gap-1 mono text-xs text-gray-500">
+                                <div class="map-toolbar-scroll">
+                                    <div class="map-live-chip mono text-xs text-gray-500">
                                         <div class="status-dot status-green blink"></div>
                                         <span>LIVE</span>
                                     </div>
                                     <button onclick="toggleMapMode()" id="btn-map-mode"
-                                        class="nasa-btn text-xs flex items-center gap-1">
+                                        class="nasa-btn map-action-btn text-xs flex items-center gap-1">
                                         <i data-lucide="map-pin" class="w-3 h-3"></i>
                                         <span id="map-mode-label">เพิ่มหมุด</span>
                                     </button>
                                     <button onclick="toggleRouteDrawMode()" id="btn-map-route"
-                                        class="nasa-btn text-xs flex items-center gap-1">
+                                        class="nasa-btn map-action-btn text-xs flex items-center gap-1">
                                         <i data-lucide="pen-line" class="w-3 h-3"></i>
                                         <span id="map-route-label">วาดเส้นทาง</span>
                                     </button>
                                     <button onclick="finishRouteDraw()" id="btn-map-route-finish"
-                                        class="nasa-btn nasa-btn-primary text-xs hidden flex items-center gap-1">
+                                        class="nasa-btn map-action-btn nasa-btn-primary text-xs hidden flex items-center gap-1">
                                         <i data-lucide="check" class="w-3 h-3"></i>
                                         จบเส้นทาง
                                     </button>
                                     <button onclick="clearRouteLines()"
-                                        class="nasa-btn nasa-btn-danger text-xs flex items-center gap-1">
+                                        class="nasa-btn map-action-btn nasa-btn-danger text-xs flex items-center gap-1">
                                         <i data-lucide="route-off" class="w-3 h-3"></i>
                                         ลบเส้นทาง
                                     </button>
                                     <button onclick="clearCustomPins()"
-                                        class="nasa-btn nasa-btn-danger text-xs flex items-center gap-1">
+                                        class="nasa-btn map-action-btn nasa-btn-danger text-xs flex items-center gap-1">
                                         <i data-lucide="trash-2" class="w-3 h-3"></i>
                                         ลบหมุดทั้งหมด
                                     </button>
@@ -1822,11 +1948,10 @@
                             </div>
 
                             <!-- Circle Controls -->
-                            <div class="px-4 py-3 border-b border-nasa-border"
-                                style="background:var(--apple-surface-2);">
-                                <div class="grid grid-cols-3 gap-3">
-                                    <div>
-                                        <div class="flex justify-between items-center mb-1">
+                            <div class="map-zone-controls">
+                                <div class="map-zone-grid">
+                                    <div class="map-zone-card">
+                                        <div class="map-zone-head">
                                             <label class="text-xs font-semibold" style="color:var(--apple-red);">🔴 Hot
                                                 Zone (แดง)</label>
                                             <span id="circle-red-val" class="mono text-xs"
@@ -1836,8 +1961,8 @@
                                             oninput="updateCircle('red', this.value)"
                                             style="width:100%;accent-color:var(--apple-red);cursor:pointer;">
                                     </div>
-                                    <div>
-                                        <div class="flex justify-between items-center mb-1">
+                                    <div class="map-zone-card">
+                                        <div class="map-zone-head">
                                             <label class="text-xs font-semibold" style="color:var(--apple-orange);">🟡
                                                 Warm Zone (เหลือง)</label>
                                             <span id="circle-yellow-val" class="mono text-xs"
@@ -1847,8 +1972,8 @@
                                             oninput="updateCircle('yellow', this.value)"
                                             style="width:100%;accent-color:var(--apple-orange);cursor:pointer;">
                                     </div>
-                                    <div>
-                                        <div class="flex justify-between items-center mb-1">
+                                    <div class="map-zone-card">
+                                        <div class="map-zone-head">
                                             <label class="text-xs font-semibold" style="color:var(--apple-green);">🟢
                                                 Cold Zone (เขียว)</label>
                                             <span id="circle-green-val" class="mono text-xs"
@@ -1879,8 +2004,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="px-3 py-2 mono text-xs"
-                                style="color:var(--apple-text-tertiary);border-top:1px solid var(--apple-border);">
+                            <div class="map-hint-bar mono text-xs">
                                 💡 คลิกที่แผนที่เพื่อเพิ่มหมุด (เมื่ออยู่ในโหมดเพิ่มหมุด) ·
                                 ลากหมุดสีแดงเพื่อย้ายจุดเกิดเหตุ
                             </div>
