@@ -1918,19 +1918,97 @@
             text-overflow: ellipsis;
         }
 
+        .mobile-data-cards {
+            display: none;
+        }
+
+        .mobile-data-card {
+            border: 1px solid color-mix(in srgb, var(--apple-border) 90%, transparent);
+            border-radius: 16px;
+            background: color-mix(in srgb, var(--apple-surface) 93%, var(--apple-surface-2) 7%);
+            box-shadow: 0 2px 9px rgba(15, 23, 42, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.68);
+            padding: 12px;
+        }
+
+        .mobile-data-card-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .mobile-data-card-title {
+            font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--apple-blue);
+            min-width: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .mobile-data-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px 10px;
+        }
+
+        .mobile-data-item {
+            min-width: 0;
+        }
+
+        .mobile-data-item.full {
+            grid-column: 1 / -1;
+        }
+
+        .mobile-data-label {
+            display: block;
+            font-family: 'Inter', sans-serif;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: var(--apple-text-tertiary);
+            margin-bottom: 2px;
+        }
+
+        .mobile-data-value {
+            display: block;
+            font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--apple-text);
+            line-height: 1.35;
+            word-break: break-word;
+        }
+
+        .mobile-data-actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 10px;
+        }
+
         @media (max-width: 767px) {
-            #patient-table-wrapper {
+            #patient-table-wrapper,
+            #dashboard-tracking-table-wrapper,
+            #dispatch-log-table-wrapper,
+            #hospital-status-table-wrapper,
+            #event-log-table-wrapper {
                 display: none;
             }
 
-            #patient-cards-mobile {
+            #patient-cards-mobile,
+            .mobile-data-cards {
                 display: flex;
                 flex-direction: column;
                 gap: 10px;
                 padding: 14px;
             }
 
-            #patient-empty-mobile {
+            #patient-empty-mobile,
+            .mobile-data-empty {
                 padding: 32px 14px;
                 text-align: center;
                 font-family: 'SF Mono', 'Fira Code', monospace;
@@ -2551,7 +2629,7 @@
                             <button onclick="navigate('tracking')"
                                 class="mono text-xs text-cyan-400 hover:text-cyan-300">OPEN FULL TRACKING</button>
                         </div>
-                        <div class="overflow-x-auto border border-nasa-border rounded-lg">
+                        <div id="dashboard-tracking-table-wrapper" class="overflow-x-auto border border-nasa-border rounded-lg">
                             <table class="nasa-table w-full">
                                 <thead>
                                     <tr>
@@ -2567,6 +2645,7 @@
                                 <tbody id="dashboard-tracking-body"></tbody>
                             </table>
                         </div>
+                        <div id="dashboard-tracking-mobile" class="mobile-data-cards"></div>
                     </div>
 
                     <!-- METHANE & CSCATTT -->
@@ -3402,7 +3481,7 @@
                                         <i data-lucide="history" class="w-4 h-4"></i>
                                         DISPATCH LOG
                                     </h4>
-                                    <div class="overflow-x-auto border border-nasa-border">
+                                    <div id="dispatch-log-table-wrapper" class="overflow-x-auto border border-nasa-border">
                                         <table class="nasa-table w-full">
                                             <thead>
                                                 <tr>
@@ -3417,6 +3496,7 @@
                                             <tbody id="dispatch-table-body"></tbody>
                                         </table>
                                     </div>
+                                    <div id="dispatch-log-mobile" class="mobile-data-cards"></div>
                                 </div>
                             </div>
                         </div>
@@ -3471,7 +3551,7 @@
 
                             <div class="xl:col-span-2">
                                 <h4 class="mono text-cyan-400 text-sm mb-4 uppercase">Hospital Network Status</h4>
-                                <div class="overflow-x-auto border border-nasa-border">
+                                <div id="hospital-status-table-wrapper" class="overflow-x-auto border border-nasa-border">
                                     <table class="nasa-table w-full">
                                         <thead>
                                             <tr>
@@ -3487,6 +3567,7 @@
                                         <tbody id="hospital-table-body"></tbody>
                                     </table>
                                 </div>
+                                <div id="hospital-status-mobile" class="mobile-data-cards"></div>
                             </div>
                         </div>
                     </div>
@@ -3523,7 +3604,7 @@
                                     </h4>
                                     <span class="mono text-xs" style="color:var(--apple-text-tertiary);">เรียงจากล่าสุด</span>
                                 </div>
-                                <div class="overflow-x-auto border border-nasa-border rounded-lg">
+                                <div id="event-log-table-wrapper" class="overflow-x-auto border border-nasa-border rounded-lg">
                                     <table class="nasa-table w-full">
                                         <thead>
                                             <tr>
@@ -3535,6 +3616,7 @@
                                         <tbody id="history-eventlog-body"></tbody>
                                     </table>
                                 </div>
+                                <div id="event-log-mobile" class="mobile-data-cards"></div>
                             </div>
                             <div id="report-container" class="hidden flex-1 flex flex-col">
                                 <div id="report-content"
@@ -5132,7 +5214,9 @@
 
         window.renderEventLogs = function () {
             const tbody = document.getElementById('history-eventlog-body');
+            const mobileCards = document.getElementById('event-log-mobile');
             if (!tbody) return;
+            if (mobileCards) mobileCards.innerHTML = '';
             const sorted = [...(window.state.eventLogs || [])].sort((a, b) => {
                 const ta = Number(String(a.id || '').split('-')[0]) || 0;
                 const tb = Number(String(b.id || '').split('-')[0]) || 0;
@@ -5140,6 +5224,7 @@
             });
             if (sorted.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="3" class="text-center text-gray-600 py-6 mono">NO EVENT LOGS</td></tr>';
+                if (mobileCards) mobileCards.innerHTML = '<div class="mobile-data-empty">No event logs</div>';
                 return;
             }
             tbody.innerHTML = sorted.map(e => {
@@ -5149,6 +5234,24 @@
                     : e.type === 'VEHICLE' ? 'text-blue-400'
                     : e.type === 'SYSTEM' ? 'text-purple-400'
                     : 'text-gray-300';
+                if (mobileCards) {
+                    mobileCards.innerHTML += `<div class="mobile-data-card">
+                        <div class="mobile-data-card-head">
+                            <span class="mobile-data-card-title ${typeColor}">${escapeHtml(e.type || 'INFO')}</span>
+                            <span class="mobile-data-value text-gray-400">${escapeHtml(e.time || '-')}</span>
+                        </div>
+                        <div class="mobile-data-grid">
+                            <div class="mobile-data-item full">
+                                <span class="mobile-data-label">Event</span>
+                                <span class="mobile-data-value ${typeColor}">${escapeHtml(e.message || '-')}</span>
+                            </div>
+                            <div class="mobile-data-item full">
+                                <span class="mobile-data-label">User</span>
+                                <span class="mobile-data-value">${escapeHtml(e.user || '-')}</span>
+                            </div>
+                        </div>
+                    </div>`;
+                }
                 return `<tr><td class="mono text-gray-400">${escapeHtml(e.time || '-')}</td><td class="mono ${typeColor}">${escapeHtml(e.message || '-')}</td><td class="mono text-gray-300">${escapeHtml(e.user || '-')}</td></tr>`;
             }).join('');
         }
@@ -6913,6 +7016,7 @@ SpO2: ${document.getElementById('sec-spo2').value}%
 
         function renderDashboardPatientTracking() {
             const tbody = document.getElementById('dashboard-tracking-body');
+            const mobileCards = document.getElementById('dashboard-tracking-mobile');
             if (!tbody) return;
             const patients = [...(window.state.patients || [])]
                 .sort((a, b) => {
@@ -6925,13 +7029,44 @@ SpO2: ${document.getElementById('sec-spo2').value}%
 
             if (patients.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="7" class="text-center text-gray-600 py-6 mono">NO PATIENT TRACKING DATA</td></tr>';
+                if (mobileCards) mobileCards.innerHTML = '<div class="mobile-data-empty">No patient tracking data</div>';
                 return;
             }
 
+            if (mobileCards) mobileCards.innerHTML = '';
             tbody.innerHTML = patients.map((p) => {
                 const triageColor = getTriageTextClass(p.cat);
                 const safeId = escapeHtml(p.id || '').replace(/'/g, "\\'");
                 const currentState = getPatientCurrentState(p);
+                if (mobileCards) {
+                    mobileCards.innerHTML += `<div class="mobile-data-card">
+                        <div class="mobile-data-card-head">
+                            <span class="mobile-data-card-title">${escapeHtml(p.id || '-')}</span>
+                            <span class="pt-card-triage-badge ${triageColor}">${escapeHtml(formatTriageDisplay(p.cat))}</span>
+                        </div>
+                        <div class="mobile-data-grid">
+                            <div class="mobile-data-item">
+                                <span class="mobile-data-label">Stage</span>
+                                <span class="mobile-data-value">${escapeHtml(p.stage || '-')}</span>
+                            </div>
+                            <div class="mobile-data-item">
+                                <span class="mobile-data-label">Updated</span>
+                                <span class="mobile-data-value">${escapeHtml(p.timestamp || '-')}</span>
+                            </div>
+                            <div class="mobile-data-item full">
+                                <span class="mobile-data-label">Current Status</span>
+                                <span class="mobile-data-value ${currentState.badgeClass}">${escapeHtml(currentState.statusLabel)}</span>
+                            </div>
+                            <div class="mobile-data-item full">
+                                <span class="mobile-data-label">Current Location</span>
+                                <span class="mobile-data-value">${escapeHtml(currentState.locationLabel)}</span>
+                            </div>
+                        </div>
+                        <div class="mobile-data-actions">
+                            <button class="nasa-btn text-xs" onclick="navigate('tracking'); setTimeout(() => showPatientTrackingFlow('${safeId}'), 120)">FLOW</button>
+                        </div>
+                    </div>`;
+                }
                 return `<tr>
                     <td class="mono text-cyan-400 font-bold cursor-pointer hover:underline" onclick="navigate('tracking'); setTimeout(() => showPatientTrackingFlow('${safeId}'), 120)">${escapeHtml(p.id || '-')}</td>
                     <td class="mono ${triageColor} font-bold">${escapeHtml(formatTriageDisplay(p.cat))}</td>
@@ -7724,9 +7859,14 @@ SpO2: ${document.getElementById('sec-spo2').value}%
 
         window.renderHospitals = function () {
             const tbody = document.getElementById('hospital-table-body');
+            const mobileCards = document.getElementById('hospital-status-mobile');
             if (!tbody) return;
             tbody.innerHTML = '';
+            if (mobileCards) mobileCards.innerHTML = '';
             window.state.hospitals = dedupeHospitals(window.state.hospitals);
+            if (window.state.hospitals.length === 0) {
+                if (mobileCards) mobileCards.innerHTML = '<div class="mobile-data-empty">No hospital network data</div>';
+            }
             window.state.hospitals.forEach(h => {
                 const capRed = parseInt(h.capRed) || 0;
                 const capYellow = parseInt(h.capYellow) || 0;
@@ -7752,6 +7892,42 @@ SpO2: ${document.getElementById('sec-spo2').value}%
                 const inboundVehiclesHtml = inboundVehicleIds.length > 0
                     ? inboundVehicleIds.map(vehicleId => `<div class="mono text-xs text-amber-400">${escapeHtml(vehicleId)}</div>`).join('')
                     : '<span class="mono text-xs text-gray-500">No inbound vehicle</span>';
+
+                if (mobileCards) {
+                    const inboundText = inboundVehicleIds.length > 0 ? escapeHtml(inboundVehicleIds.join(', ')) : 'No inbound vehicle';
+                    mobileCards.innerHTML += `<div class="mobile-data-card">
+                        <div class="mobile-data-card-head">
+                            <span class="mobile-data-card-title">${escapeHtml(h.name)}</span>
+                            <button onclick="handleRemoveHospital('${escapeHtml(h.id || h.name).replace(/'/g, "\\'")}')" class="pt-card-delete" aria-label="Delete hospital"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                        </div>
+                        <div class="mobile-data-grid">
+                            <div class="mobile-data-item">
+                                <span class="mobile-data-label">Red</span>
+                                <span class="mobile-data-value text-red-400">${capRed}</span>
+                            </div>
+                            <div class="mobile-data-item">
+                                <span class="mobile-data-label">Yellow</span>
+                                <span class="mobile-data-value text-amber-400">${capYellow}</span>
+                            </div>
+                            <div class="mobile-data-item">
+                                <span class="mobile-data-label">Green</span>
+                                <span class="mobile-data-value text-green-400">${capGreen}</span>
+                            </div>
+                            <div class="mobile-data-item">
+                                <span class="mobile-data-label">Blue</span>
+                                <span class="mobile-data-value" style="color:var(--apple-indigo)">${Math.max(0, availableYellow)}</span>
+                            </div>
+                            <div class="mobile-data-item full">
+                                <span class="mobile-data-label">Latest Status</span>
+                                <span class="mobile-data-value">Beds R:${availableRed} Y:${availableYellow} B:${Math.max(0, availableYellow)} G:${availableGreen}</span>
+                            </div>
+                            <div class="mobile-data-item full">
+                                <span class="mobile-data-label">Inbound Vehicles</span>
+                                <span class="mobile-data-value">${inboundText}</span>
+                            </div>
+                        </div>
+                    </div>`;
+                }
 
                 tbody.innerHTML += `<tr><td class="font-bold text-cyan-400">${escapeHtml(h.name)}</td><td class="text-center mono text-red-400">${capRed}</td><td class="text-center mono text-amber-400">${capYellow}</td><td class="text-center mono text-green-400">${capGreen}</td><td>${latestCapacity}</td><td>${inboundVehiclesHtml}</td><td class="text-center"><button onclick="handleRemoveHospital('${escapeHtml(h.id || h.name).replace(/'/g, "\\'")}')" class="text-red-400 hover:text-red-300"><i data-lucide="trash-2" class="w-4 h-4"></i></button></td></tr>`;
             });
@@ -8013,10 +8189,16 @@ SpO2: ${document.getElementById('sec-spo2').value}%
 
         window.renderDispatchLog = function () {
             const tbody = document.getElementById('dispatch-table-body');
+            const mobileCards = document.getElementById('dispatch-log-mobile');
             if (!tbody) return;
             tbody.innerHTML = '';
+            if (mobileCards) mobileCards.innerHTML = '';
             const sorted = [...window.state.dispatches].sort((a, b) => (Number(b.id) || 0) - (Number(a.id) || 0));
-            if (sorted.length === 0) { tbody.innerHTML = '<tr><td colspan="6" class="text-center text-gray-600 py-6 mono">NO DISPATCHES</td></tr>'; return; }
+            if (sorted.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center text-gray-600 py-6 mono">NO DISPATCHES</td></tr>';
+                if (mobileCards) mobileCards.innerHTML = '<div class="mobile-data-empty">No dispatch records</div>';
+                return;
+            }
             sorted.forEach(d => {
                 const statusMeta = getDispatchStatusMeta(d);
                 const actionHtml = d.status === 'Arrived'
@@ -8025,6 +8207,29 @@ SpO2: ${document.getElementById('sec-spo2').value}%
                         ? `<span class="mono text-xs text-purple-400">WAIT ENRT</span>`
                         : `<button onclick="markDispatchArrived('${escapeHtml(d.id).replace(/'/g, "\\'")}')" class="nasa-btn text-xs">ARRIVED</button>`;
                 const statusBadge = `<span class="inline-flex items-center gap-1 mono text-[10px] px-2 py-0.5 rounded-full" style="background:color-mix(in srgb, ${statusMeta.color} 15%, transparent);color:${statusMeta.color};"><span class="status-dot ${statusMeta.dotClass}"></span>${escapeHtml(statusMeta.label)}</span>`;
+                if (mobileCards) {
+                    mobileCards.innerHTML += `<div class="mobile-data-card">
+                        <div class="mobile-data-card-head">
+                            <span class="mobile-data-card-title">${escapeHtml(d.pId || '-')}</span>
+                            ${statusBadge}
+                        </div>
+                        <div class="mobile-data-grid">
+                            <div class="mobile-data-item">
+                                <span class="mobile-data-label">Time</span>
+                                <span class="mobile-data-value">${escapeHtml(d.time || '-')}</span>
+                            </div>
+                            <div class="mobile-data-item">
+                                <span class="mobile-data-label">Vehicle</span>
+                                <span class="mobile-data-value">${escapeHtml(d.vId || '-')}</span>
+                            </div>
+                            <div class="mobile-data-item full">
+                                <span class="mobile-data-label">Hospital</span>
+                                <span class="mobile-data-value">${escapeHtml(d.dest || '-')}</span>
+                            </div>
+                        </div>
+                        <div class="mobile-data-actions">${actionHtml}</div>
+                    </div>`;
+                }
                 tbody.innerHTML += `<tr><td class="mono text-gray-400">${escapeHtml(d.time || '-')}</td><td class="mono text-cyan-400 font-bold">${escapeHtml(d.pId || '-')}</td><td class="mono text-gray-300">${escapeHtml(d.vId || '-')}</td><td class="mono text-gray-300">${escapeHtml(d.dest || '-')}</td><td>${statusBadge}</td><td>${actionHtml}</td></tr>`;
             });
             lucide.createIcons();
