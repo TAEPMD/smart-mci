@@ -339,6 +339,60 @@
             animation: button-tap .28s ease;
         }
 
+        #main-scroll-area {
+            transition: transform .22s ease;
+            will-change: transform;
+        }
+
+        #pull-refresh-indicator {
+            position: fixed;
+            top: 68px;
+            left: 50%;
+            transform: translate(-50%, -14px);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 95;
+            padding: 6px 12px;
+            border-radius: 999px;
+            border: 1px solid color-mix(in srgb, var(--apple-border) 88%, transparent);
+            background: color-mix(in srgb, var(--apple-surface) 92%, transparent);
+            color: var(--apple-text-secondary);
+            font-size: 11px;
+            font-weight: 600;
+            opacity: 0;
+            pointer-events: none;
+            box-shadow: 0 10px 20px rgba(15, 23, 42, 0.12);
+            transition: opacity .16s ease, transform .16s ease, border-color .18s ease;
+        }
+
+        #pull-refresh-indicator.visible {
+            opacity: 1;
+        }
+
+        #pull-refresh-indicator.ready {
+            color: var(--apple-blue);
+            border-color: color-mix(in srgb, var(--apple-blue) 55%, var(--apple-border));
+        }
+
+        .ptr-spinner {
+            --ptr-progress: 0deg;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: conic-gradient(var(--apple-blue) var(--ptr-progress), color-mix(in srgb, var(--apple-text-tertiary) 34%, transparent) 0);
+            -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 2px));
+            mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 2px));
+            flex-shrink: 0;
+            opacity: 0.5;
+            transition: opacity .12s ease;
+        }
+
+        #pull-refresh-indicator.refreshing .ptr-spinner {
+            animation: spin 0.8s linear infinite;
+            opacity: 0.95;
+        }
+
         .nasa-input {
             width: 100%;
             min-height: 44px;
@@ -1086,6 +1140,27 @@
             display: none;
         }
 
+        @keyframes thumb-haptic-pop {
+            0% {
+                transform: scale(1);
+                filter: brightness(1);
+            }
+
+            45% {
+                transform: scale(0.94);
+                filter: brightness(1.08);
+            }
+
+            100% {
+                transform: scale(1);
+                filter: brightness(1);
+            }
+        }
+
+        .map-thumb-dock .map-action-btn.haptic-tap {
+            animation: thumb-haptic-pop .2s ease;
+        }
+
         .map-hint-bar {
             padding: 8px 12px;
             border-top: 1px solid var(--apple-border);
@@ -1329,6 +1404,146 @@
                 font-size: 10px;
             }
 
+            #pull-refresh-indicator {
+                top: 64px;
+            }
+
+        }
+
+        @media (orientation: landscape) and (min-width:1024px) and (max-width:1366px) and (max-aspect-ratio: 3/2) {
+            body {
+                padding-bottom: 98px;
+            }
+
+            #main-scroll-area {
+                padding: 12px 14px 106px;
+            }
+
+            .dashboard-main-grid {
+                grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr);
+                gap: 14px;
+            }
+
+            .dashboard-map-panel {
+                grid-column: 1;
+            }
+
+            .dashboard-ops-panel {
+                grid-column: 2;
+            }
+
+            .map-zone-grid {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+                gap: 10px;
+            }
+
+            #mci-map {
+                height: 280px;
+            }
+
+            .nasa-mobile-nav>div {
+                min-height: 74px;
+                padding-top: 8px;
+                padding-bottom: 8px;
+                border-radius: 24px;
+            }
+        }
+
+        @media (orientation: landscape) and (min-width:1024px) and (max-width:1366px) and (min-aspect-ratio: 3/2) and (max-height:980px) {
+            body {
+                padding-bottom: 96px;
+            }
+
+            #main-scroll-area {
+                padding: 10px 12px 104px;
+            }
+
+            .dashboard-main-grid {
+                grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
+                gap: 11px;
+            }
+
+            .map-zone-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 9px;
+            }
+
+            #mci-map {
+                height: 252px;
+            }
+
+            .map-thumb-dock .map-action-btn {
+                min-height: 43px;
+                font-size: 11px;
+            }
+
+            .nasa-mobile-nav>div {
+                min-height: 72px;
+                border-radius: 23px;
+            }
+        }
+
+        @media (orientation: landscape) and (min-width:800px) and (max-width:1023px) and (min-aspect-ratio: 4/3) and (max-height:840px) {
+            body {
+                padding-bottom: 92px;
+            }
+
+            #main-scroll-area {
+                padding: 8px 10px 100px;
+            }
+
+            .dashboard-main-grid {
+                grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+                gap: 9px;
+            }
+
+            .map-zone-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 8px;
+            }
+
+            #mci-map {
+                height: 224px;
+            }
+
+            .map-thumb-dock .map-action-btn {
+                min-height: 41px;
+                font-size: 10px;
+            }
+
+            .nasa-mobile-nav>div {
+                min-height: 68px;
+                border-radius: 21px;
+            }
+        }
+
+        @media (orientation: landscape) and (max-width:799px) {
+            body {
+                padding-bottom: 90px;
+            }
+
+            #main-scroll-area {
+                padding: 8px 9px 98px;
+            }
+
+            .dashboard-main-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .map-zone-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 7px;
+            }
+
+            #mci-map {
+                height: 208px;
+            }
+
+            .map-thumb-dock .map-action-btn {
+                min-height: 40px;
+                font-size: 10px;
+            }
         }
 
         /* ── Overrides for Tailwind classes used in the HTML ── */
@@ -1778,6 +1993,8 @@
     <!-- Main App -->
     <div id="main-layout" class="hidden fixed inset-0 w-full h-full flex flex-col md:flex-row">
 
+        <div id="pull-refresh-indicator" class="mono"><span class="ptr-spinner" aria-hidden="true"></span><span id="pull-refresh-label">ดึงลงเพื่อรีเฟรช</span></div>
+
         <!-- Sidebar - Desktop -->
         <aside id="sidebar" class="hidden md:flex flex-col w-64 bg-nasa-panel border-r border-nasa-border">
             <div class="sidebar-shell">
@@ -1924,7 +2141,7 @@
             </header>
 
             <!-- Content Area -->
-            <div class="flex-1 overflow-auto p-4 md:p-6 pb-24 md:pb-6">
+            <div id="main-scroll-area" class="flex-1 overflow-auto p-4 md:p-6 pb-24 md:pb-6">
 
                 <!-- ===== DASHBOARD VIEW ===== -->
                 <div id="view-dashboard" class="app-view space-y-6">
@@ -1969,9 +2186,9 @@
                     </div>
 
                     <!-- Main Grid -->
-                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 dashboard-main-grid">
                         <!-- Map -->
-                        <div class="nasa-panel lg:col-span-2">
+                        <div class="nasa-panel lg:col-span-2 dashboard-map-panel">
                             <div class="map-toolbar-shell">
                                 <h3 class="nasa-font text-cyan-400 flex items-center gap-2">
                                     <i data-lucide="map" class="w-5 h-5"></i>
@@ -2097,7 +2314,7 @@
                         </div>
 
                         <!-- Vehicle Status -->
-                        <div class="space-y-6">
+                        <div class="space-y-6 dashboard-ops-panel">
                             <div class="nasa-panel p-4">
                                 <div class="flex justify-between items-center mb-3">
                                     <h3 class="nasa-font text-cyan-400 flex items-center gap-2">
@@ -5361,6 +5578,7 @@
         let mapRouteDrawMode = false;
         let activeRoutePoints = [];
         let activeRoutePreview = null;
+        let mapSingleTouchGestureArmed = false;
 
         let incidentCenter = { ...window.state.mapState.center };
         const _savedRadii = { ...window.state.mapState.radii };
@@ -5405,6 +5623,8 @@
         // ตั้งค่า slider และ label จากที่บันทึกไว้
         document.addEventListener('DOMContentLoaded', () => {
             applyMapStateToMap();
+            setupMapThumbHaptics();
+            setupPullToRefresh();
         });
 
         function saveMapState() {
@@ -5470,6 +5690,8 @@
             if (!mapEl || !window.google) return;
             document.getElementById('map-loading-text').style.display = 'none';
 
+            setupMapGestureCollapseBridge();
+
             incidentMap = new google.maps.Map(mapEl, {
                 center: incidentCenter,
                 zoom: 15,
@@ -5483,6 +5705,9 @@
                     { featureType: 'poi', elementType: 'labels', stylers: [{ visibility: 'off' }] }
                 ]
             });
+
+            incidentMap.addListener('dragstart', () => autoCollapseMapZoneControls({ requireSingleFinger: true }));
+            incidentMap.addListener('zoom_changed', () => autoCollapseMapZoneControls({ requireSingleFinger: true }));
 
             // Incident marker (ลากได้)
             incidentMarker = new google.maps.Marker({
@@ -5651,6 +5876,10 @@
             }
         }
 
+        function isMobileViewport() {
+            return window.matchMedia('(max-width: 767px)').matches;
+        }
+
         function setMapPinModeUi(isActive) {
             ['btn-map-mode', 'btn-map-mode-mobile'].forEach(id => {
                 const btn = document.getElementById(id);
@@ -5689,6 +5918,32 @@
             }
         }
 
+        function autoCollapseMapZoneControls(options = {}) {
+            if (!isMobileViewport()) return;
+            if (options.requireSingleFinger && !mapSingleTouchGestureArmed) return;
+            const panel = document.querySelector('.map-zone-controls');
+            if (!panel || panel.classList.contains('is-collapsed')) return;
+            applyMapZoneControlsState(true);
+            localStorage.setItem('mci_map_zone_collapsed', '1');
+        }
+
+        function setupMapGestureCollapseBridge() {
+            const stage = document.querySelector('.map-stage');
+            if (!stage || stage.dataset.collapseBridgeReady === '1') return;
+            stage.dataset.collapseBridgeReady = '1';
+
+            stage.addEventListener('touchstart', (e) => {
+                mapSingleTouchGestureArmed = e.touches.length === 1;
+            }, { passive: true });
+
+            const clearGesture = () => {
+                mapSingleTouchGestureArmed = false;
+            };
+
+            stage.addEventListener('touchend', clearGesture, { passive: true });
+            stage.addEventListener('touchcancel', clearGesture, { passive: true });
+        }
+
         window.toggleMapZoneControls = function () {
             const panel = document.querySelector('.map-zone-controls');
             if (!panel) return;
@@ -5700,6 +5955,122 @@
         function restoreMapZoneControlsState() {
             const saved = localStorage.getItem('mci_map_zone_collapsed') === '1';
             applyMapZoneControlsState(saved);
+        }
+
+        function setupMapThumbHaptics() {
+            const btns = document.querySelectorAll('.map-thumb-dock .map-action-btn');
+            btns.forEach(btn => {
+                if (btn.dataset.hapticBound === '1') return;
+                btn.dataset.hapticBound = '1';
+                btn.addEventListener('click', () => {
+                    btn.classList.remove('haptic-tap');
+                    void btn.offsetWidth;
+                    btn.classList.add('haptic-tap');
+                    if (navigator.vibrate) navigator.vibrate(10);
+                });
+            });
+        }
+
+        function setupPullToRefresh() {
+            const scrollArea = document.getElementById('main-scroll-area');
+            const indicator = document.getElementById('pull-refresh-indicator');
+            const indicatorLabel = document.getElementById('pull-refresh-label');
+            const indicatorSpinner = indicator ? indicator.querySelector('.ptr-spinner') : null;
+            if (!scrollArea || !indicator || !indicatorLabel || !indicatorSpinner) return;
+
+            let startY = 0;
+            let pulling = false;
+            let canRefresh = false;
+            const threshold = 84;
+
+            const setPullProgress = (ratio) => {
+                const clamped = Math.max(0, Math.min(1, ratio));
+                // iOS-like pull response: fast early gain, then higher resistance near the end.
+                const eased = 1 - Math.pow(1 - clamped, 2.15);
+                const deg = Math.round(eased * 360);
+                indicatorSpinner.style.setProperty('--ptr-progress', `${deg}deg`);
+                indicatorSpinner.style.opacity = `${(0.45 + eased * 0.5).toFixed(2)}`;
+            };
+
+            const resetUi = () => {
+                scrollArea.style.transform = '';
+                indicator.style.transform = 'translate(-50%, -14px)';
+                indicator.classList.remove('ready');
+                indicator.classList.remove('refreshing');
+                indicatorLabel.textContent = 'ดึงลงเพื่อรีเฟรช';
+                setPullProgress(0);
+            };
+
+            const doRefresh = async () => {
+                indicatorLabel.textContent = 'กำลังรีเฟรช...';
+                indicator.classList.add('ready');
+                indicator.classList.add('refreshing');
+                setPullProgress(1);
+                try {
+                    if (!window.isCloudSyncActive && typeof pollSheetsState === 'function' && SHEETS_API_URL) {
+                        await pollSheetsState();
+                    }
+                } catch (_) {}
+
+                refreshUIs();
+                if (document.getElementById('view-dashboard')?.classList.contains('active')) {
+                    initMap();
+                }
+                showToast('รีเฟรชข้อมูลล่าสุดแล้ว', 'success');
+            };
+
+            scrollArea.addEventListener('touchstart', (e) => {
+                if (!isMobileViewport()) return;
+                if (e.touches.length !== 1) return;
+                if (scrollArea.scrollTop > 0) return;
+                if (e.target.closest('#mci-map') || e.target.closest('.map-stage')) return;
+
+                pulling = true;
+                canRefresh = false;
+                startY = e.touches[0].clientY;
+                indicator.classList.add('visible');
+                resetUi();
+            }, { passive: true });
+
+            scrollArea.addEventListener('touchmove', (e) => {
+                if (!pulling) return;
+                const delta = e.touches[0].clientY - startY;
+                if (delta <= 0) {
+                    pulling = false;
+                    indicator.classList.remove('visible');
+                    resetUi();
+                    return;
+                }
+
+                const limited = Math.min(130, delta);
+                const offset = Math.max(0, limited * 0.35);
+                scrollArea.style.transform = `translateY(${offset}px)`;
+                indicator.style.transform = `translate(-50%, ${Math.max(-14, offset - 18)}px)`;
+                setPullProgress(limited / threshold);
+
+                canRefresh = limited >= threshold;
+                indicator.classList.toggle('ready', canRefresh);
+                indicatorLabel.textContent = canRefresh ? 'ปล่อยเพื่อรีเฟรช' : 'ดึงลงเพื่อรีเฟรช';
+
+                if (limited > 8) e.preventDefault();
+            }, { passive: false });
+
+            const endPull = async () => {
+                if (!pulling) return;
+                pulling = false;
+                scrollArea.style.transform = '';
+
+                if (canRefresh) {
+                    await doRefresh();
+                }
+
+                canRefresh = false;
+                indicator.classList.remove('visible');
+                resetUi();
+            };
+
+            scrollArea.addEventListener('touchend', endPull);
+            scrollArea.addEventListener('touchcancel', endPull);
         }
 
         restoreMapZoneControlsState();
