@@ -1030,6 +1030,21 @@
             white-space: nowrap;
         }
 
+        .map-zone-headline {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .map-zone-toggle {
+            min-height: 32px;
+            padding: 5px 10px;
+            border-radius: 10px;
+            font-size: 11px;
+        }
+
         .map-zone-controls {
             padding: 12px 14px;
             border-bottom: 1px solid var(--apple-border);
@@ -1061,6 +1076,14 @@
             z-index: 0;
             border: none;
             border-radius: 0 0 16px 16px;
+        }
+
+        .map-stage {
+            position: relative;
+        }
+
+        .map-thumb-dock {
+            display: none;
         }
 
         .map-hint-bar {
@@ -1238,8 +1261,24 @@
                 flex-shrink: 0;
             }
 
+            .map-primary-desktop {
+                display: none !important;
+            }
+
             .map-zone-controls {
                 padding: 10px 12px;
+            }
+
+            .map-zone-headline {
+                margin-bottom: 10px;
+            }
+
+            .map-zone-controls.is-collapsed .map-zone-grid {
+                display: none;
+            }
+
+            .map-zone-controls.is-collapsed {
+                padding-bottom: 8px;
             }
 
             .map-zone-grid {
@@ -1259,6 +1298,30 @@
             #mci-map {
                 height: 290px;
                 border-radius: 0;
+            }
+
+            .map-thumb-dock {
+                position: absolute;
+                left: 10px;
+                right: 10px;
+                bottom: 12px;
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+                z-index: 4;
+                pointer-events: none;
+            }
+
+            .map-thumb-dock .map-action-btn {
+                width: 100%;
+                min-height: 46px;
+                justify-content: center;
+                box-shadow: 0 14px 24px rgba(15, 23, 42, 0.2);
+                pointer-events: auto;
+            }
+
+            .map-thumb-dock .map-finish-mobile {
+                grid-column: 1 / -1;
             }
 
             .map-hint-bar {
@@ -1920,17 +1983,17 @@
                                         <span>LIVE</span>
                                     </div>
                                     <button onclick="toggleMapMode()" id="btn-map-mode"
-                                        class="nasa-btn map-action-btn text-xs flex items-center gap-1">
+                                        class="nasa-btn map-action-btn map-primary-desktop text-xs flex items-center gap-1">
                                         <i data-lucide="map-pin" class="w-3 h-3"></i>
                                         <span id="map-mode-label">เพิ่มหมุด</span>
                                     </button>
                                     <button onclick="toggleRouteDrawMode()" id="btn-map-route"
-                                        class="nasa-btn map-action-btn text-xs flex items-center gap-1">
+                                        class="nasa-btn map-action-btn map-primary-desktop text-xs flex items-center gap-1">
                                         <i data-lucide="pen-line" class="w-3 h-3"></i>
                                         <span id="map-route-label">วาดเส้นทาง</span>
                                     </button>
                                     <button onclick="finishRouteDraw()" id="btn-map-route-finish"
-                                        class="nasa-btn map-action-btn nasa-btn-primary text-xs hidden flex items-center gap-1">
+                                        class="nasa-btn map-action-btn map-primary-desktop nasa-btn-primary text-xs hidden flex items-center gap-1">
                                         <i data-lucide="check" class="w-3 h-3"></i>
                                         จบเส้นทาง
                                     </button>
@@ -1949,6 +2012,10 @@
 
                             <!-- Circle Controls -->
                             <div class="map-zone-controls">
+                                <div class="map-zone-headline">
+                                    <div class="mono text-xs" style="color:var(--apple-text-secondary);font-weight:600;letter-spacing:.04em;">ZONE CONTROLS</div>
+                                    <button type="button" id="btn-zone-collapse" onclick="toggleMapZoneControls()" class="nasa-btn map-zone-toggle mono mobile-only" aria-expanded="true">ย่อแผง</button>
+                                </div>
                                 <div class="map-zone-grid">
                                     <div class="map-zone-card">
                                         <div class="map-zone-head">
@@ -1987,21 +2054,40 @@
                             </div>
 
                             <!-- Map Container -->
-                            <div id="mci-map" class="h-[300px] md:h-[380px] relative" style="background:#e8ecef;">
-                                <div id="map-loading-text" class="absolute inset-0 flex items-center justify-center"
-                                    style="z-index:5;">
-                                    <div class="text-center nasa-panel p-6">
-                                        <i data-lucide="map" class="w-10 h-10 mx-auto mb-3"
-                                            style="color:var(--apple-blue);"></i>
-                                        <p class="font-semibold mb-1" style="color:var(--apple-text);">ต้องการ Google
-                                            Maps API Key</p>
-                                        <p class="text-xs mb-3" style="color:var(--apple-text-secondary);">ใส่ key
-                                            ในโค้ด JS บรรทัด <code
-                                                style="background:var(--apple-surface-2);padding:1px 5px;border-radius:4px;">GOOGLE_MAPS_API_KEY</code>
-                                        </p>
-                                        <button onclick="promptGoogleApiKey()"
-                                            class="nasa-btn nasa-btn-primary text-xs">ใส่ API Key</button>
+                            <div class="map-stage">
+                                <div id="mci-map" class="h-[300px] md:h-[380px] relative" style="background:#e8ecef;">
+                                    <div id="map-loading-text" class="absolute inset-0 flex items-center justify-center"
+                                        style="z-index:5;">
+                                        <div class="text-center nasa-panel p-6">
+                                            <i data-lucide="map" class="w-10 h-10 mx-auto mb-3"
+                                                style="color:var(--apple-blue);"></i>
+                                            <p class="font-semibold mb-1" style="color:var(--apple-text);">ต้องการ Google
+                                                Maps API Key</p>
+                                            <p class="text-xs mb-3" style="color:var(--apple-text-secondary);">ใส่ key
+                                                ในโค้ด JS บรรทัด <code
+                                                    style="background:var(--apple-surface-2);padding:1px 5px;border-radius:4px;">GOOGLE_MAPS_API_KEY</code>
+                                            </p>
+                                            <button onclick="promptGoogleApiKey()"
+                                                class="nasa-btn nasa-btn-primary text-xs">ใส่ API Key</button>
+                                        </div>
                                     </div>
+                                </div>
+                                <div class="map-thumb-dock mobile-only">
+                                    <button onclick="toggleMapMode()" id="btn-map-mode-mobile"
+                                        class="nasa-btn map-action-btn text-xs flex items-center gap-1">
+                                        <i data-lucide="map-pin" class="w-3 h-3"></i>
+                                        <span id="map-mode-label-mobile">เพิ่มหมุด</span>
+                                    </button>
+                                    <button onclick="toggleRouteDrawMode()" id="btn-map-route-mobile"
+                                        class="nasa-btn map-action-btn text-xs flex items-center gap-1">
+                                        <i data-lucide="pen-line" class="w-3 h-3"></i>
+                                        <span id="map-route-label-mobile">วาดเส้นทาง</span>
+                                    </button>
+                                    <button onclick="finishRouteDraw()" id="btn-map-route-finish-mobile"
+                                        class="nasa-btn map-action-btn map-finish-mobile nasa-btn-primary text-xs hidden flex items-center gap-1">
+                                        <i data-lucide="check" class="w-3 h-3"></i>
+                                        จบเส้นทาง
+                                    </button>
                                 </div>
                             </div>
                             <div class="map-hint-bar mono text-xs">
@@ -5565,14 +5651,64 @@
             }
         }
 
+        function setMapPinModeUi(isActive) {
+            ['btn-map-mode', 'btn-map-mode-mobile'].forEach(id => {
+                const btn = document.getElementById(id);
+                if (btn) btn.classList.toggle('nasa-btn-primary', isActive);
+            });
+            ['map-mode-label', 'map-mode-label-mobile'].forEach(id => {
+                const label = document.getElementById(id);
+                if (label) label.textContent = isActive ? 'กำลังเพิ่มหมุด...' : 'เพิ่มหมุด';
+            });
+        }
+
+        function setMapRouteModeUi(isActive) {
+            ['btn-map-route', 'btn-map-route-mobile'].forEach(id => {
+                const btn = document.getElementById(id);
+                if (btn) btn.classList.toggle('nasa-btn-primary', isActive);
+            });
+            ['map-route-label', 'map-route-label-mobile'].forEach(id => {
+                const label = document.getElementById(id);
+                if (label) label.textContent = isActive ? 'กำลังวาดเส้น...' : 'วาดเส้นทาง';
+            });
+            ['btn-map-route-finish', 'btn-map-route-finish-mobile'].forEach(id => {
+                const finishBtn = document.getElementById(id);
+                if (finishBtn) finishBtn.classList.toggle('hidden', !isActive);
+            });
+        }
+
+        function applyMapZoneControlsState(isCollapsed) {
+            const panel = document.querySelector('.map-zone-controls');
+            if (!panel) return;
+            panel.classList.toggle('is-collapsed', Boolean(isCollapsed));
+
+            const btn = document.getElementById('btn-zone-collapse');
+            if (btn) {
+                btn.textContent = isCollapsed ? 'ขยายแผง' : 'ย่อแผง';
+                btn.setAttribute('aria-expanded', isCollapsed ? 'false' : 'true');
+            }
+        }
+
+        window.toggleMapZoneControls = function () {
+            const panel = document.querySelector('.map-zone-controls');
+            if (!panel) return;
+            const nextState = !panel.classList.contains('is-collapsed');
+            applyMapZoneControlsState(nextState);
+            localStorage.setItem('mci_map_zone_collapsed', nextState ? '1' : '0');
+        };
+
+        function restoreMapZoneControlsState() {
+            const saved = localStorage.getItem('mci_map_zone_collapsed') === '1';
+            applyMapZoneControlsState(saved);
+        }
+
+        restoreMapZoneControlsState();
+
         window.toggleRouteDrawMode = function () {
             mapRouteDrawMode = !mapRouteDrawMode;
             if (mapRouteDrawMode) {
                 mapAddPinMode = false;
-                const pinBtn = document.getElementById('btn-map-mode');
-                const pinLabel = document.getElementById('map-mode-label');
-                if (pinBtn) pinBtn.classList.remove('nasa-btn-primary');
-                if (pinLabel) pinLabel.textContent = 'เพิ่มหมุด';
+                setMapPinModeUi(false);
                 showToast('โหมดวาดเส้นทาง: คลิกแผนที่เพื่อเพิ่มจุด แล้วกด "จบเส้นทาง"', 'info');
             } else {
                 if (activeRoutePreview) {
@@ -5581,13 +5717,7 @@
                 }
                 activeRoutePoints = [];
             }
-
-            const btn = document.getElementById('btn-map-route');
-            const label = document.getElementById('map-route-label');
-            const finishBtn = document.getElementById('btn-map-route-finish');
-            if (btn) btn.classList.toggle('nasa-btn-primary', mapRouteDrawMode);
-            if (label) label.textContent = mapRouteDrawMode ? 'กำลังวาดเส้น...' : 'วาดเส้นทาง';
-            if (finishBtn) finishBtn.classList.toggle('hidden', !mapRouteDrawMode);
+            setMapRouteModeUi(mapRouteDrawMode);
             setMapInteractionCursor();
             lucide.createIcons();
         };
@@ -5611,12 +5741,7 @@
             }, true);
             activeRoutePoints = [];
             mapRouteDrawMode = false;
-            const btn = document.getElementById('btn-map-route');
-            const label = document.getElementById('map-route-label');
-            const finishBtn = document.getElementById('btn-map-route-finish');
-            if (btn) btn.classList.remove('nasa-btn-primary');
-            if (label) label.textContent = 'วาดเส้นทาง';
-            if (finishBtn) finishBtn.classList.add('hidden');
+            setMapRouteModeUi(false);
             setMapInteractionCursor();
             showToast('บันทึกเส้นทางแล้ว', 'success');
             lucide.createIcons();
@@ -5635,12 +5760,7 @@
             }
             activeRoutePoints = [];
             mapRouteDrawMode = false;
-            const btn = document.getElementById('btn-map-route');
-            const label = document.getElementById('map-route-label');
-            const finishBtn = document.getElementById('btn-map-route-finish');
-            if (btn) btn.classList.remove('nasa-btn-primary');
-            if (label) label.textContent = 'วาดเส้นทาง';
-            if (finishBtn) finishBtn.classList.add('hidden');
+            setMapRouteModeUi(false);
             setMapInteractionCursor();
             saveMapState();
         };
@@ -5676,22 +5796,9 @@
                     activeRoutePreview = null;
                 }
                 activeRoutePoints = [];
-                const routeBtn = document.getElementById('btn-map-route');
-                const routeLabel = document.getElementById('map-route-label');
-                const finishBtn = document.getElementById('btn-map-route-finish');
-                if (routeBtn) routeBtn.classList.remove('nasa-btn-primary');
-                if (routeLabel) routeLabel.textContent = 'วาดเส้นทาง';
-                if (finishBtn) finishBtn.classList.add('hidden');
+                setMapRouteModeUi(false);
             }
-            const btn = document.getElementById('btn-map-mode');
-            const label = document.getElementById('map-mode-label');
-            if (mapAddPinMode) {
-                btn.classList.add('nasa-btn-primary');
-                label.textContent = 'กำลังเพิ่มหมุด...';
-            } else {
-                btn.classList.remove('nasa-btn-primary');
-                label.textContent = 'เพิ่มหมุด';
-            }
+            setMapPinModeUi(mapAddPinMode);
             setMapInteractionCursor();
             lucide.createIcons();
         };
